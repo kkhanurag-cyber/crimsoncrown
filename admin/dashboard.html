@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/crimson-styles.css">
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">Crimson Crown Admin</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Add Tournament</a>
+                    </li>
+                    </ul>
+                <button class="btn btn-outline-danger" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="animated-gradient-text">Dashboard</h1>
+        </div>
+
+        <div class="custom-card p-4">
+            <h3 class="mb-4">Create New Tournament</h3>
+            
+            <form id="add-tournament-form">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="scrimName" class="form-label">Tournament Name</label>
+                            <input type="text" class="form-control" id="scrimName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="game" class="form-label">Game</label>
+                            <select class="form-select" id="game">
+                                <option value="Farlight 84">Farlight 84</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status">
+                                <option value="upcoming">Upcoming</option>
+                                <option value="active">Active</option>
+                                <option value="closed">Closed</option>
+                            </select>
+                        </div>
+                         <div class="mb-3">
+                            <label for="bannerImage" class="form-label">Banner Image URL</label>
+                            <input type="url" class="form-control" id="bannerImage" placeholder="https://example.com/image.png">
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6 mb-3">
+                                <label for="slots" class="form-label">Slots</label>
+                                <input type="number" class="form-control" id="slots" required>
+                            </div>
+                            <div class="col-sm-6 mb-3">
+                                <label for="prizePool" class="form-label">Prize Pool</label>
+                                <input type="text" class="form-control" id="prizePool" placeholder="e.g., $500 or TBD">
+                            </div>
+                        </div>
+                         <div class="row">
+                            <div class="col-sm-6 mb-3">
+                                <label for="rounds" class="form-label">Rounds</label>
+                                <input type="number" class="form-control" id="rounds" required>
+                            </div>
+                            <div class="col-sm-6 mb-3">
+                                <label for="mode" class="form-label">Mode</label>
+                                <select class="form-select" id="mode">
+                                    <option value="Solo">Solo</option>
+                                    <option value="Duo">Duo</option>
+                                    <option value="Trio">Trio</option>
+                                    <option value="Squad">Squad</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="row">
+                            <div class="col-sm-6 mb-3">
+                                <label for="regStart" class="form-label">Registration Starts</label>
+                                <input type="datetime-local" class="
