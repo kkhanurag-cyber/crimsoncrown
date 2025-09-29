@@ -33,14 +33,20 @@ if (loginForm) {
 
 
 // --- DASHBOARD PAGE LOGIC ---
-// This function runs on any admin page that needs protection
+document.addEventListener('DOMContentLoaded', () => {
+    // This code runs as soon as any admin page loads
+    if (document.getElementById('add-tournament-form')) {
+        // Run the protection check immediately
+        protectPage();
+    }
+});
+
 function protectPage() {
     const token = localStorage.getItem('jwt_token');
     if (!token) {
-        // If no token exists, redirect to login page
         window.location.href = '/admin/index.html';
     }
-    // We could also add token verification here if needed
+    // You could add token validation here later if needed
 }
 
 // Example of how to use the token to submit the "Add Tournament" form
