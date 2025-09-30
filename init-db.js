@@ -24,6 +24,10 @@ const SHEET_CONFIG = {
     "leaderboard": [
         "teamName", "match1", "match2", "match3", "match4", "totalPoints", 
         "avgRank", "totalKills"
+    ],
+
+     "clans": [
+        "clanId", "clanName", "clanTag", "clanLogo", "captainName", "captainDiscord", "roster", "timestamp"
     ]
 };
 
@@ -76,3 +80,4 @@ async function initializeDatabase() {
 
 // Run the initialization function
 initializeDatabase();
+

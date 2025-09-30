@@ -4,43 +4,116 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tournaments — Crimson Crown</title>
+    <!-- CSS Links -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="assets/css/crimson-styles.css">
 </head>
 <body>
 
+    <!-- NAVBAR -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
-        </nav>
+        <div class="container">
+            <a class="navbar-brand" href="index.html"><img src="assets/images/logo.png" alt="Crimson Crown Logo" style="height: 45px;"></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="tournaments.html">Tournaments</a></li>
+                    <li class="nav-item"><a class="nav-link" href="leaderboard.html">Leaderboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+                    <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
     <div class="page-content-wrapper">
-        <main class="container py-5 mt-5">
-            <div class="section-heading mt-5">
-                <h2 class="animated-gradient-text">Active Tournaments</h2>
-                <p>Registrations are open! Join the battle.</p>
-            </div>
-            <div id="active-tournaments" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <main>
+            <!-- PAGE HEADER -->
+            <section class="hero-section-video" style="height: 50vh;">
+                 <div class="hero-content container text-center">
+                    <h1 class="animated-gradient-text">Our Tournaments</h1>
+                    <p class="tagline text-secondary fs-5">Find active, upcoming, and past competitions.</p>
+                </div>
+            </section>
+
+            <div class="container py-5">
+                <!-- ACTIVE TOURNAMENTS -->
+                <div class="section-heading mt-4">
+                    <h2>Active Tournaments</h2>
+                    <p>Registrations are open! Join the battle.</p>
+                </div>
+                <div id="active-tournaments" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                    <!-- Cards will be injected here by JavaScript -->
+                    <div class="col">
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-danger" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="text-secondary mt-2">Loading active tournaments...</p>
+                        </div>
+                    </div>
                 </div>
 
-            <div class="section-heading mt-5">
-                <h2 class="animated-gradient-text">Upcoming Tournaments</h2>
-                <p>Get ready for the next challenge.</p>
-            </div>
-            <div id="upcoming-tournaments" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                <!-- UPCOMING TOURNAMENTS -->
+                <div class="section-heading mt-5 pt-3">
+                    <h2>Upcoming Tournaments</h2>
+                    <p>Get ready for the next challenge.</p>
                 </div>
-            
-            <div class="section-heading mt-5">
-                <h2 class="animated-gradient-text">Past Tournaments</h2>
-                <p>Explore our history of epic competitions.</p>
-            </div>
-            <div id="closed-tournaments" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                <div id="upcoming-tournaments" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                    <!-- Cards will be injected here by JavaScript -->
                 </div>
+                
+                <!-- PAST TOURNAMENTS -->
+                <div class="section-heading mt-5 pt-3">
+                    <h2>Past Tournaments</h2>
+                    <p>Explore our history of epic competitions.</p>
+                </div>
+                <div id="closed-tournaments" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                    <!-- Cards will be injected here by JavaScript -->
+                </div>
+            </div>
         </main>
     </div>
     
+    <!-- FOOTER -->
     <footer class="site-footer">
-        </footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-about">
+                    <a href="index.html" class="footer-logo text-decoration-none mb-3">
+                        <img src="assets/images/logo.png" alt="Crimson Crown Logo">
+                        <span>CRIMSON CROWN</span>
+                    </a>
+                    <p>Building the future of competitive gaming in South Asia by providing a professional and consistent platform for aspiring champions.</p>
+                </div>
+                <div class="footer-links">
+                    <h5 class="footer-heading">Quick Links</h5>
+                    <ul>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="tournaments.html">Tournaments</a></li>
+                        <li><a href="leaderboard.html">Leaderboard</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-connect">
+                    <h5 class="footer-heading">Connect With Us</h5>
+                    <div class="footer-social">
+                        <a href="#" title="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" title="X (formerly Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
+                        <a href="https://discord.gg/BWhXZfVxgx" target="_blank" title="Discord"><i class="fab fa-discord"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Crimson Crown Esports. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
 
+    <!-- JS (Bootstrap and your custom script) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/tournaments.js"></script>
 </body>
