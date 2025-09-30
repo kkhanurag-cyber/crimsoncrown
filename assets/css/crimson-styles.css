@@ -1,72 +1,100 @@
 /* ======================================================= */
 /* Crimson Crown - Professional Stylesheet v3.1          */
 /* ======================================================= */
-/* This stylesheet is designed to be comprehensive, providing
-   a full UI kit with animations and effects for a premium,
-   modern esports platform feel.
+/* This is the complete stylesheet, providing a full UI kit
+   with advanced animations, effects, and styles for a
+   premium, modern esports platform.
 */
 
 /* --- 1. SETUP: FONT IMPORTS & ROOT VARIABLES --- */
-/* We import the 'Poppins' font with multiple weights for a versatile and modern look. */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
 
 :root {
-    /* Color Palette based on your Brand Identity */
-    --crimson-red: #DC143C;        /* Passion, energy */
-    --midnight-black: #0A0A0A;    /* Professionalism, focus */
-    --steel-grey: #1E1E1E;        /* Lighter charcoal for cards and surfaces */
-    --border-color: #30363D;      /* Subtle border for components */
-    --text-primary: #E6EDF3;      /* Off-white for main text */
-    --text-secondary: #8B949E;   /* Muted gray for subtitles and less important text */
-    --royal-gold: #FFD700;         /* Victory, prestige (used for highlights) */
-    
+    /* Color Palette */
+    --crimson-red: #DC143C;
+    --midnight-black: #0A0A0A;
+    --steel-grey: #1E1E1E;
+    --darker-grey: #161616;
+    --border-color: #30363D;
+    --text-primary: #E6EDF3;
+    --text-secondary: #8B949E;
+    --royal-gold: #FFD700;
+
     /* Typography */
     --font-primary: 'Poppins', sans-serif;
 
     /* Sizing & Effects */
     --border-radius-md: 8px;
+    --border-radius-lg: 12px;
     --transition-speed-fast: 0.2s;
     --transition-speed-med: 0.4s;
     --transition-speed-slow: 0.8s;
-    --shadow-glow: 0 0 15px rgba(220, 20, 60, 0.3);
+    --shadow-glow: 0 0 20px rgba(220, 20, 60, 0.3);
+    --shadow-glow-hover: 0 0 30px rgba(220, 20, 60, 0.5);
 
     /* Bootstrap Overrides */
     --bs-body-bg: var(--midnight-black);
     --bs-body-color: var(--text-primary);
     --bs-border-color: var(--border-color);
     --bs-body-font-family: var(--font-primary);
+    --bs-dark-rgb: 22, 22, 22;
 }
 
 /* --- 2. ANIMATIONS & KEYFRAMES --- */
-/* Simple fade-in animation */
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
-/* Slide in from bottom with a fade */
 @keyframes slideInUp {
-    from { transform: translateY(40px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+    from {
+        transform: translateY(40px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
-/* For animated gradient text */
 @keyframes backgroundPan {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    0% {
+        background-position: 0% center;
+    }
+
+    50% {
+        background-position: 100% center;
+    }
+
+    100% {
+        background-position: 0% center;
+    }
 }
 
-/* Pulsing effect for live icons or buttons */
 @keyframes subtlePulse {
-    0% { box-shadow: 0 0 0 0 rgba(220, 20, 60, 0.4); }
-    70% { box-shadow: 0 0 0 10px rgba(220, 20, 60, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(220, 20, 60, 0); }
-}
+    0% {
+        box-shadow: 0 0 0 0 rgba(220, 20, 60, 0.4);
+    }
 
+    70% {
+        box-shadow: 0 0 0 10px rgba(220, 20, 60, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(220, 20, 60, 0);
+    }
+}
 
 /* --- 3. GLOBAL RESETS & BODY STYLES --- */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -95,10 +123,66 @@ main {
     transition: background-color var(--transition-speed-med) ease;
 }
 
+.navbar .nav-link {
+    font-weight: 500;
+    color: var(--text-secondary);
+    position: relative;
+    padding: 0.5rem 1rem;
+    transition: color var(--transition-speed-fast) ease;
+}
+
+.navbar .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 2px;
+    background-color: var(--crimson-red);
+    transition: width var(--transition-speed-fast) ease;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link:focus {
+    color: var(--text-primary);
+}
+
+.navbar .nav-link:hover::after,
+.navbar .nav-link.active::after {
+    width: 80%;
+}
+
+.navbar .nav-link.active {
+    color: var(--crimson-red);
+    font-weight: 600;
+}
+
+.navbar .dropdown-menu {
+    background-color: var(--steel-grey);
+    border: 1px solid var(--border-color);
+    margin-top: 0.5rem;
+}
+
+.navbar .dropdown-item {
+    color: var(--text-secondary);
+    transition: background-color var(--transition-speed-fast) ease, color var(--transition-speed-fast) ease;
+}
+
+.navbar .dropdown-item:hover,
+.navbar .dropdown-item:focus {
+    color: var(--text-primary);
+    background-color: rgba(220, 20, 60, 0.2);
+}
+
+.navbar .dropdown-divider {
+    border-top: 1px solid var(--border-color);
+}
+
 /* Buttons with Enhanced Hover Effects */
 .btn {
     border-radius: var(--border-radius-md);
-    padding: 0.8rem 1.8rem;
+    padding: 0.7rem 1.5rem;
     font-weight: 600;
     transition: all var(--transition-speed-fast) ease-in-out;
     border-width: 2px;
@@ -112,12 +196,13 @@ main {
     color: #fff;
     box-shadow: 0 4px 15px rgba(220, 20, 60, 0.2);
 }
+
 .btn-brand:hover {
     color: #fff;
     transform: translateY(-3px) scale(1.05);
     box-shadow: 0 7px 25px rgba(220, 20, 60, 0.4);
 }
-/* Shimmer effect on hover */
+
 .btn-brand::before {
     content: '';
     position: absolute;
@@ -128,25 +213,28 @@ main {
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
     transition: left var(--transition-speed-slow) ease;
 }
+
 .btn-brand:hover::before {
     left: 100%;
 }
 
-
-/* Cards with Animated Borders on Hover */
+/* Cards with Advanced Effects */
 .custom-card {
-    background-color: var(--steel-grey); /* Using the lighter charcoal for cards */
+    background-color: var(--steel-grey);
     border: 1px solid var(--border-color);
-    border-radius: 12px;
+    border-radius: var(--border-radius-lg);
     position: relative;
     overflow: hidden;
-    transition: transform var(--transition-speed-med) ease, border-color var(--transition-speed-med) ease;
+    transition: transform var(--transition-speed-med) ease, border-color var(--transition-speed-med) ease, box-shadow var(--transition-speed-med) ease;
 }
+
 .custom-card:hover {
     transform: translateY(-5px);
     border-color: var(--crimson-red);
+    box-shadow: var(--shadow-glow-hover);
 }
-/* Gradient glow effect */
+
+/* Shine/Glare effect on hover */
 .custom-card::after {
     content: '';
     position: absolute;
@@ -158,28 +246,33 @@ main {
     transform: translateX(-100%);
     transition: transform var(--transition-speed-slow) ease;
 }
+
 .custom-card:hover::after {
     transform: translateX(100%);
 }
 
 /* Forms with better focus */
-.form-control, .form-select {
-    background-color: var(--midnight-black); /* Matching the body background */
+.form-control,
+.form-select {
+    background-color: var(--midnight-black);
     border: 1px solid var(--border-color);
     color: var(--text-primary);
     transition: border-color var(--transition-speed-fast) ease, box-shadow var(--transition-speed-fast) ease;
 }
-.form-control:focus, .form-select:focus {
+
+.form-control:focus,
+.form-select:focus {
     background-color: var(--midnight-black);
     border-color: var(--crimson-red);
     color: var(--text-primary);
     box-shadow: 0 0 0 4px rgba(220, 20, 60, 0.25), 0 0 15px rgba(220, 20, 60, 0.2);
 }
 
+.form-signin {
+    max-width: 400px;
+}
 
 /* --- 5. ANIMATED UTILITY CLASSES --- */
-
-/* Animated Gradient Text for special headings */
 .animated-gradient-text {
     background: linear-gradient(90deg, var(--crimson-red), var(--text-primary), var(--crimson-red));
     background-size: 200% auto;
@@ -187,13 +280,6 @@ main {
     -webkit-background-clip: text;
     background-clip: text;
     animation: backgroundPan 5s linear infinite;
-}
-
-/* Pulsing effect for live elements */
-.pulse-live::before {
-    content: '🔴';
-    margin-right: 0.5rem;
-    animation: subtlePulse 2s infinite;
 }
 
 /* --- 6. PAGE-SPECIFIC STYLES --- */
@@ -208,48 +294,42 @@ main {
     text-align: center;
     overflow: hidden;
 }
-.hero-section-video::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: radial-gradient(circle, rgba(10, 10, 10, 0.5) 0%, rgba(10, 10, 10, 0.95) 90%);
-    z-index: 1;
-}
+
 #hero-video {
     position: absolute;
-    top: 50%; left: 50%;
-    min-width: 100%; min-height: 100%;
-    width: auto; height: auto;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
     z-index: -1;
     transform: translateX(-50%) translateY(-50%);
-    filter: blur(2px);
+    filter: blur(2px) brightness(0.7);
 }
+
 .hero-content {
     position: relative;
     z-index: 2;
     animation: slideInUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* --- 7. FOOTER STYLES (REVISED) --- */
+.hero-section-video::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+}
+
+/* --- 7. FOOTER --- */
 .site-footer {
-    background-color: var(--steel-grey); /* Slightly lighter than the page background */
+    background-color: var(--darker-grey);
     padding: 3rem 0;
     border-top: 1px solid var(--border-color);
-    margin-top: auto; /* Pushes the footer to the bottom */
-}
-
-.footer-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start; /* Aligns columns to the top */
-    flex-wrap: wrap;
-    gap: 2rem;
-    margin-bottom: 2rem;
-}
-
-.footer-about, .footer-links, .footer-connect {
-    flex: 1;
-    min-width: 250px; /* Prevents columns from getting too squished */
+    margin-top: auto;
 }
 
 .footer-heading {
@@ -259,7 +339,6 @@ main {
     position: relative;
 }
 
-/* Adds the crimson underline effect */
 .footer-heading::after {
     content: '';
     position: absolute;
@@ -270,19 +349,21 @@ main {
     background-color: var(--crimson-red);
 }
 
-.footer-about .footer-logo {
+.footer-logo {
     display: flex;
     align-items: center;
-    text-decoration: none;
-    color: var(--text-primary);
     font-size: 1.5rem;
     font-weight: 700;
     margin-bottom: 1rem;
 }
 
-.footer-about .footer-logo img {
+.footer-logo img {
     height: 40px;
     margin-right: 12px;
+}
+
+.footer-logo span {
+    color: var(--text-primary);
 }
 
 .footer-about p {
@@ -329,36 +410,60 @@ main {
     font-size: 0.9rem;
 }
 
-/* --- 8. TOURNAMENT & CLAN CARDS (REVISED) --- */
+/* --- 8. TOURNAMENT & CLAN CARDS (3D TILT EFFECT) --- */
+.col {
+    perspective: 1000px;
+}
 
-.tournament-card {
-    display: flex; /* Use Flexbox */
-    flex-direction: column; /* Stack items vertically */
-    background-color: var(--steel-grey);
-    border-radius: var(--border-radius-md);
-    overflow: hidden;
-    text-decoration: none;
-    border: 1px solid var(--border-color);
-    height: 100%; /* Makes all cards in a row the same height */
+.tournament-card,
+.clan-card {
     transform-style: preserve-3d;
     transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.tournament-card:hover {
+.tournament-card:hover,
+.clan-card:hover {
     transform: rotateY(5deg) rotateX(10deg) scale(1.05);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.4), 0 0 20px var(--shadow-glow);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), var(--shadow-glow-hover);
 }
 
-.tournament-card .card-banner {
+.card-banner,
+.clan-banner,
+.card-title,
+.clan-name,
+.card-details {
+    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.tournament-card:hover .card-banner,
+.clan-card:hover .clan-banner {
+    transform: translateZ(30px);
+}
+
+.tournament-card:hover .card-title,
+.clan-card:hover .clan-name {
+    transform: translateZ(50px);
+}
+
+/* General Card Styles */
+.card-banner {
     height: 180px;
     background-size: cover;
     background-position: center;
     position: relative;
-    flex-shrink: 0; /* Prevents the banner from shrinking */
-    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    flex-shrink: 0;
 }
 
-.tournament-card .card-status {
+.clan-banner {
+    height: 150px;
+    width: 100%;
+    object-fit: contain;
+    background-color: var(--midnight-black);
+    padding: 1rem;
+    flex-shrink: 0;
+}
+
+.card-status {
     position: absolute;
     top: 1rem;
     right: 1rem;
@@ -372,204 +477,64 @@ main {
     border: 1px solid var(--border-color);
 }
 
-.tournament-card .card-content {
+.card-content {
     padding: 1rem;
     color: var(--text-primary);
-    display: flex; /* Use Flexbox */
-    flex-direction: column; /* Stack content vertically */
-    flex-grow: 1; /* Allows this area to grow and fill available space */
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
 }
 
-.tournament-card .card-title {
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 0.25rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-.tournament-card .card-sponsor {
+.card-sponsor,
+.clan-members-count {
     font-size: 0.9rem;
     color: var(--text-secondary);
+    margin-bottom: 1rem;
 }
 
-.tournament-card .card-details {
+.card-details {
     display: flex;
     justify-content: space-between;
     align-items: center;
     font-size: 0.9rem;
     color: var(--text-secondary);
-    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.tournament-card .card-details span {
-    display: flex;
-    align-items: center;
-}
-
-.tournament-card .card-details i {
+.card-details i {
     color: var(--crimson-red);
     margin-right: 0.5rem;
     width: 16px;
     text-align: center;
 }
 
-.tournament-card hr {
-    border-color: var(--border-color);
-    margin: 0.75rem 0;
+.card-action {
+    margin-top: auto;
+    padding-top: 0.75rem;
 }
 
-.tournament-card .card-action {
-    margin-top: auto; /* THIS IS KEY: Pushes the button to the bottom */
-    padding-top: 0.75rem; /* Adds some space above the button */
-}
-/* --- 9. ENHANCED CARD HOVER EFFECT --- */
-
-/* Add perspective to the parent column to create the 3D space */
-.fade-in-on-scroll {
-    perspective: 1000px;
+.tournament-col {
+    transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-.tournament-card {
-    transform-style: preserve-3d; /* Allows child elements to be transformed in 3D space */
-    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+.tournament-col.fade-out {
+    opacity: 0;
+    transform: scale(0.95);
 }
 
-.tournament-card:hover {
-    /* The 3D tilt effect */
-    transform: rotateY(5deg) rotateX(10deg) scale(1.05);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.4), 0 0 20px var(--shadow-glow);
+.tournament-col.fade-in {
+    animation: fadeIn 0.4s ease forwards;
 }
 
-/* Make elements inside the card "pop out" slightly on hover */
-.tournament-card .card-banner,
-.tournament-card .card-title,
-.tournament-card .card-details {
-    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-.tournament-card:hover .card-banner {
-    transform: translateZ(30px);
-}
-
-.tournament-card:hover .card-title {
-    transform: translateZ(50px);
-}
-
-/* --- 10. CLAN CARD STYLES --- */
-
-.clan-card {
-    display: flex;
-    flex-direction: column;
-    background-color: var(--steel-grey);
-    border-radius: var(--border-radius-md);
-    overflow: hidden;
-    text-decoration: none;
-    border: 1px solid var(--border-color);
-    height: 100%;
-    transition: transform var(--transition-speed-fast) ease, box-shadow var(--transition-speed-med) ease;
-}
-
-.clan-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), 0 0 15px var(--shadow-glow);
-    border-color: var(--crimson-red);
-}
-
-.clan-card .clan-banner {
-    height: 150px;
-    width: 100%;
-    /* New styles for better logo display */
-    object-fit: contain; /* Makes sure the whole logo is visible */
-    background-color: var(--midnight-black); /* Adds a solid background */
-    padding: 1rem; /* Gives the logo some space from the edges */
-    flex-shrink: 0;
-}
-
-.clan-card .card-content {
-    padding: 1rem;
-    color: var(--text-primary);
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1; /* Allows this area to fill the available space */
-}
-
-.clan-card .clan-name {
-    font-weight: 600;
-    font-size: 1.25rem;
-    color: var(--text-primary);
-    margin-bottom: 0.5rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.clan-card .clan-members-count {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    margin-bottom: 1rem;
-}
-
-.clan-card .clan-stats {
-    display: flex;
-    justify-content: space-around;
-    text-align: center;
-    padding: 0.75rem 0;
-    margin: 0.5rem 0;
-    border-top: 1px solid var(--border-color);
-    border-bottom: 1px solid var(--border-color);
-    font-size: 0.9rem;
-}
-
-.clan-card .clan-stats span {
-    color: var(--text-secondary);
-}
-
-.clan-card .clan-stats strong {
-    display: block;
-    color: var(--text-primary);
-    font-size: 1.1rem;
-}
-
-.clan-card .card-action {
-    margin-top: auto; /* Pushes the button to the very bottom */
-    padding-top: 1rem;
-}
-
-
-/* --- 11. PAGE ATMOSPHERE & DEPTH --- */
-
-.page-content-wrapper {
+/* --- 9. PAGE SECTIONS --- */
+.page-section {
+    padding: 4rem 0;
     position: relative;
-    z-index: 1;
+    overflow: hidden;
 }
 
-/* The ::before pseudo-element creates the background aura */
-.page-content-wrapper::before {
-    content: '';
-    position: absolute;
-    z-index: -1; /* Sits behind the content */
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    
-    /* The Glow Effect using a radial gradient */
-    background: radial-gradient(
-        circle,
-        rgba(220, 20, 60, 0.1) 0%, /* Faint crimson at the center */
-        rgba(220, 20, 60, 0) 60%   /* Fades to transparent */
-    );
-    
-    width: 100%;
-    max-width: 1200px; /* Controls the max size of the glow */
-    height: 800px; /* Controls the height of the glow */
-    filter: blur(50px); /* Makes the glow very soft */
-    opacity: 0.8; /* Adjust for more or less intensity */
+.page-section.bg-darker {
+    background-color: #0D1117;
 }
-
-/* --- 12. HOMEPAGE SECTIONS --- */
 
 .section-heading {
     text-align: center;
@@ -589,12 +554,11 @@ main {
     margin: 0 auto;
 }
 
-/* --- 13. LEADERBOARD TABLE STYLES --- */
-
+/* --- 10. LEADERBOARD --- */
 .leaderboard-table {
     width: 100%;
-    border-collapse: separate; /* Allows for border-radius on rows */
-    border-spacing: 0 0.5rem; /* Creates space between rows */
+    border-collapse: separate;
+    border-spacing: 0 0.5rem;
 }
 
 .leaderboard-table thead th {
@@ -613,12 +577,11 @@ main {
     border-left-width: 4px;
     border-radius: var(--border-radius-md);
     transition: transform 0.2s ease, background-color 0.2s ease;
-    cursor: pointer;
 }
 
 .leaderboard-table tbody tr:hover {
     transform: scale(1.02);
-    background-color: #2a2e33; /* Slightly lighter grey */
+    background-color: #2a2e33;
     border-color: var(--crimson-red);
 }
 
@@ -627,60 +590,62 @@ main {
     vertical-align: middle;
 }
 
-/* Top 3 Rank Highlighting */
-.leaderboard-table .rank-1 { border-left-color: #FFD700; } /* Gold */
-.leaderboard-table .rank-2 { border-left-color: #C0C0C0; } /* Silver */
-.leaderboard-table .rank-3 { border-left-color: #CD7F32; } /* Bronze */
+.leaderboard-table .rank-1 {
+    border-left-color: #FFD700;
+}
+
+.leaderboard-table .rank-2 {
+    border-left-color: #C0C0C0;
+}
+
+.leaderboard-table .rank-3 {
+    border-left-color: #CD7F32;
+}
 
 .leaderboard-table .rank-value {
     font-size: 1.5rem;
     font-weight: 700;
     min-width: 50px;
 }
-.rank-1 .rank-value { color: #FFD700; }
-.rank-2 .rank-value { color: #C0C0C0; }
-.rank-3 .rank-value { color: #CD7F32; }
+
+.rank-1 .rank-value {
+    color: #FFD700;
+}
+
+.rank-2 .rank-value {
+    color: #C0C0C0;
+}
+
+.rank-3 .rank-value {
+    color: #CD7F32;
+}
 
 .leaderboard-table .clan-info {
     display: flex;
     align-items: center;
 }
+
 .leaderboard-table .clan-info img {
     width: 45px;
     height: 45px;
     border-radius: 50%;
     margin-right: 1rem;
+    object-fit: cover;
 }
+
 .leaderboard-table .clan-info .clan-name {
     font-weight: 600;
     font-size: 1.1rem;
     color: var(--text-primary);
 }
 
-/* --- 14. FULL-WIDTH PAGE SECTIONS --- */
-
-.page-section {
-    padding: 4rem 0;
-    position: relative;
-    overflow: hidden;
-}
-
-/* Adds a subtle pattern and alternating background color to break up the page */
-.page-section.bg-darker {
-    background-color: #0D1117; /* A slightly different dark shade */
-}
-
-/* ======================================================= */
-/* 15. Crimson Crown - Clan Profile Stylesheet             */
-/* ======================================================= */
-
+/* --- 11. PROFILE & CLAN PAGES --- */
 .clan-hero {
     position: relative;
-    padding: 5rem 0;
-    background-color: var(--midnight-black);
+    padding: 4rem 0;
     background-size: cover;
     background-position: center;
-    border-radius: var(--border-radius-md);
+    border-radius: var(--border-radius-lg);
     overflow: hidden;
     margin-bottom: 2rem;
     text-align: center;
@@ -692,13 +657,13 @@ main {
     border-radius: 50%;
     border: 4px solid var(--border-color);
     margin-bottom: 1.5rem;
-    background-color: rgba(10,10,10,0.7);
+    background-color: rgba(10, 10, 10, 0.7);
 }
 
 .clan-hero .clan-name {
     font-size: 3rem;
     font-weight: 700;
-    text-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    text-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
 }
 
 .clan-hero-stats {
@@ -707,7 +672,6 @@ main {
     gap: 2rem;
     flex-wrap: wrap;
     margin-top: 1rem;
-    margin-bottom: 2rem;
     color: var(--text-secondary);
 }
 
@@ -720,70 +684,4 @@ main {
 .clan-hero-stats i {
     color: var(--crimson-red);
     margin-right: 0.5rem;
-}
-
-/* --- 15. NAVIGATION BAR STYLING --- */
-
-/* General Nav Link Styling */
-.navbar .nav-link {
-    font-weight: 500;
-    color: var(--text-secondary);
-    position: relative;
-    padding: 0.5rem 1rem;
-    transition: color var(--transition-speed-fast) ease;
-}
-
-/* Underline effect on hover */
-.navbar .nav-link::after {
-    content: '';
-    position: absolute;
-    bottom: -5px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 2px;
-    background-color: var(--crimson-red);
-    transition: width var(--transition-speed-fast) ease;
-}
-
-.navbar .nav-link:hover,
-.navbar .nav-link:focus {
-    color: var(--text-primary);
-}
-
-.navbar .nav-link:hover::after {
-    width: 80%;
-}
-
-/* Style for the currently active nav link */
-.navbar .nav-link.active {
-    color: var(--crimson-red);
-    font-weight: 600;
-}
-
-.navbar .nav-link.active::after {
-    width: 80%;
-}
-
-/* Custom Dropdown Menu Styling */
-.navbar .dropdown-menu {
-    background-color: var(--steel-grey);
-    border: 1px solid var(--border-color);
-    margin-top: 0.5rem;
-}
-
-.navbar .dropdown-item {
-    color: var(--text-secondary);
-    transition: background-color var(--transition-speed-fast) ease, color var(--transition-speed-fast) ease;
-}
-
-.navbar .dropdown-item:hover,
-.navbar .dropdown-item:focus {
-    color: var(--text-primary);
-    background-color: rgba(220, 20, 60, 0.2); /* Faint crimson background */
-}
-
-/* Style for the divider line in the dropdown */
-.navbar .dropdown-divider {
-    border-top: 1px solid var(--border-color);
 }

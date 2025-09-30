@@ -1,65 +1,51 @@
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 
-const SPREADSHEET_ID = process.env.GOOGLE_SPREADSHEET_ID;
-const CLIENT_EMAIL = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-const PRIVATE_KEY = process.env.GOOGLE_PRIVATE_KEY;
+// All credentials are read securely from Netlify's environment variables.
+const { SPREADSHEET_ID, GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_PRIVATE_KEY } = process.env;
 
 exports.handler = async (event) => {
-    const { id } = event.queryStringParameters;
-    if (!id) {
-        return { statusCode: 400, body: JSON.stringify({ error: 'Tournament ID is required.' }) };
-    }
-
+    // This function is public, so no JWT check is needed.
+    
+    // Initialize a new GoogleSpreadsheet object with our Sheet ID.
     const doc = new GoogleSpreadsheet(SPREADSHEET_ID);
     try {
+        // Authenticate with the Google Sheets API using the service account credentials.
         await doc.useServiceAccountAuth({
-            client_email: CLIENT_EMAIL,
-            private_key: PRIVATE_KEY.replace(/\\n/g, '\n'),
+            client_email: GOOGLE_SERVICE_ACCOUNT_EMAIL,
+            private_key: GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
         });
+
+        // Load the document properties and worksheets.
         await doc.loadInfo();
+        
+        // Access the specific sheet (tab) named 'tournaments'.
+        const sheet = doc.sheetsByTitle['tournaments'];
+        
+        // Fetch all rows from the 'tournaments' sheet.
+        const rows = await sheet.getRows();
 
-        // Fetch tournament details
-        const tournamentSheet = doc.sheetsByTitle['tournaments'];
-        const tournamentRows = await tournamentSheet.getRows();
-        const tournamentRow = tournamentRows.find(row => row.scrimId === id);
+        // Map over each row to format the data into a clean JSON object for the frontend.
+        const tournaments = rows.map(row => ({
+            scrimId: row.scrimId,
+            scrimName: row.scrimName,
+            game: row.game,
+            status: row.status,
+            slots: row.slots,
+            prizePool: row.prizePool,
+            bannerImage: row.bannerImage
+        }));
 
-        if (!tournamentRow) {
-            return { statusCode: 404, body: JSON.stringify({ error: 'Tournament not found.' }) };
-        }
-
-        // UPDATED: Also fetch the list of teams already registered for this tournament
-        const registrationSheet = doc.sheetsByTitle['registrations'];
-        const registrationRows = await registrationSheet.getRows();
-        const registeredTeams = registrationRows
-            .filter(row => row.scrimId === id)
-            .map(row => ({ teamName: row.teamName, captain: row.captain }));
-
-        const tournamentDetails = {
-            scrimId: tournamentRow.scrimId,
-            scrimName: tournamentRow.scrimName,
-            game: tournamentRow.game,
-            status: tournamentRow.status,
-            slots: tournamentRow.slots,
-            prizePool: tournamentRow.prizePool,
-            bannerImage: tournamentRow.bannerImage,
-            regStart: tournamentRow.regStart,
-            regEnd: tournamentRow.regEnd,
-            scrimStart: tournamentRow.scrimStart,
-            scrimEnd: tournamentRow.scrimEnd,
-            rounds: tournamentRow.rounds,
-            mode: tournamentRow.mode,
-            rules: tournamentRow.rules,
-            pointTable: tournamentRow.pointTable,
-            description: tournamentRow.description,
-            registeredTeams: registeredTeams // Add the new data
-        };
-
+        // If successful, return a 200 OK status with the list of tournaments.
         return {
             statusCode: 200,
-            body: JSON.stringify(tournamentDetails),
+            body: JSON.stringify(tournaments),
         };
     } catch (error) {
-        console.error('Error fetching tournament detail:', error);
-        return { statusCode: 500, body: JSON.stringify({ error: 'Failed to fetch data' }) };
+        // If any part of the process fails, log the error and return a 500 Internal Server Error.
+        console.error('Error fetching tournaments:', error);
+        return {
+            statusCode: 500,
+            body: JSON.stringify({ error: 'Failed to fetch tournament data' }),
+        };
     }
 };

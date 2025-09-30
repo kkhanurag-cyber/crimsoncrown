@@ -4,19 +4,22 @@ const jwt = require('jsonwebtoken');
 const { SPREADSHEET_ID, GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_PRIVATE_KEY, JWT_SECRET } = process.env;
 
 exports.handler = async (event) => {
-    // Admin-only function
+    // This is an admin-only function. First, verify the user's token and role.
     try {
         const token = event.headers.authorization.split(' ')[1];
         const payload = jwt.verify(token, JWT_SECRET);
-        if (payload.siteRole !== 'admin') throw new Error('Permissions error');
+        if (payload.siteRole !== 'admin') {
+            throw new Error('Insufficient permissions. Admin role required.');
+        }
     } catch (error) {
         return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized' }) };
     }
 
+    // If the admin is authorized, proceed to process the request.
     try {
         const { requestId, userId, clanId, action } = JSON.parse(event.body);
         if (!requestId || !userId || !action) {
-            return { statusCode: 400, body: JSON.stringify({ error: 'Missing required fields.' }) };
+            return { statusCode: 400, body: JSON.stringify({ error: 'Missing required fields for processing.' }) };
         }
 
         const doc = new GoogleSpreadsheet(SPREADSHEET_ID);
@@ -35,6 +38,7 @@ exports.handler = async (event) => {
             return { statusCode: 404, body: JSON.stringify({ error: 'Request not found.' }) };
         }
 
+        // Process the action ('approve' or 'deny'), similar to the clan leader function.
         if (action === 'approve') {
             const userRows = await usersSheet.getRows();
             const userToUpdate = userRows.find(row => row.userId === userId);
@@ -58,7 +62,7 @@ exports.handler = async (event) => {
         return { statusCode: 200, body: JSON.stringify({ message: `Request has been ${action}d.` }) };
 
     } catch (error) {
-        console.error('Error processing request:', error);
+        console.error('Error processing request from admin panel:', error);
         return { statusCode: 500, body: JSON.stringify({ error: 'Failed to process request.' }) };
     }
 };
