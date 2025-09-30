@@ -5,18 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login - Crimson Crown</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/crimson-styles.css">
 </head>
 <body class="d-flex align-items-center py-4 bg-dark">
     <main class="form-signin w-100 m-auto">
-        <form id="login-form" class="custom-card p-4 p-md-5">
+        <div class="custom-card p-4 p-md-5">
             <div class="text-center mb-4">
                 <img src="../assets/images/logo.png" alt="Crimson Crown Logo" style="height: 60px;">
                 <h1 class="h3 my-3 fw-normal">Admin Panel</h1>
             </div>
 
             <div id="login-ui">
-                <p class="text-center text-secondary">Please log in with your Discord account.</p>
+                <p class="text-center text-secondary">Please log in with an authorized Discord account.</p>
                 <a href="/.netlify/functions/discord-auth-start" class="btn btn-brand w-100 py-2 mt-3">
                     <i class="fab fa-discord me-2"></i> Login with Discord
                 </a>
@@ -28,7 +29,7 @@
             </div>
             
             <p id="error-message" class="text-danger mt-3 text-center"></p>
-        </form>
+        </div>
     </main>
     <script src="admin.js"></script>
 </body>
