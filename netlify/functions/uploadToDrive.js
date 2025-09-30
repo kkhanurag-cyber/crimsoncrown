@@ -55,6 +55,7 @@ exports.handler = async (event) => {
             resource: fileMetadata,
             media: media,
             fields: 'id', // We only need the file ID back.
+            supportsAllDrives: true // <-- ADD THIS LINE
         });
 
         const fileId = response.data.id;
