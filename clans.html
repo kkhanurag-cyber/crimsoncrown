@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registered Clans — Crimson Crown</title>
+    <!-- CSS Links -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/crimson-styles.css">
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html"><img src="assets/images/logo.png" alt="Crimson Crown Logo" style="height: 45px;"></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="tournaments.html">Tournaments</a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="clans.html">Clans</a></li>
+                    <li class="nav-item"><a class="nav-link" href="leaderboard.html">Leaderboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+                    <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+                    <!-- We'll add a link to clans.html later -->
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="page-content-wrapper">
+        <main>
+            <!-- PAGE HEADER -->
+            <section class="hero-section-video" style="height: 50vh;">
+                 <div class="hero-content container text-center">
+                    <h1 class="animated-gradient-text">Registered Clans</h1>
+                    <p class="tagline text-secondary fs-5">Meet the teams competing under the Crimson Crown banner.</p>
+                     <a href="register-clan.html" class="btn btn-brand mt-3">
+                        <i class="fas fa-shield-alt me-2"></i> Register Your Clan
+                    </a>
+                </div>
+            </section>
+
+            <div class="container py-5">
+                <!-- CLAN LIST -->
+                <div id="clan-list" class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+                    <!-- Loader -->
+                     <div id="loader" class="col-12 text-center py-5">
+                        <div class="spinner-border text-danger" role="status"></div>
+                        <p class="text-secondary mt-2">Loading clans...</p>
+                    </div>
+                    <!-- Clan Cards will be injected here by JavaScript -->
+                </div>
+                 <div id="no-results" class="col-12 text-center py-5 d-none">
+                    <p class="text-secondary fs-5">No clans have been registered yet. Be the first!</p>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- FOOTER -->
+    <footer class="site-footer">
+        <!-- (Same footer code as other pages) -->
+    </footer>
+
+    <!-- JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/clans.js"></script>
+</body>
+</html>

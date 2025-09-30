@@ -1,30 +1,43 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    const activeContainer = document.getElementById('active-tournaments');
-    const upcomingContainer = document.getElementById('upcoming-tournaments');
-    const closedContainer = document.getElementById('closed-tournaments');
+    const tournamentContainer = document.getElementById('tournament-list');
+    const loader = document.getElementById('loader');
+    const filterButtons = document.getElementById('filter-btn-group');
+    const noResultsMessage = document.getElementById('no-results');
     
-    // Display a loading message
-    if (activeContainer) activeContainer.innerHTML = '<p class="text-secondary">Loading tournaments...</p>';
+    let allTournaments = []; // Cache to store all tournaments
 
-    try {
-        // Fetch data from our secure Netlify function
-        const response = await fetch('/.netlify/functions/getTournaments');
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+    // --- FETCH DATA ---
+    async function fetchTournaments() {
+        try {
+            const response = await fetch('/.netlify/functions/getTournaments');
+            if (!response.ok) throw new Error('Failed to fetch data');
+            allTournaments = await response.json();
+            displayTournaments('all'); // Display all tournaments initially
+            loader.classList.add('d-none');
+        } catch (error) {
+            console.error('Failed to load tournaments:', error);
+            loader.innerHTML = '<p class="text-danger">Could not load tournaments. Please try again later.</p>';
         }
-        const tournaments = await response.json();
+    }
 
-        // Clear loading messages
-        if (activeContainer) activeContainer.innerHTML = '';
-        if (upcomingContainer) upcomingContainer.innerHTML = '';
-        if (closedContainer) closedContainer.innerHTML = '';
+    // --- DISPLAY AND FILTER LOGIC ---
+    function displayTournaments(filter) {
+        tournamentContainer.innerHTML = ''; // Clear existing cards
+        let visibleCount = 0;
         
-        let hasActive = false, hasUpcoming = false, hasClosed = false;
+        const filteredTournaments = (filter === 'all') 
+            ? allTournaments 
+            : allTournaments.filter(t => t.status.toLowerCase() === filter);
 
-        tournaments.forEach(tourney => {
-            // Create the HTML for a tournament card
+        if (filteredTournaments.length === 0) {
+            noResultsMessage.classList.remove('d-none');
+        } else {
+            noResultsMessage.classList.add('d-none');
+        }
+
+        filteredTournaments.forEach(tourney => {
             const cardHTML = `
-                <div class="col">
+                <div class="col tournament-col" data-status="${tourney.status.toLowerCase()}">
                     <div class="tournament-card h-100">
                         <div class="card-banner" style="background-image: url('${tourney.bannerImage || 'assets/images/default-banner.png'}')">
                             <div class="card-status">${tourney.status}</div>
@@ -38,33 +51,28 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 <span><i class="fas fa-trophy"></i> ${tourney.prizePool || 'TBD'}</span>
                             </div>
                             <div class="card-action">
-                                <a href="#" class="btn btn-brand w-100">View Details</a>
+                                <a href="tournament-detail.html?id=${tourney.scrimId}" class="btn btn-brand w-100">View Details</a>
                             </div>
                         </div>
                     </div>
                 </div>
             `;
-            
-            // Place the card in the correct section based on its status
-            if (tourney.status.toLowerCase() === 'active' && activeContainer) {
-                activeContainer.innerHTML += cardHTML;
-                hasActive = true;
-            } else if (tourney.status.toLowerCase() === 'upcoming' && upcomingContainer) {
-                upcomingContainer.innerHTML += cardHTML;
-                hasUpcoming = true;
-            } else if (closedContainer) {
-                closedContainer.innerHTML += cardHTML;
-                hasClosed = true;
-            }
+            tournamentContainer.innerHTML += cardHTML;
         });
-        
-        // Display a message if a section is empty
-        if (!hasActive && activeContainer) activeContainer.innerHTML = '<p class="text-secondary">No active tournaments right now.</p>';
-        if (!hasUpcoming && upcomingContainer) upcomingContainer.innerHTML = '<p class="text-secondary">No upcoming tournaments announced yet.</p>';
-        if (!hasClosed && closedContainer) closedContainer.innerHTML = '<p class="text-secondary">No past tournaments to show.</p>';
-
-    } catch (error) {
-        console.error('Failed to load tournaments:', error);
-        if (activeContainer) activeContainer.innerHTML = '<p class="text-danger">Could not load tournaments. Please try again later.</p>';
     }
+
+    // --- EVENT LISTENERS ---
+    filterButtons.addEventListener('click', (e) => {
+        if (e.target.tagName === 'BUTTON') {
+            // Update active button style
+            document.querySelector('#filter-btn-group .active').classList.remove('active');
+            e.target.classList.add('active');
+            
+            const filter = e.target.dataset.filter;
+            displayTournaments(filter);
+        }
+    });
+
+    // --- INITIALIZE ---
+    fetchTournaments();
 });
