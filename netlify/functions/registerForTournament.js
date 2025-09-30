@@ -1,10 +1,18 @@
 const { GoogleSpreadsheet } = require('google-spreadsheet');
+const jwt = require('jsonwebtoken');
 
-// Securely get credentials from Netlify's environment variables
-const { GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_PRIVATE_KEY, SPREADSHEET_ID } = process.env;
+const { SPREADSHEET_ID, GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_PRIVATE_KEY, JWT_SECRET } = process.env;
 
 exports.handler = async (event) => {
-    // This function is public, as anyone can register for a tournament.
+    // UPDATED: Added JWT protection
+    let userPayload;
+    try {
+        const token = event.headers.authorization.split(' ')[1];
+        userPayload = jwt.verify(token, JWT_SECRET);
+    } catch (error) {
+        return { statusCode: 401, body: JSON.stringify({ error: 'You must be logged in to register.' }) };
+    }
+
     if (event.httpMethod !== 'POST') {
         return { statusCode: 405, body: 'Method Not Allowed' };
     }
@@ -12,7 +20,6 @@ exports.handler = async (event) => {
     try {
         const data = JSON.parse(event.body);
 
-        // Basic validation
         if (!data.scrimId || !data.teamName || !data.captain) {
             return { statusCode: 400, body: JSON.stringify({ error: 'Missing required fields.' }) };
         }
@@ -26,11 +33,10 @@ exports.handler = async (event) => {
         await doc.loadInfo();
         const sheet = doc.sheetsByTitle['registrations'];
 
-        // Add the new registration data to the sheet
         await sheet.addRow({
             registrationId: `REG-${Date.now()}`,
             timestamp: new Date().toISOString(),
-            ...data // Spread the rest of the form data into the columns
+            ...data
         });
 
         return {

@@ -1,29 +1,23 @@
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 
 // These credentials are read securely from Netlify's environment variables
-const SPREADSHEET_ID = 'YOUR_SPREADSHEET_ID'; // The long ID from your sheet's URL
+const SPREADSHEET_ID = process.env.GOOGLE_SPREADSHEET_ID; // FIXED: Was hardcoded
 const CLIENT_EMAIL = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-const PRIVATE_KEY = process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n');
-
-// Initialize the sheet
-const doc = new GoogleSpreadsheet(SPREADSHEET_ID);
+const PRIVATE_KEY = process.env.GOOGLE_PRIVATE_KEY;
 
 exports.handler = async (event, context) => {
     try {
+        const doc = new GoogleSpreadsheet(SPREADSHEET_ID);
         // Authenticate with the service account
         await doc.useServiceAccountAuth({
             client_email: CLIENT_EMAIL,
-            private_key: PRIVATE_KEY,
+            private_key: PRIVATE_KEY.replace(/\\n/g, '\n'),
         });
 
-        // Load spreadsheet info
         await doc.loadInfo();
-        const sheet = doc.sheetsByTitle['tournaments']; // IMPORTANT: Name of your sheet tab
-
-        // Read all rows from the sheet
+        const sheet = doc.sheetsByTitle['tournaments'];
         const rows = await sheet.getRows();
 
-        // Format the data to send back to the frontend
         const tournaments = rows.map(row => ({
             scrimId: row.scrimId,
             scrimName: row.scrimName,
@@ -31,7 +25,7 @@ exports.handler = async (event, context) => {
             status: row.status,
             slots: row.slots,
             prizePool: row.prizePool,
-            bannerImage: row.bannerImage // Assumes you have a column for banner image URLs
+            bannerImage: row.bannerImage
         }));
 
         return {

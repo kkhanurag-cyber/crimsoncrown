@@ -9,33 +9,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         const clans = await response.json();
 
         loader.classList.add('d-none');
-
         if (clans.length === 0) {
             noResultsMessage.classList.remove('d-none');
             return;
         }
 
         clans.forEach(clan => {
+            const rosterSize = clan.roster ? clan.roster.split(',').length : 0;
             const cardHTML = `
                 <div class="col">
-                    <div class="clan-card h-100">
+                    <a href="clan-detail.html?id=${clan.clanId}" class="clan-card h-100 text-decoration-none">
                         <img src="${clan.clanLogo || 'assets/images/default-logo.png'}" class="clan-banner" alt="${clan.clanName} Logo">
                         <div class="card-content">
-                            <h5 class="clan-name">[${clan.clanTag}] ${clan.clanName}</h5>
-                            <p class="clan-members-count text-secondary">Captain: ${clan.captainName}</p>
-                            <div class="clan-stats">
-                                <div>
-                                    <strong>${clan.wins || 0}</strong>
-                                    <span>Wins</span>
-                                </div>
-                                <div>
-                                    <strong>${clan.tournamentsPlayed || 0}</strong>
-                                    <span>Played</span>
-                                </div>
+                            <h5 class="clan-name text-truncate">[${clan.clanTag}] ${clan.clanName}</h5>
+                            <p class="clan-members-count text-secondary">${rosterSize} Members</p>
+                            <div class="card-action mt-auto">
+                                <span class="btn btn-sm btn-outline-light w-100">View Clan</span>
                             </div>
-                            <!-- A link to a future clan detail page can go here -->
                         </div>
-                    </div>
+                    </a>
                 </div>
             `;
             clanContainer.innerHTML += cardHTML;

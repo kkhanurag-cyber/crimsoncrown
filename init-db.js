@@ -23,12 +23,19 @@ const SHEET_CONFIG = {
     ],
     "leaderboard": [
         "teamName", "match1", "match2", "match3", "match4", "totalPoints", 
-        "avgRank", "totalKills"
+        "avgRank", "totalKills", "teamLogo"
+    ],
+    "clans": [
+        "clanId", "clanName", "clanTag", "clanLogo", "captainName", "captainDiscord", "roster", "timestamp"
+    ],
+    "users": [
+        "userId", "username", "avatar", "clanId", "clanRole", "siteRole"
     ],
 
-     "clans": [
-        "clanId", "clanName", "clanTag", "clanLogo", "captainName", "captainDiscord", "roster", "timestamp"
-    ]
+    // Add this to your SHEET_CONFIG object in init-db.js
+"clan_requests": [
+    "requestId", "clanId", "clanName", "userId", "username", "status", "timestamp"
+],
 };
 
 // --- SCRIPT LOGIC ---
@@ -80,4 +87,3 @@ async function initializeDatabase() {
 
 // Run the initialization function
 initializeDatabase();
-

@@ -13,8 +13,8 @@ exports.handler = async (event, context) => {
 
         // Check if the provided username and password match the secure environment variables
         if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-            // If they match, create a secure token (JWT) that expires in 8 hours
-            const token = jwt.sign({ user: username, role: 'admin' }, JWT_SECRET, { expiresIn: '8h' });
+            // UPDATED: Changed expiration from '8h' to '30d' for a longer session
+            const token = jwt.sign({ user: username, role: 'admin' }, JWT_SECRET, { expiresIn: '30d' });
 
             // Send the token back to the frontend
             return {
