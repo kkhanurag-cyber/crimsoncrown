@@ -2,26 +2,22 @@ const fetch = require('node-fetch');
 const jwt = require('jsonwebtoken');
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 
-// All credentials are read securely from environment variables.
 const {
     DISCORD_CLIENT_ID,
     DISCORD_CLIENT_SECRET,
-    DISCORD_SERVER_ID,
-    URL, // Using Netlify's built-in URL variable for reliability
+    URL,
     SPREADSHEET_ID,
     GOOGLE_SERVICE_ACCOUNT_EMAIL,
     GOOGLE_PRIVATE_KEY,
     JWT_SECRET,
+    DISCORD_SERVER_ID,
     DISCORD_BOT_TOKEN
 } = process.env;
 
-// The redirectURI must exactly match the one used in the -start function
-// and the one registered in the Discord Developer Portal.
 const redirectURI = `${URL}/.netlify/functions/discord-auth-callback`;
 
 exports.handler = async (event) => {
     const { code, state } = event.queryStringParameters;
-    // The 'state' parameter tells us where to send the user after a successful login.
     const finalRedirect = state || '/';
 
     try {
@@ -39,12 +35,9 @@ exports.handler = async (event) => {
         });
         const tokenData = await tokenResponse.json();
         const accessToken = tokenData.access_token;
+        if (!accessToken) throw new Error("Could not retrieve access token from Discord.");
 
-        if (!accessToken) {
-            throw new Error("Could not retrieve access token from Discord.");
-        }
-
-        // 2. Use the access_token to get the authenticated user's details from Discord.
+        // 2. Use the access_token to get the user's details from Discord.
         const userResponse = await fetch('https://discord.com/api/users/@me', {
             headers: { Authorization: `Bearer ${accessToken}` },
         });
@@ -76,7 +69,7 @@ exports.handler = async (event) => {
         const avatarUrl = `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png`;
 
         if (userRow) {
-            // If the user already exists in our sheet, update their username and avatar.
+            // If the user already exists, update their username and avatar.
             userRow.username = discordUser.username;
             userRow.avatar = avatarUrl;
             await userRow.save();
@@ -88,11 +81,11 @@ exports.handler = async (event) => {
                 avatar: avatarUrl,
                 clanId: '',
                 clanRole: '',
-                siteRole: '', // New users have no special site role by default.
+                siteRole: '',
             });
         }
         
-        // 5. Create a secure JWT for your website's session. This token contains the user's roles.
+        // 5. Create a secure JWT for your website's session, including user roles.
         const siteToken = jwt.sign({
             userId: userRow.userId,
             username: userRow.username,
@@ -102,7 +95,7 @@ exports.handler = async (event) => {
             siteRole: userRow.siteRole || null
         }, JWT_SECRET, { expiresIn: '30d' });
 
-        // 6. Redirect the user back to your website, including the new session token.
+        // 6. Redirect the user back to your website with the new session token.
         return {
             statusCode: 302,
             headers: {

@@ -4,11 +4,13 @@ const jwt = require('jsonwebtoken');
 const { SPREADSHEET_ID, GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_PRIVATE_KEY, JWT_SECRET } = process.env;
 
 exports.handler = async (event) => {
-    // Admin-only function
+    // Admin-only function: Verify the user has an 'admin' role
     try {
         const token = event.headers.authorization.split(' ')[1];
         const payload = jwt.verify(token, JWT_SECRET);
-        if (payload.siteRole !== 'admin') throw new Error('Permissions error');
+        if (payload.siteRole !== 'admin') {
+            throw new Error('Insufficient permissions');
+        }
     } catch (error) {
         return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized' }) };
     }

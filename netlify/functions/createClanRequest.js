@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const { SPREADSHEET_ID, GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_PRIVATE_KEY, JWT_SECRET } = process.env;
 
 exports.handler = async (event) => {
-    // 1. Authenticate the user
+    // 1. Authenticate the user with their login token
     let userPayload;
     try {
         const token = event.headers.authorization.split(' ')[1];
