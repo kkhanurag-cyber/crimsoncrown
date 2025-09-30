@@ -53,25 +53,26 @@ async function handleImageUpload(event) {
     reader.readAsDataURL(file);
     reader.onloadend = async () => {
         const base64File = reader.result;
-        try {
-            // Send the file data to our public upload function.
-            const response = await fetch('/.netlify/functions/publicUploadToDrive', {
-                method: 'POST',
-                body: JSON.stringify({ file: base64File, fileName: file.name }),
-            });
+       try {
+    // UPDATED: The endpoint now points to our new GitHub upload function.
+    const response = await fetch('/.netlify/functions/uploadToGitHub', {
+        method: 'POST',
+        body: JSON.stringify({ file: base64File, fileName: file.name }),
+    });
 
-            if (!response.ok) throw new Error('Image upload failed on the server.');
-            
-            const { url } = await response.json();
-            
-            // Store the returned Google Drive URL in a hidden input field in the form.
-            document.getElementById('clanLogo').value = url;
-            formStatus.textContent = '✅ Logo uploaded successfully!';
-            formStatus.classList.add('text-success');
-        } catch (error) {
-            formStatus.textContent = `❌ Logo upload failed: ${error.message}`;
-            formStatus.classList.add('text-danger');
-        }
+    if (!response.ok) throw new Error('Image upload failed.');
+
+    const { url } = await response.json();
+    
+    // Store the returned GitHub URL in the hidden input.
+    document.getElementById('clanLogo').value = url;
+    formStatus.textContent = '✅ Logo uploaded successfully!';
+    formStatus.classList.add('text-success');
+
+} catch (error) {
+    formStatus.textContent = `❌ Logo upload failed: ${error.message}`;
+    formStatus.classList.add('text-danger');
+}
     };
 }
 

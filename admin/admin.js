@@ -3,26 +3,16 @@
 Crimson Crown - Unified Admin Panel Script
 =================================================
 This script controls all frontend logic for the admin panel.
-It handles:
-- Secure admin authentication via Discord login and role checking.
-- Dashboard: Creating, viewing, editing, and deleting tournaments.
-- User Management: Viewing all users and assigning site roles.
-- Clan Management: Approving or denying clan join requests.
 */
 
 // --- 1. PRIMARY CONTROLLER ---
-// This runs when any admin page is loaded and calls the correct handler based on the page's content.
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Admin Authentication Check ---
-    // The admin login page is the only page that DOESN'T require a token check.
     if (document.getElementById('login-form')) {
         handleLoginPage();
     } else {
-        // For all other admin pages, we must verify the user is an authorized admin.
         protectPage();
     }
     
-    // --- Page-Specific Handlers ---
     if (document.getElementById('add-tournament-form')) {
         handleDashboardPage();
     }
@@ -43,11 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- 2. AUTHENTICATION & SECURITY ---
 
-/**
- * Checks if a user has a valid admin token. If not, redirects to the admin login page.
- * It also renders the user's profile in the navbar.
- * @returns {string | null} The JWT token if valid, otherwise redirects.
- */
 function protectPage() {
     const token = localStorage.getItem('jwt_token');
     if (!token) {
@@ -58,24 +43,18 @@ function protectPage() {
     try {
         const payload = JSON.parse(atob(token.split('.')[1]));
         if (!payload.siteRole || payload.siteRole !== 'admin') {
-            // If the user is logged in but is not an admin, deny access.
             document.body.innerHTML = `<div class="container text-center py-5"><h1 class="text-danger">Access Denied</h1><p>You do not have permission to view this page.</p><a href="/">Go to Homepage</a></div>`;
             throw new Error('Insufficient permissions');
         }
-        // If the user is an admin, render their profile in the navbar.
         renderAdminProfile(payload);
         return token;
     } catch (error) {
-        // If token is invalid or expired, clear it and redirect to login.
         localStorage.removeItem('jwt_token');
         window.location.href = '/admin/index.html';
         return null;
     }
 }
 
-/**
- * Handles the logic for the admin login page, checking for a token in the URL.
- */
 function handleLoginPage() {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
@@ -86,11 +65,8 @@ function handleLoginPage() {
     const errorMessage = document.getElementById('error-message');
 
     if (token) {
-        // A token was found in the URL. Show "Verifying..." UI.
         authCheck.classList.remove('d-none');
         loginUI.classList.add('d-none');
-
-        // Verify the token has admin role before redirecting.
         try {
             const payload = JSON.parse(atob(token.split('.')[1]));
             if (payload.siteRole === 'admin') {
@@ -109,10 +85,6 @@ function handleLoginPage() {
     }
 }
 
-/**
- * Renders the admin's profile dropdown in the navbar.
- * @param {object} user - The decoded JWT payload.
- */
 function renderAdminProfile(user) {
     const container = document.getElementById('user-auth-container');
     if (!container) return;
@@ -129,9 +101,6 @@ function renderAdminProfile(user) {
     `;
 }
 
-/**
- * Logs the admin out by clearing the token and redirecting.
- */
 function logout() {
     localStorage.removeItem('jwt_token');
     window.location.href = '/admin/index.html';
@@ -140,34 +109,25 @@ function logout() {
 
 // --- 3. DASHBOARD PAGE LOGIC ---
 
-/**
- * Initializes the dashboard page, loading the tournament list and setting up forms.
- */
 function handleDashboardPage() {
     loadTournamentsList();
     document.getElementById('add-tournament-form').addEventListener('submit', handleTournamentSubmit);
     document.getElementById('bannerUpload').addEventListener('change', handleImageUpload);
 }
 
-/**
- * Fetches and displays the list of existing tournaments on the dashboard.
- */
 async function loadTournamentsList() {
     const token = localStorage.getItem('jwt_token');
     const listContainer = document.getElementById('tournaments-list');
     const loader = document.getElementById('tournaments-loader');
-
     try {
         const response = await fetch('/.netlify/functions/getTournaments', {
-             headers: { 'Authorization': `Bearer ${token}` } // Even public-facing gets need auth if logic changes
+             headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!response.ok) throw new Error('Failed to load tournaments');
         const tournaments = await response.json();
-
         loader.classList.add('d-none');
         listContainer.classList.remove('d-none');
         listContainer.innerHTML = ''; 
-
         tournaments.forEach(tourney => {
             const listItem = document.createElement('li');
             listItem.className = 'list-group-item bg-transparent text-light d-flex justify-content-between align-items-center';
@@ -189,34 +149,31 @@ async function loadTournamentsList() {
     }
 }
 
-/**
- * Handles uploading the banner image to Google Drive.
- */
 async function handleImageUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
-
     const token = localStorage.getItem('jwt_token');
     const formStatus = document.getElementById('form-status');
     formStatus.textContent = 'Uploading banner...';
     formStatus.classList.remove('text-success', 'text-danger');
-
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onloadend = async () => {
         const base64File = reader.result;
         try {
-            const response = await fetch('/.netlify/functions/uploadToDrive', {
+            // UPDATED LINE START: This now calls the same GitHub upload function as the clan registration.
+            const response = await fetch('/.netlify/functions/uploadToGitHub', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
+                    'Authorization': `Bearer ${token}`, // Still needs auth to prove an admin is uploading
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ file: base64File, fileName: file.name }),
             });
+            // UPDATED LINE END
+            
             if (!response.ok) throw new Error('Upload failed');
             const { url } = await response.json();
-            
             document.getElementById('bannerImage').value = url;
             formStatus.textContent = '✅ Banner uploaded successfully!';
             formStatus.classList.add('text-success');
@@ -227,21 +184,16 @@ async function handleImageUpload(event) {
     };
 }
 
-/**
- * Handles the submission of the "Create Tournament" form.
- */
 async function handleTournamentSubmit(e) {
     e.preventDefault();
     const token = localStorage.getItem('jwt_token');
     const formStatus = document.getElementById('form-status');
-    
     const bannerUrl = document.getElementById('bannerImage').value;
     if (!bannerUrl) {
         formStatus.textContent = 'Please upload a banner and wait for it to finish.';
         formStatus.classList.add('text-danger');
         return;
     }
-
     const tournamentData = {
         scrimId: 'SCRIM_' + Date.now(),
         scrimName: document.getElementById('scrimName').value,
@@ -260,9 +212,7 @@ async function handleTournamentSubmit(e) {
         rules: document.getElementById('rules').value,
         pointTable: document.getElementById('pointTable').value,
     };
-    
     formStatus.textContent = 'Creating tournament...';
-
     try {
         const response = await fetch('/.netlify/functions/addTournament', {
             method: 'POST',
@@ -273,25 +223,19 @@ async function handleTournamentSubmit(e) {
             body: JSON.stringify(tournamentData),
         });
         if (!response.ok) throw new Error('Failed to add tournament.');
-
         formStatus.textContent = '✅ Tournament created successfully!';
         formStatus.classList.add('text-success');
         e.target.reset(); 
-        loadTournamentsList(); // Refresh the list
-
+        loadTournamentsList();
     } catch (error) {
         formStatus.textContent = `❌ Error: ${error.message}`;
         formStatus.classList.add('text-danger');
     }
 }
 
-/**
- * Deletes a tournament.
- */
 async function deleteTournament(scrimId, scrimName) {
     const token = localStorage.getItem('jwt_token');
-    if (!confirm(`Are you sure you want to delete "${scrimName}"? This cannot be undone.`)) return;
-
+    if (!confirm(`Are you sure you want to delete "${scrimName}"?`)) return;
     try {
         const response = await fetch('/.netlify/functions/deleteTournament', {
             method: 'POST',
@@ -299,7 +243,6 @@ async function deleteTournament(scrimId, scrimName) {
             body: JSON.stringify({ scrimId })
         });
         if (!response.ok) throw new Error('Failed to delete tournament.');
-
         alert('✅ Tournament deleted.');
         loadTournamentsList();
     } catch (error) {
@@ -310,9 +253,6 @@ async function deleteTournament(scrimId, scrimName) {
 
 // --- 4. OTHER ADMIN PAGES ---
 
-/**
- * Handles the logic for the "Edit Tournament" page.
- */
 async function handleEditTournamentPage() {
     const token = localStorage.getItem('jwt_token');
     const params = new URLSearchParams(window.location.search);
@@ -325,17 +265,13 @@ async function handleEditTournamentPage() {
         loader.innerHTML = '<p class="text-danger">No tournament ID provided.</p>';
         return;
     }
-
     try {
         const response = await fetch(`/.netlify/functions/getTournamentDetail?id=${scrimId}`, {
              headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!response.ok) throw new Error('Could not fetch tournament data.');
         const data = await response.json();
-        
         title.textContent = `Edit: ${data.scrimName}`;
-        
-        // Pre-fill the form with existing data
         document.getElementById('scrimName').value = data.scrimName || '';
         document.getElementById('status').value = data.status || 'upcoming';
         document.getElementById('game').value = data.game || 'Farlight 84';
@@ -344,7 +280,6 @@ async function handleEditTournamentPage() {
         document.getElementById('prizePool').value = data.prizePool || '';
         document.getElementById('rounds').value = data.rounds || '';
         document.getElementById('mode').value = data.mode || 'Squad';
-        // Format dates correctly for datetime-local input
         const toDateTimeLocal = (isoDate) => isoDate ? new Date(new Date(isoDate).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : "";
         document.getElementById('regStart').value = toDateTimeLocal(data.regStart);
         document.getElementById('regEnd').value = toDateTimeLocal(data.regEnd);
@@ -353,23 +288,17 @@ async function handleEditTournamentPage() {
         document.getElementById('description').value = data.description || '';
         document.getElementById('rules').value = data.rules || '';
         document.getElementById('pointTable').value = data.pointTable || '';
-        
         loader.classList.add('d-none');
         formContainer.classList.remove('d-none');
-
         document.getElementById('edit-tournament-form').addEventListener('submit', (e) => {
             e.preventDefault();
             updateTournament(scrimId);
         });
-
     } catch (error) {
         loader.innerHTML = `<p class="text-danger">${error.message}</p>`;
     }
 }
 
-/**
- * Submits the updated tournament data.
- */
 async function updateTournament(scrimId) {
     const token = localStorage.getItem('jwt_token');
     const updatedData = {
@@ -390,7 +319,6 @@ async function updateTournament(scrimId) {
         rules: document.getElementById('rules').value,
         pointTable: document.getElementById('pointTable').value,
     };
-
     try {
         const response = await fetch('/.netlify/functions/updateTournament', {
             method: 'POST',
@@ -398,7 +326,6 @@ async function updateTournament(scrimId) {
             body: JSON.stringify(updatedData)
         });
         if (!response.ok) throw new Error('Failed to save changes.');
-
         alert('✅ Tournament updated successfully!');
         window.location.href = 'dashboard.html';
     } catch (error) {
@@ -406,26 +333,20 @@ async function updateTournament(scrimId) {
     }
 }
 
-/**
- * Handles the logic for the "User Management" page.
- */
 async function handleUsersPage() {
     const token = localStorage.getItem('jwt_token');
     const tableBody = document.getElementById('users-body');
     const loader = document.getElementById('loader');
     const table = document.getElementById('users-table');
-
     try {
         const response = await fetch('/.netlify/functions/getUsers', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!response.ok) throw new Error('Failed to fetch users.');
         const users = await response.json();
-
         loader.classList.add('d-none');
         table.classList.remove('d-none');
         tableBody.innerHTML = '';
-
         users.forEach(user => {
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -447,14 +368,10 @@ async function handleUsersPage() {
     }
 }
 
-/**
- * Updates a user's role.
- */
 async function updateRole(selectElement) {
     const token = localStorage.getItem('jwt_token');
     const userId = selectElement.dataset.userId;
     const newRole = selectElement.value;
-
     try {
         const response = await fetch('/.netlify/functions/updateUserRole', {
             method: 'POST',
@@ -462,7 +379,6 @@ async function updateRole(selectElement) {
             body: JSON.stringify({ userId, newRole })
         });
         if (!response.ok) throw new Error('Failed to update role.');
-        
         const originalColor = selectElement.style.borderColor;
         selectElement.style.borderColor = 'green';
         setTimeout(() => { selectElement.style.borderColor = originalColor; }, 2000);
@@ -472,32 +388,25 @@ async function updateRole(selectElement) {
     }
 }
 
-/**
- * Handles the logic for the "Clan Requests" page.
- */
 async function handleRequestsPage() {
     const token = localStorage.getItem('jwt_token');
     const tableBody = document.getElementById('requests-body');
     const loader = document.getElementById('loader');
     const table = document.getElementById('requests-table');
     const noResults = document.getElementById('no-results');
-
     try {
         const response = await fetch('/.netlify/functions/getClanRequests', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!response.ok) throw new Error('Failed to fetch requests.');
         const requests = await response.json();
-
         loader.classList.add('d-none');
         if (requests.length === 0) {
             noResults.classList.remove('d-none');
             return;
         }
-        
         table.classList.remove('d-none');
         tableBody.innerHTML = '';
-
         requests.forEach(req => {
             const row = document.createElement('tr');
             row.id = `request-${req.requestId}`;
@@ -517,15 +426,11 @@ async function handleRequestsPage() {
     }
 }
 
-/**
- * Approves or denies a clan join request from the admin panel.
- */
 async function processRequest(requestId, userId, clanId, action) {
     const token = localStorage.getItem('jwt_token');
     const row = document.getElementById(`request-${requestId}`);
     row.querySelectorAll('button').forEach(b => b.disabled = true);
     row.style.opacity = '0.5';
-
     try {
         const response = await fetch('/.netlify/functions/processClanRequest', {
             method: 'POST',
@@ -533,7 +438,6 @@ async function processRequest(requestId, userId, clanId, action) {
             body: JSON.stringify({ requestId, userId, clanId, action })
         });
         if (!response.ok) throw new Error(`Failed to ${action} request.`);
-        
         row.style.transition = 'opacity 0.5s ease';
         row.style.opacity = '0';
         setTimeout(() => row.remove(), 500);
@@ -544,9 +448,6 @@ async function processRequest(requestId, userId, clanId, action) {
     }
 }
 
-/**
- * Handles the "View Registrations" page.
- */
 async function handleViewRegistrationsPage() {
     const token = localStorage.getItem('jwt_token');
     const params = new URLSearchParams(window.location.search);
@@ -561,20 +462,17 @@ async function handleViewRegistrationsPage() {
         loader.innerHTML = '<p class="text-danger">No tournament ID specified.</p>';
         return;
     }
-
     try {
         const response = await fetch(`/.netlify/functions/getRegistrations?id=${scrimId}`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!response.ok) throw new Error('Could not load registrations.');
         const registrations = await response.json();
-
         loader.classList.add('d-none');
         if (registrations.length === 0) {
             noResults.classList.remove('d-none');
             return;
         }
-
         tableContainer.classList.remove('d-none');
         tableBody.innerHTML = '';
         registrations.forEach(reg => {
@@ -587,7 +485,6 @@ async function handleViewRegistrationsPage() {
             `;
             tableBody.appendChild(row);
         });
-
     } catch (error) {
         loader.innerHTML = `<p class="text-danger">${error.message}</p>`;
     }

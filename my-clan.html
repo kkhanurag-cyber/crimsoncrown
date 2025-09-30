@@ -4,19 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Clan - Crimson Crown</title>
+    <!-- CSS Links -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="assets/css/crimson-styles.css">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top"></nav>
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html"><img src="assets/images/logo.png" alt="Crimson Crown Logo" style="height: 45px;"></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="tournaments.html">Tournaments</a></li>
+                    <li class="nav-item"><a class="nav-link" href="clans.html">Clans</a></li>
+                    <li class="nav-item"><a class="nav-link" href="leaderboard.html">Leaderboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+                    <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+                </ul>
+                <div id="user-auth-container" class="ms-lg-3 mt-3 mt-lg-0"></div>
+            </div>
+        </div>
+    </nav>
 
     <div class="page-content-wrapper">
         <main class="container py-5 mt-5">
+            <!-- Loader: Shown while data is being fetched -->
             <div id="loader" class="text-center py-5">
-                <div class="spinner-border text-danger" style="width: 3rem; height: 3rem;"></div>
+                <div class="spinner-border text-danger" style="width: 3rem; height: 3rem;" role="status"></div>
+                <p class="text-secondary mt-3">Loading Your Clan Details...</p>
             </div>
 
+            <!-- Prompt for users who are NOT in a clan -->
             <div id="no-clan-prompt" class="custom-card p-5 text-center d-none">
                 <i class="fas fa-users-slash fa-3x text-danger mb-3"></i>
                 <h3 class="mb-3">You Are Not in a Clan</h3>
@@ -25,23 +46,31 @@
                 <a href="register-clan.html" class="btn btn-brand">Create a Clan</a>
             </div>
 
+            <!-- Main dashboard for users who ARE in a clan -->
             <div id="clan-dashboard" class="d-none">
+                <!-- Clan Header Section -->
                 <header class="text-center my-5">
-                    <img id="clan-logo" src="" class="rounded-circle mb-3 border border-3 border-danger" style="width: 120px; height: 120px;">
+                    <img id="clan-logo" src="" class="rounded-circle mb-3 border border-3 border-danger" style="width: 120px; height: 120px; object-fit: cover;">
                     <h1 id="clan-name" class="animated-gradient-text"></h1>
                 </header>
                 
                 <div class="row g-4">
+                    <!-- Left Column: Clan Roster -->
                     <div class="col-lg-7">
                         <div class="custom-card p-4">
                             <h4 class="mb-3">Clan Roster</h4>
-                            <ul id="roster-list" class="list-group list-group-flush"></ul>
+                            <ul id="roster-list" class="list-group list-group-flush">
+                                <!-- Roster members will be injected here by my-clan.js -->
+                            </ul>
                         </div>
                     </div>
+                    <!-- Right Column: Join Requests (only visible to clan leaders) -->
                     <div class="col-lg-5" id="requests-panel">
                         <div class="custom-card p-4">
-                            <h4 class="mb-3">Join Requests</h4>
-                            <div id="requests-list"></div>
+                            <h4 class="mb-3">Pending Join Requests</h4>
+                            <div id="requests-list">
+                                <!-- Join requests will be injected here by my-clan.js -->
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -49,7 +78,41 @@
         </main>
     </div>
 
-    <footer class="site-footer"></footer>
+    <!-- FOOTER -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-about">
+                    <a href="index.html" class="footer-logo text-decoration-none mb-3">
+                        <img src="assets/images/logo.png" alt="Crimson Crown Logo">
+                        <span>CRIMSON CROWN</span>
+                    </a>
+                    <p>Building the future of competitive gaming in South Asia.</p>
+                </div>
+                <div class="footer-links">
+                    <h5 class="footer-heading">Quick Links</h5>
+                    <ul>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="tournaments.html">Tournaments</a></li>
+                        <li><a href="leaderboard.html">Leaderboard</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-connect">
+                    <h5 class="footer-heading">Connect With Us</h5>
+                    <div class="footer-social">
+                        <a href="#" title="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" title="X (formerly Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
+                        <a href="https://discord.gg/BWhXZfVxgx" target="_blank" title="Discord"><i class="fab fa-discord"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Crimson Crown Esports. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/auth.js"></script>
