@@ -324,12 +324,21 @@ main {
     z-index: 1;
 }
 
+/* UPDATED LINE START: Replace the old footer styles with this new section. */
+
 /* --- 7. FOOTER --- */
 .site-footer {
     background-color: var(--darker-grey);
-    padding: 3rem 0;
-    border-top: 1px solid var(--border-color);
+    padding: 4rem 0 2rem 0; /* Increased top padding */
+    border-top: 2px solid var(--border-color);
     margin-top: auto;
+}
+
+.footer-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2.5rem;
+    margin-bottom: 3rem;
 }
 
 .footer-heading {
@@ -337,6 +346,7 @@ main {
     font-weight: 600;
     margin-bottom: 1.5rem;
     position: relative;
+    display: inline-block; /* Allows underline to fit content */
 }
 
 .footer-heading::after {
@@ -344,9 +354,9 @@ main {
     position: absolute;
     bottom: -8px;
     left: 0;
-    width: 40px;
+    width: 100%;
     height: 3px;
-    background-color: var(--crimson-red);
+    background: linear-gradient(90deg, var(--crimson-red), rgba(220, 20, 60, 0.5));
 }
 
 .footer-logo {
@@ -356,18 +366,21 @@ main {
     font-weight: 700;
     margin-bottom: 1rem;
 }
-
 .footer-logo img {
     height: 40px;
     margin-right: 12px;
 }
-
 .footer-logo span {
     color: var(--text-primary);
+    transition: color var(--transition-speed-fast) ease;
+}
+.footer-logo:hover span {
+    color: var(--crimson-red);
 }
 
 .footer-about p {
     color: var(--text-secondary);
+    line-height: 1.7;
 }
 
 .footer-links ul {
@@ -380,14 +393,28 @@ main {
     color: var(--text-secondary);
     text-decoration: none;
     padding: 0.5rem 0;
-    display: block;
-    transition: color var(--transition-speed-fast) ease, padding-left var(--transition-speed-fast) ease;
+    display: inline-block; /* Allows for better hover effect */
+    position: relative;
+    transition: color var(--transition-speed-fast) ease, transform var(--transition-speed-fast) ease;
 }
-
+.footer-links ul li a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: var(--crimson-red);
+    transition: width var(--transition-speed-med) ease;
+}
 .footer-links ul li a:hover {
     color: var(--crimson-red);
-    padding-left: 10px;
+    transform: translateX(5px);
 }
+.footer-links ul li a:hover::after {
+    width: 100%;
+}
+
 
 .footer-social a {
     color: var(--text-secondary);
@@ -396,10 +423,9 @@ main {
     transition: color 0.2s ease, transform 0.2s ease;
     display: inline-block;
 }
-
 .footer-social a:hover {
     color: var(--crimson-red);
-    transform: translateY(-3px);
+    transform: translateY(-4px) scale(1.1);
 }
 
 .footer-bottom {
@@ -409,7 +435,7 @@ main {
     color: var(--text-secondary);
     font-size: 0.9rem;
 }
-
+/* UPDATED LINE END */
 /* --- 8. TOURNAMENT & CLAN CARDS (3D TILT EFFECT) --- */
 .col {
     perspective: 1000px;
