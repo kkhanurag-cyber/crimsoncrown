@@ -18,11 +18,13 @@
 
             <div id="login-ui">
                 <p class="text-center text-secondary">Please log in with an authorized Discord account.</p>
+                <!-- This link redirects to the Discord auth start function -->
                 <a href="/.netlify/functions/discord-auth-start" class="btn btn-brand w-100 py-2 mt-3">
                     <i class="fab fa-discord me-2"></i> Login with Discord
                 </a>
             </div>
 
+            <!-- This section is shown after the user is redirected back from Discord -->
             <div id="auth-check" class="text-center d-none">
                  <div class="spinner-border text-danger" role="status"></div>
                  <p class="text-secondary mt-2">Verifying credentials...</p>

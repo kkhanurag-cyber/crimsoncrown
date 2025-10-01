@@ -30,6 +30,7 @@ exports.handler = async (event) => {
         await doc.loadInfo();
         const requestsSheet = doc.sheetsByTitle['clan_requests'];
         const usersSheet = doc.sheetsByTitle['users'];
+        const clansSheet = doc.sheetsByTitle['clans'];
 
         const requestRows = await requestsSheet.getRows();
         const requestToProcess = requestRows.find(row => row.requestId === requestId);
@@ -46,6 +47,18 @@ exports.handler = async (event) => {
                 userToUpdate.clanId = clanId;
                 userToUpdate.clanRole = 'member';
                 await userToUpdate.save();
+
+                // Also add user to the clan's roster
+                const clanRows = await clansSheet.getRows();
+                const clanToUpdate = clanRows.find(c => c.clanId === clanId);
+                if (clanToUpdate) {
+                    const currentRoster = clanToUpdate.roster ? clanToUpdate.roster.split(',').map(name => name.trim()) : [];
+                    if (!currentRoster.includes(userToUpdate.username)) {
+                        currentRoster.push(userToUpdate.username);
+                        clanToUpdate.roster = currentRoster.join(', ');
+                        await clanToUpdate.save();
+                    }
+                }
                 
                 requestToProcess.status = 'approved';
                 await requestToProcess.save();
@@ -55,8 +68,6 @@ exports.handler = async (event) => {
         } else if (action === 'deny') {
             requestToProcess.status = 'denied';
             await requestToProcess.save();
-        } else {
-             return { statusCode: 400, body: JSON.stringify({ error: 'Invalid action.' }) };
         }
         
         return { statusCode: 200, body: JSON.stringify({ message: `Request has been ${action}d.` }) };

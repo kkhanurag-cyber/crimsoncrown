@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Partner Management - Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/crimson-styles.css">
+</head>
+<body>
+    <!-- Admin Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="dashboard.html">Crimson Crown Admin</a>
+            <div class="collapse navbar-collapse">
+                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="dashboard.html">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="users.html">Users</a></li>
+                    <li class="nav-item"><a class="nav-link" href="requests.html">Requests</a></li>
+                    <li class="nav-item"><a class="nav-link" href="messages.html">Messages</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="partners.html">Partners</a></li>
+                </ul>
+                <div id="user-auth-container"></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container py-5">
+        <h1 class="animated-gradient-text mb-4">Manage Partners & Sponsors</h1>
+        <div class="row g-4">
+            <div class="col-lg-5">
+                <div class="custom-card p-4">
+                    <h3 class="mb-4">Add New Partner</h3>
+                    <form id="add-partner-form">
+                        <div class="mb-3"><label for="partnerName" class="form-label">Partner Name</label><input type="text" class="form-control" id="partnerName" required></div>
+                        <div class="mb-3"><label for="logoUrl" class="form-label">Logo URL</label><input type="url" class="form-control" id="logoUrl" required></div>
+                        <div class="mb-3"><label for="websiteUrl" class="form-label">Website URL (Optional)</label><input type="url" class="form-control" id="websiteUrl"></div>
+                        <div class="mb-3"><label for="category" class="form-label">Category</label><select class="form-select" id="category"><option value="Sponsor">Sponsor</option><option value="Partner">Collab Partner</option><option value="Affiliate">Affiliate</option></select></div>
+                        <button type="submit" class="btn btn-brand w-100">Add Partner</button>
+                    </form>
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <div class="custom-card p-3">
+                    <div id="loader" class="text-center py-5"><div class="spinner-border text-danger"></div></div>
+                    <div id="partners-list-container" class="table-responsive d-none">
+                        <table class="table table-dark table-hover">
+                            <thead><tr><th>Partner</th><th>Category</th><th>Actions</th></tr></thead>
+                            <tbody id="partners-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Edit Partner Modal -->
+    <div class="modal fade" id="editPartnerModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content bg-dark text-white"><div class="modal-header border-secondary"><h5 class="modal-title">Edit Partner</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="edit-partner-form"><input type="hidden" id="editOriginalName"><div class="mb-3"><label for="editPartnerName" class="form-label">Partner Name</label><input type="text" class="form-control" id="editPartnerName" required></div><div class="mb-3"><label for="editLogoUrl" class="form-label">Logo URL</label><input type="url" class="form-control" id="editLogoUrl" required></div><div class="mb-3"><label for="editWebsiteUrl" class="form-label">Website URL</label><input type="url" class="form-control" id="editWebsiteUrl"></div><div class="mb-3"><label for="editCategory" class="form-label">Category</label><select class="form-select" id="editCategory"><option value="Sponsor">Sponsor</option><option value="Partner">Collab Partner</option><option value="Affiliate">Affiliate</option></select></div></form></div><div class="modal-footer border-secondary"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="button" class="btn btn-brand" id="save-partner-changes">Save Changes</button></div></div></div></div>
+
+    <script src="admin.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

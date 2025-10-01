@@ -711,3 +711,30 @@ main {
     color: var(--crimson-red);
     margin-right: 0.5rem;
 }
+
+/* UPDATED LINE START: Add this new CSS block to the end of your stylesheet. */
+
+/* --- 12. PARTNERS SECTION --- */
+.partner-logo {
+    display: block;
+    padding: 1rem;
+    background-color: var(--steel-grey);
+    border-radius: var(--border-radius-lg);
+    transition: all var(--transition-speed-med) ease;
+}
+
+.partner-logo img {
+    filter: grayscale(100%) brightness(0.8); /* Start grayscale and slightly dimmed */
+    transition: all var(--transition-speed-med) ease;
+}
+
+.partner-logo:hover {
+    transform: translateY(-8px) scale(1.05);
+    background-color: var(--darker-grey);
+    box-shadow: var(--shadow-glow);
+}
+
+.partner-logo:hover img {
+    filter: grayscale(0%) brightness(1); /* Full color and brightness on hover */
+}
+/* UPDATED LINE END */

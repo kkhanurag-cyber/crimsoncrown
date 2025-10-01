@@ -159,6 +159,54 @@
         </main>
     </div>
 
+            <!-- PARTNERS SECTION -->
+            <section class="page-section">
+                <div class="container">
+                    <div class="section-heading">
+                        <h2>Our Partners & Sponsors</h2>
+                        <p>Proudly supported by and collaborating with industry leaders.</p>
+                    </div>
+                    <div id="partners-grid" class="row align-items-center justify-content-center g-5">
+                        <!-- Partner logos will be dynamically injected here by JavaScript -->
+                    </div>
+                </div>
+            </section>
+
+
+
+    <!-- Script to load partners -->
+    <script>
+        async function loadPartners() {
+            const grid = document.getElementById('partners-grid');
+            if (!grid) return;
+
+            try {
+                const response = await fetch('/.netlify/functions/getPartners');
+                if (!response.ok) return;
+                const partners = await response.json();
+                
+                if (partners.length > 0) {
+                    partners.forEach(partner => {
+                        const partnerHtml = `
+                            <div class="col-lg-2 col-md-3 col-4">
+                                <a href="${partner.websiteUrl}" target="_blank" class="partner-logo" title="${partner.partnerName}">
+                                    <img src="${partner.logoUrl}" class="img-fluid" alt="${partner.partnerName} Logo">
+                                </a>
+                            </div>
+                        `;
+                        grid.innerHTML += partnerHtml;
+                    });
+                } else {
+                    grid.innerHTML = '<p class="text-secondary text-center">We are currently open for new partnerships and sponsorships.</p>';
+                }
+            } catch (error) {
+                console.error('Failed to load partners:', error);
+            }
+        }
+        document.addEventListener('DOMContentLoaded', loadPartners);
+    </script>
+
+
     <!-- FOOTER -->
     <footer class="site-footer">
         <div class="container">

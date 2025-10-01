@@ -1,10 +1,12 @@
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const jwt = require('jsonwebtoken');
 
+// All credentials are read securely from Netlify's environment variables.
 const { SPREADSHEET_ID, GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_PRIVATE_KEY, JWT_SECRET } = process.env;
 
 exports.handler = async (event) => {
     // 1. Authenticate the user with their JWT login token.
+    // This function is called by the frontend to get the logged-in user's own data.
     let userPayload;
     try {
         const token = event.headers.authorization.split(' ')[1];
@@ -31,10 +33,11 @@ exports.handler = async (event) => {
 
         if (!userRow) {
             // This case handles data inconsistency where a user has a valid token but no database entry.
+            // This might happen if an admin manually deleted their row from the sheet.
             return { statusCode: 404, body: JSON.stringify({ error: 'User not found in database.' }) };
         }
 
-        // Format the user's data to be sent back. This is used for registration checks.
+        // Format the user's data to be sent back. This is primarily used for registration checks.
         const userData = {
             userId: userRow.userId,
             username: userRow.username,

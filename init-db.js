@@ -32,7 +32,19 @@ const SHEET_CONFIG = {
     ],
     "clan_requests": [
         "requestId", "clanId", "clanName", "userId", "username", "status", "timestamp"
-    ]
+    ],
+
+    // UPDATED LINE START: Add this new "messages" array to your SHEET_CONFIG object.
+"messages": [
+    "messageId", "name", "email", "subject", "message", "status", "timestamp"
+],
+// UPDATED LINE END
+
+// UPDATED LINE START: Add this new "partners" array to your SHEET_CONFIG object.
+"partners": [
+    "partnerName", "logoUrl", "websiteUrl", "category"
+]
+// UPDATED LINE END
 };
 
 // --- SCRIPT LOGIC ---

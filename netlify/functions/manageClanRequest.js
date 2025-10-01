@@ -22,7 +22,6 @@ exports.handler = async (event) => {
         const { requestId, userId, clanId, action } = JSON.parse(event.body);
         
         // Security Check: Make sure the leader is only managing requests for their own clan.
-        // This prevents a leader of Clan A from approving a request for Clan B.
         if (leaderPayload.clanId !== clanId) {
             return { statusCode: 403, body: JSON.stringify({ error: 'Forbidden: You cannot manage requests for another clan.' }) };
         }
@@ -58,24 +57,24 @@ exports.handler = async (event) => {
                 const clanRows = await clansSheet.getRows();
                 const clanToUpdate = clanRows.find(c => c.clanId === clanId);
                 if (clanToUpdate) {
-                    const newRoster = clanToUpdate.roster ? `${clanToUpdate.roster}, ${userToUpdate.username}` : userToUpdate.username;
-                    clanToUpdate.roster = newRoster;
-                    await clanToUpdate.save();
+                    const currentRoster = clanToUpdate.roster ? clanToUpdate.roster.split(',').map(name => name.trim()) : [];
+                    if (!currentRoster.includes(userToUpdate.username)) {
+                        currentRoster.push(userToUpdate.username);
+                        clanToUpdate.roster = currentRoster.join(', ');
+                        await clanToUpdate.save();
+                    }
                 }
 
                 // Mark the request as 'approved' so it doesn't show up again.
                 requestToProcess.status = 'approved';
                 await requestToProcess.save();
             } else {
-                // This handles an edge case where the user might have been deleted after making the request.
                 throw new Error('User who made the request was not found.');
             }
         } else if (action === 'deny') {
             // If denying, simply update the request status.
             requestToProcess.status = 'denied';
             await requestToProcess.save();
-        } else {
-             return { statusCode: 400, body: JSON.stringify({ error: 'Invalid action specified.' }) };
         }
         
         return { statusCode: 200, body: JSON.stringify({ message: `Request has been successfully ${action}d.` }) };

@@ -38,7 +38,12 @@ exports.handler = async (event) => {
         const users = await usersSheet.getRows();
         const user = users.find(u => u.userId === userPayload.userId);
         let clanInfo = null;
-        if (user && user.clanId) {
+
+        if (!user) {
+             return { statusCode: 404, body: JSON.stringify({ error: 'User data not found in the database.' }) };
+        }
+
+        if (user.clanId) {
             const clans = await clansSheet.getRows();
             const clan = clans.find(c => c.clanId === user.clanId);
             if (clan) {
@@ -49,7 +54,7 @@ exports.handler = async (event) => {
         // 3. Fetch the user's tournament history by checking the 'registrations' sheet.
         const registrations = await registrationsSheet.getRows();
         // We filter registrations to find any where the user's clan was registered.
-        const playedTournaments = registrations.filter(r => r.clanId === (user ? user.clanId : null)).length;
+        const playedTournaments = registrations.filter(r => r.clanId === user.clanId).length;
 
         // 4. Fetch the user's clan leaderboard position.
         let leaderboardRank = 'N/A';
