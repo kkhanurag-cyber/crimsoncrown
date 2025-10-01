@@ -181,7 +181,7 @@
             if (!grid) return;
 
             try {
-                const response = await fetch('/.netlify/functions/getPartners');
+                const response = await fetch('/backend/getPartners');
                 if (!response.ok) return;
                 const partners = await response.json();
                 
