@@ -115,3 +115,33 @@ function logout() {
     localStorage.removeItem('jwt_token');
     window.location.href = '/'; // Redirect to homepage to reset the state.
 }
+
+// UPDATED LINE START: Add this new function call inside the `DOMContentLoaded` event listener, after the user login logic.
+    // After handling user auth, load and apply site-wide settings like social links
+    loadSiteSettings();
+// UPDATED LINE END
+
+
+// UPDATED LINE START: Add this new function to the bottom of the auth.js file.
+/**
+ * Fetches site-wide settings and dynamically updates links on the page.
+ */
+async function loadSiteSettings() {
+    try {
+        const response = await fetch('/api/router?action=getSiteSettings');
+        if (!response.ok) return;
+        const settings = await response.json();
+
+        // Find all links with a `data-social-link` attribute and update their href
+        document.querySelectorAll('[data-social-link]').forEach(link => {
+            const platform = link.dataset.socialLink; // e.g., "discord", "twitter"
+            const urlKey = `${platform}Url`; // e.g., "discordUrl"
+            if (settings[urlKey]) {
+                link.href = settings[urlKey];
+            }
+        });
+    } catch (error) {
+        console.error("Could not load site settings:", error);
+    }
+}
+// UPDATED LINE END

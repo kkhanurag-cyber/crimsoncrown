@@ -470,3 +470,65 @@ async function deletePartner(partnerName) {
         loadPartnersList();
     } catch (error) { alert(error.message); }
 }
+
+// UPDATED LINE START: Add this to your Primary Controller at the top of admin.js
+if (document.getElementById('settings-form')) {
+    handleSettingsPage();
+}
+// UPDATED LINE END
+
+
+// UPDATED LINE START: Add these new functions to the bottom of admin.js
+// --- SITE SETTINGS PAGE ---
+async function handleSettingsPage() {
+    const token = protectPage();
+    const loader = document.getElementById('loader');
+    const form = document.getElementById('settings-form');
+
+    try {
+        const response = await fetch('/api/router?action=getSiteSettings');
+        if (!response.ok) throw new Error('Could not load settings.');
+        const settings = await response.json();
+
+        // Pre-fill the form with current values
+        document.getElementById('discordUrl').value = settings.discordUrl || '';
+        document.getElementById('twitterUrl').value = settings.twitterUrl || '';
+        document.getElementById('youtubeUrl').value = settings.youtubeUrl || '';
+        document.getElementById('instagramUrl').value = settings.instagramUrl || '';
+
+        loader.classList.add('d-none');
+        form.classList.remove('d-none');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formStatus = document.getElementById('form-status');
+            formStatus.textContent = 'Saving...';
+            
+            const newSettings = {
+                discordUrl: document.getElementById('discordUrl').value,
+                twitterUrl: document.getElementById('twitterUrl').value,
+                youtubeUrl: document.getElementById('youtubeUrl').value,
+                instagramUrl: document.getElementById('instagramUrl').value,
+            };
+
+            try {
+                const updateResponse = await fetch('/api/router?action=updateSiteSettings', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newSettings)
+                });
+                if (!updateResponse.ok) throw new Error('Failed to save.');
+                
+                formStatus.textContent = '✅ Saved!';
+                setTimeout(() => { formStatus.textContent = ''; }, 3000);
+
+            } catch (saveError) {
+                formStatus.textContent = `❌ Error: ${saveError.message}`;
+            }
+        });
+
+    } catch (loadError) {
+        loader.innerHTML = `<p class="text-danger">${loadError.message}</p>`;
+    }
+}
+// UPDATED LINE END

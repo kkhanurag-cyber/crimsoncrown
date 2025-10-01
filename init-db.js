@@ -36,6 +36,12 @@ const SHEET_CONFIG = {
     "messages": [
         "messageId", "name", "email", "subject", "message", "status", "timestamp"
     ],
+
+    "settings": [
+    "settingName", "settingValue"
+],
+
+
     "partners": [
         "partnerName", "logoUrl", "websiteUrl", "category"
     ]

@@ -6,7 +6,7 @@ const fetch = require('node-fetch');
 // All environment variables for all functions are loaded here.
 const { 
     SPREADSHEET_ID, GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_PRIVATE_KEY, JWT_SECRET, 
-    MAIL_USER, MAIL_PASS, URL, WEBHOOK_SECRET,
+    MAIL_USER, MAIL_PASS, WEBHOOK_SECRET,
     DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, DISCORD_SERVER_ID, DISCORD_BOT_TOKEN
 } = process.env;
 
@@ -16,10 +16,14 @@ module.exports = async (req, res) => {
     const { action } = req.query;
     const { body, headers } = req;
 
+    // Vercel provides a `VERCEL_URL` environment variable for the deployment's URL.
+    // We check if it exists for production, and fall back to localhost for local testing.
+    const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
+
     try {
-        // --- AUTHENTICATION ACTIONS (Handled separately) ---
+        // --- AUTHENTICATION ACTIONS (Handled Separately) ---
         if (action === 'discord-auth-start') {
-            const redirectURI = `${URL}/api/router?action=discord-auth-callback`;
+            const redirectURI = `${baseUrl}/api/router?action=discord-auth-callback`;
             const state = req.query.redirect || '/';
             const scope = ['identify', 'guilds.join'].join(' ');
             const authUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectURI)}&response_type=code&scope=${scope}&state=${encodeURIComponent(state)}`;
@@ -29,7 +33,7 @@ module.exports = async (req, res) => {
         if (action === 'discord-auth-callback') {
             const { code, state } = req.query;
             const finalRedirect = state || '/';
-            const redirectURI = `${URL}/api/router?action=discord-auth-callback`;
+            const redirectURI = `${baseUrl}/api/router?action=discord-auth-callback`;
 
             const tokenResponse = await fetch('https://discord.com/api/oauth2/token', {
                 method: 'POST',
@@ -69,7 +73,7 @@ module.exports = async (req, res) => {
             
             const siteToken = jwt.sign({ userId: userRow.userId, username: userRow.username, avatar: userRow.avatar, clanId: userRow.clanId, clanRole: userRow.clanRole, siteRole: userRow.siteRole || null }, JWT_SECRET, { expiresIn: '30d' });
 
-            return res.redirect(302, `${URL}/?token=${siteToken}&redirect=${encodeURIComponent(finalRedirect)}`);
+            return res.redirect(302, `${baseUrl}/?token=${siteToken}&redirect=${encodeURIComponent(finalRedirect)}`);
         }
 
         // --- All other actions require a DB connection ---
@@ -267,6 +271,39 @@ module.exports = async (req, res) => {
                 return res.status(501).json({ error: 'Action not implemented.' });
             }
             
+            // UPDATED LINE START: Add this new case inside the main `switch (action)` block, with the other public GET actions.
+            case 'getSiteSettings': {
+                await doc.loadInfo();
+                const sheet = doc.sheetsByTitle['settings'];
+                const rows = await sheet.getRows();
+                const settings = rows.reduce((acc, row) => {
+                    acc[row.settingName] = row.settingValue;
+                    return acc;
+                }, {});
+                return res.status(200).json(settings);
+            }
+// UPDATED LINE END
+
+
+// UPDATED LINE START: Add this new case inside the admin-only `switch(action)` block (inside the `default:` block).
+                    case 'updateSiteSettings': {
+                        const newSettings = requestBody;
+                        const sheet = doc.sheetsByTitle['settings'];
+                        const rows = await sheet.getRows();
+                        for (const key in newSettings) {
+                            const row = rows.find(r => r.settingName === key);
+                            if (row) {
+                                row.settingValue = newSettings[key];
+                                await row.save();
+                            } else {
+                                // If a setting doesn't exist, create it.
+                                await sheet.addRow({ settingName: key, settingValue: newSettings[key] });
+                            }
+                        }
+                        return res.status(200).json({ message: 'Settings updated successfully.' });
+                    }
+// UPDATED LINE END
+
             // --- ADMIN-ONLY ACTIONS ---
             default: {
                 let adminPayload;
@@ -285,7 +322,7 @@ module.exports = async (req, res) => {
                     case 'addTournament': {
                          const sheet = doc.sheetsByTitle['tournaments'];
                          await sheet.addRow(requestBody);
-                         const botEndpoint = `${URL}/api/discord-interactions`;
+                         const botEndpoint = `${baseUrl}/api/discord-interactions`;
                          await fetch(botEndpoint, { method: 'POST', headers: {'Content-Type': 'application/json', 'x-webhook-secret': WEBHOOK_SECRET}, body: JSON.stringify(requestBody) });
                          return res.status(200).json({ message: 'Tournament Added' });
                     }
@@ -411,3 +448,4 @@ module.exports = async (req, res) => {
         return res.status(500).json({ error: error.message || 'An internal server error occurred.' });
     }
 };
+
