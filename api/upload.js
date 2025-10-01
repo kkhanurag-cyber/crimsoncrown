@@ -1,32 +1,28 @@
 import { put } from '@vercel/blob';
 
-// This is the new, unified upload function for both clan logos and tournament banners.
-// It is secure because the BLOB_READ_WRITE_TOKEN is a secret environment variable.
-export const config = {
-  runtime: 'edge',
-};
+// This is the updated, unified upload function for both clan logos and tournament banners.
+// It is now configured to run as a standard Serverless Function.
 
-export default async function handler(request) {
-    const { searchParams } = new URL(request.url);
-    const filename = searchParams.get('filename');
-
-    if (!filename) {
-        return new Response(JSON.stringify({ error: 'Missing filename parameter.' }), { status: 400 });
+export default async function handler(req, res) {
+    // We only accept POST requests for uploads.
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method Not Allowed' });
     }
+
+    const filename = req.query.filename || 'unknown-file';
 
     try {
         // The file is sent directly in the request body.
-        const blob = await put(filename, request.body, {
+        // We pass the filename, the request body, and the access level to Vercel Blob.
+        const blob = await put(filename, req.body, {
             access: 'public', // Make the uploaded file publicly accessible.
         });
 
-        // Return the JSON response with the URL of the uploaded file.
-        return new Response(JSON.stringify(blob), {
-            headers: { 'Content-Type': 'application/json' },
-            status: 200,
-        });
+        // Return a JSON response with the URL of the uploaded file.
+        return res.status(200).json(blob);
+
     } catch (error) {
         console.error("Vercel Blob Upload Error:", error);
-        return new Response(JSON.stringify({ error: 'Failed to upload file.' }), { status: 500 });
+        return res.status(500).json({ error: 'Failed to upload file.' });
     }
 }
