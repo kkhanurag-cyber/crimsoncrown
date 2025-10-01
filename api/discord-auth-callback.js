@@ -14,7 +14,7 @@ const {
     DISCORD_BOT_TOKEN
 } = process.env;
 
-const redirectURI = `${URL}/.netlify/functions/discord-auth-callback`;
+const redirectURI = `${URL}/api/discord-auth-callback`;
 
 exports.handler = async (event) => {
     const { code, state } = event.queryStringParameters;

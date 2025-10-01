@@ -36,7 +36,7 @@ exports.handler = async (event) => {
         // 4. After successfully saving to the sheet, send a notification to our bot.
         try {
             // The endpoint for all bot interactions
-            const botEndpoint = `${URL}/.netlify/functions/discord-interactions`;
+            const botEndpoint = `${URL}/api/discord-interactions`;
             
             await fetch(botEndpoint, {
                 method: 'POST',

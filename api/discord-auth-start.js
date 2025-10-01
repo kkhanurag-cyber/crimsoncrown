@@ -2,7 +2,7 @@ const { DISCORD_CLIENT_ID, URL } = process.env;
 
 exports.handler = async (event) => {
     // This is the URL the user will be sent back to after logging in on Discord.
-    const redirectURI = `${URL}/.netlify/functions/discord-auth-callback`;
+    const redirectURI = `${URL}/api/discord-auth-callback`;
 
     // We capture the original page the user was on so we can send them back there after login.
     const state = event.queryStringParameters.redirect || '/';
