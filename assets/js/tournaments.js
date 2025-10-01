@@ -1,8 +1,8 @@
 /*
 =================================================
-Crimson Crown - Tournaments Page Script (v2.0 - Vercel)
+Crimson Crown - Tournaments Page Script (v2.1 - Final with Filters)
 =================================================
-This script handles the main tournaments listing page. It:
+This script handles the main tournaments listing page with the filter buttons. It:
 1. Fetches all tournaments from the backend API router.
 2. Implements a client-side filtering system (All, Active, Upcoming, Past).
 3. Dynamically creates and displays tournament cards.
@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             <div class="card-status">${tourney.status}</div>
                         </div>
                         <div class="card-content">
-                            <h5 class="card-title">${tourney.scrimName}</h5>
+                            <h5 class="card-title text-truncate">${tourney.scrimName}</h5>
                             <p class="card-sponsor text-secondary">${tourney.game}</p>
                             <hr>
                             <div class="card-details">
@@ -86,16 +86,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // --- 3. EVENT LISTENERS FOR FILTER BUTTONS ---
-    filterButtons.addEventListener('click', (e) => {
-        if (e.target.tagName === 'BUTTON') {
-            // Update the 'active' class on the buttons.
-            document.querySelector('#filter-btn-group .active').classList.remove('active');
-            e.target.classList.add('active');
-            
-            const filter = e.target.dataset.filter;
-            displayTournaments(filter);
-        }
-    });
+    if (filterButtons) {
+        filterButtons.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                // Update the 'active' class on the buttons.
+                document.querySelector('#filter-btn-group .active').classList.remove('active');
+                e.target.classList.add('active');
+                
+                const filter = e.target.dataset.filter;
+                displayTournaments(filter);
+            }
+        });
+    }
 
     // --- INITIALIZE ---
     fetchTournaments();

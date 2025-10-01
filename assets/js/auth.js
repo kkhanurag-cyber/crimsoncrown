@@ -2,16 +2,18 @@
 =================================================
 Crimson Crown - Global Authentication Script (v2.0 - Vercel)
 =================================================
-This is the complete and final script for the public-facing website's authentication. It handles:
-- Checking for a login token in the URL (after Discord redirect).
-- Storing the token and cleaning the URL.
-- Reading the token from localStorage on subsequent visits.
-- Decoding the token to get user data (username, avatar, roles).
-- Dynamically rendering the UI (either a "Login" button or a user profile dropdown).
-- Handling the logout process.
+This script runs on EVERY page of the website. It handles:
+1. Checking for a login token in the URL (after Discord redirect).
+2. Storing the token and cleaning the URL.
+3. Reading the token from localStorage on subsequent visits.
+4. Decoding the token to get user data (username, avatar, roles).
+5. Dynamically rendering the UI (either a "Login" button or a user profile dropdown).
+6. Handling the logout process.
+7. Loading and applying global site settings (like social links).
 */
 
 // A global variable to hold the current user's data once they are logged in.
+// This allows other scripts on the page to access user info if needed.
 let currentUser = null;
 
 // This function runs as soon as the basic HTML document is loaded.
@@ -23,9 +25,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Scenario 1: User has just logged in via Discord and was redirected back.
     if (token) {
+        // Save the token to the browser's local storage. This makes the user
+        // stay logged in even if they close the tab or refresh the page.
         localStorage.setItem('jwt_token', token);
         
-        // Clean up the URL. If a specific redirect path was saved, go there. Otherwise, go to the homepage.
+        // Clean up the URL by removing the token and redirect parameters.
+        // This provides a better user experience and prevents the token from being shared accidentally.
+        // If there was a specific page the user was trying to access, we send them there. Otherwise, to the homepage.
         const cleanUrl = redirectPath || '/';
         window.history.replaceState({}, document.title, cleanUrl);
     }
@@ -36,22 +42,29 @@ document.addEventListener('DOMContentLoaded', () => {
     if (storedToken) {
         // Scenario 2: A token exists, so the user is likely logged in.
         try {
+            // A JWT is made of three parts separated by dots: header, payload, and signature.
+            // The middle part (payload) contains the user data we need. It's base64 encoded.
             const payload = JSON.parse(atob(storedToken.split('.')[1]));
             
-            // Check if the token has expired.
+            // We check if the token has expired. The 'exp' field is a Unix timestamp in seconds.
             const isExpired = payload.exp * 1000 < Date.now();
             if (isExpired) {
+                // If expired, remove the old token and treat the user as logged out.
                 localStorage.removeItem('jwt_token');
                 showLoginButton(userAuthContainer);
-                return;
+                return; // Stop execution
             }
 
-            // If the token is valid, set the global currentUser object and update the UI.
+            // If the token is valid and not expired, set the global currentUser object.
             currentUser = payload;
+            
+            // Update the UI to show the user's profile information.
             showUserProfile(userAuthContainer, currentUser);
 
         } catch (error) {
-            console.error("Invalid token found:", error);
+            // If the token is malformed or invalid, it's a security risk.
+            // Clear it from storage and show the login button.
+            console.error("Invalid or malformed token found:", error);
             localStorage.removeItem('jwt_token');
             showLoginButton(userAuthContainer);
         }
@@ -59,6 +72,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Scenario 3: No token found. The user is logged out.
         showLoginButton(userAuthContainer);
     }
+
+    // After handling user authentication, load and apply site-wide settings like social links.
+    loadSiteSettings();
 });
 
 /**
@@ -66,9 +82,10 @@ document.addEventListener('DOMContentLoaded', () => {
  * @param {HTMLElement} container - The div element where the button will be placed.
  */
 function showLoginButton(container) {
-    if (!container) return;
+    if (!container) return; // Safety check if the container element doesn't exist on the page.
     
     // Construct the login URL. We include the current page's path as a 'redirect' parameter.
+    // This tells our backend where to send the user back to after a successful login.
     const redirectParam = encodeURIComponent(window.location.pathname + window.location.search);
     const loginUrl = `/api/router?action=discord-auth-start&redirect=${redirectParam}`;
     
@@ -81,10 +98,11 @@ function showLoginButton(container) {
 
 /**
  * Renders the user profile dropdown in the navigation bar.
+ * @param {HTMLElement} container - The div element where the dropdown will be placed.
  * @param {object} user - The decoded JWT payload containing user info.
  */
 function showUserProfile(container, user) {
-    if (!container) return;
+    if (!container) return; // Safety check.
     
     // Check if the user has an 'admin' siteRole to decide if the Admin Panel link should be shown.
     const adminLink = user.siteRole === 'admin' 
@@ -109,22 +127,7 @@ function showUserProfile(container, user) {
 }
 
 /**
- * Logs the user out by removing the token and reloading the page.
- */
-function logout() {
-    localStorage.removeItem('jwt_token');
-    window.location.href = '/'; // Redirect to homepage to reset the state.
-}
-
-// UPDATED LINE START: Add this new function call inside the `DOMContentLoaded` event listener, after the user login logic.
-    // After handling user auth, load and apply site-wide settings like social links
-    loadSiteSettings();
-// UPDATED LINE END
-
-
-// UPDATED LINE START: Add this new function to the bottom of the auth.js file.
-/**
- * Fetches site-wide settings and dynamically updates links on the page.
+ * Fetches site-wide settings (like social links) and dynamically updates them on the page.
  */
 async function loadSiteSettings() {
     try {
@@ -132,16 +135,27 @@ async function loadSiteSettings() {
         if (!response.ok) return;
         const settings = await response.json();
 
-        // Find all links with a `data-social-link` attribute and update their href
+        // Find all links with a `data-social-link` attribute and update their href.
         document.querySelectorAll('[data-social-link]').forEach(link => {
             const platform = link.dataset.socialLink; // e.g., "discord", "twitter"
             const urlKey = `${platform}Url`; // e.g., "discordUrl"
             if (settings[urlKey]) {
                 link.href = settings[urlKey];
+            } else {
+                link.style.display = 'none'; // Hide the link if the URL is not set in the database.
             }
         });
     } catch (error) {
         console.error("Could not load site settings:", error);
     }
 }
-// UPDATED LINE END
+
+/**
+ * Logs the user out by removing the token from local storage and redirecting to the homepage.
+ * This function is globally available to be called by the `onclick` attribute in the dropdown menu.
+ */
+function logout() {
+    localStorage.removeItem('jwt_token');
+    // Redirect to the homepage to reset the state.
+    window.location.href = '/';
+}

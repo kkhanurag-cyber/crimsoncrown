@@ -17,7 +17,7 @@ module.exports = async (req, res) => {
     const { body, headers } = req;
 
     // Vercel provides a `VERCEL_URL` environment variable for the deployment's URL.
-    // We check if it exists for production, and fall back to localhost for local testing.
+    // We use this for production and fall back to localhost for local `vercel dev` testing.
     const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
 
     try {
@@ -271,39 +271,6 @@ module.exports = async (req, res) => {
                 return res.status(501).json({ error: 'Action not implemented.' });
             }
             
-            // UPDATED LINE START: Add this new case inside the main `switch (action)` block, with the other public GET actions.
-            case 'getSiteSettings': {
-                await doc.loadInfo();
-                const sheet = doc.sheetsByTitle['settings'];
-                const rows = await sheet.getRows();
-                const settings = rows.reduce((acc, row) => {
-                    acc[row.settingName] = row.settingValue;
-                    return acc;
-                }, {});
-                return res.status(200).json(settings);
-            }
-// UPDATED LINE END
-
-
-// UPDATED LINE START: Add this new case inside the admin-only `switch(action)` block (inside the `default:` block).
-                    case 'updateSiteSettings': {
-                        const newSettings = requestBody;
-                        const sheet = doc.sheetsByTitle['settings'];
-                        const rows = await sheet.getRows();
-                        for (const key in newSettings) {
-                            const row = rows.find(r => r.settingName === key);
-                            if (row) {
-                                row.settingValue = newSettings[key];
-                                await row.save();
-                            } else {
-                                // If a setting doesn't exist, create it.
-                                await sheet.addRow({ settingName: key, settingValue: newSettings[key] });
-                            }
-                        }
-                        return res.status(200).json({ message: 'Settings updated successfully.' });
-                    }
-// UPDATED LINE END
-
             // --- ADMIN-ONLY ACTIONS ---
             default: {
                 let adminPayload;
@@ -448,4 +415,3 @@ module.exports = async (req, res) => {
         return res.status(500).json({ error: error.message || 'An internal server error occurred.' });
     }
 };
-
