@@ -1,9 +1,9 @@
 /*
 =================================================
-Crimson Crown - Tournaments Page Script
+Crimson Crown - Tournaments Page Script (v2.0 - Vercel)
 =================================================
 This script handles the main tournaments listing page. It:
-1. Fetches all tournaments from the backend.
+1. Fetches all tournaments from the backend API router.
 2. Implements a client-side filtering system (All, Active, Upcoming, Past).
 3. Dynamically creates and displays tournament cards.
 4. Provides smooth animations for filtering.
@@ -16,12 +16,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const filterButtons = document.getElementById('filter-btn-group');
     const noResultsMessage = document.getElementById('no-results');
     
-    let allTournaments = []; // A cache to store the fetched tournaments, so we don't have to re-fetch on every filter click.
+    let allTournaments = []; // A cache to store the fetched tournaments.
 
     // --- 1. FETCH TOURNAMENT DATA ---
     async function fetchTournaments() {
         try {
-            const response = await fetch('/.netlify/functions/getTournaments');
+            const response = await fetch('/api/router?action=getTournaments');
             if (!response.ok) throw new Error('Failed to fetch data from the server.');
             allTournaments = await response.json();
             
@@ -82,24 +82,21 @@ document.addEventListener('DOMContentLoaded', async () => {
                 cardCol.innerHTML = cardHTML;
                 tournamentContainer.appendChild(cardCol);
             });
-        }, 300); // This timeout should match the CSS transition duration for the fade-out effect.
+        }, 300); // This timeout should match the CSS transition duration.
     }
 
     // --- 3. EVENT LISTENERS FOR FILTER BUTTONS ---
     filterButtons.addEventListener('click', (e) => {
-        // Use event delegation to handle clicks on any button within the group.
         if (e.target.tagName === 'BUTTON') {
             // Update the 'active' class on the buttons.
             document.querySelector('#filter-btn-group .active').classList.remove('active');
             e.target.classList.add('active');
             
-            // Get the filter value from the button's data attribute (e.g., 'data-filter="active"').
             const filter = e.target.dataset.filter;
             displayTournaments(filter);
         }
     });
 
     // --- INITIALIZE ---
-    // Start the process by fetching the tournaments when the page loads.
     fetchTournaments();
 });

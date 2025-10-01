@@ -1,10 +1,10 @@
 /*
 =================================================
-Crimson Crown - User Profile Page Script
+Crimson Crown - User Profile Page Script (v2.0 - Vercel)
 =================================================
 This script handles:
 1. Checking if the user is logged in.
-2. Fetching the user's complete profile data from the backend.
+2. Fetching the user's complete profile data from the backend router.
 3. Populating the page with their avatar, username, clan status, and stats.
 4. Handling loading and error states.
 */
@@ -22,9 +22,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-        // Fetch the user's complete profile data from our secure serverless function.
+        // Fetch the user's complete profile data from our secure API router.
         // The backend function will use the JWT to identify the user and gather all necessary data.
-        const response = await fetch('/.netlify/functions/getUserProfile', {
+        const response = await fetch('/api/router?action=getUserProfile', {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             // If the user is in a clan, display the clan's logo and name.
             clanInfoContainer.innerHTML = `
                 <div class="d-flex align-items-center justify-content-center">
-                    <img src="${profile.clan.clanLogo}" class="rounded-circle me-2" style="width:24px; height:24px;" alt="${profile.clan.clanName} Logo">
+                    <img src="${profile.clan.clanLogo}" class="rounded-circle me-2" style="width:24px; height:24px; object-fit: cover;" alt="${profile.clan.clanName} Logo">
                     <span>Member of <strong>${profile.clan.clanName}</strong></span>
                 </div>
             `;
@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <p class="text-secondary mb-3">You are not currently in a clan.</p>
                 <div>
                     <a href="clans.html" class="btn btn-sm btn-outline-light">Browse Clans</a>
-                    <a href="register-clan.html" class="btn btn-sm btn-brand">Create a Clan</a>
+                    <a href="register-clan.html" class="btn btn-sm btn-brand ms-2">Create a Clan</a>
                 </div>
             `;
         }

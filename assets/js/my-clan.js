@@ -1,10 +1,10 @@
 /*
 =================================================
-Crimson Crown - My Clan Page Script
+Crimson Crown - My Clan Page Script (v2.0 - Vercel)
 =================================================
 This script handles the user's personal clan dashboard. It:
 1. Checks if the user is logged in.
-2. Fetches the user's specific clan data from the backend.
+2. Fetches the user's specific clan data from the backend router.
 3. Displays a "Not in a Clan" prompt if the user isn't in one.
 4. Populates the page with the clan's details (logo, name, roster).
 5. If the user is the clan leader, it also fetches and displays pending join requests.
@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('jwt_token');
     if (!token) {
         // If the user is not logged in, they can't have a clan. Redirect them to the homepage to log in.
+        // The auth.js script will handle showing the login prompt if they somehow land here.
         window.location.href = '/';
         return;
     }
@@ -26,9 +27,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const clanDashboard = document.getElementById('clan-dashboard');
 
     try {
-        // Fetch the user's clan data from our secure serverless function.
+        // Fetch the user's clan data from our secure API router.
         // We send the user's JWT in the Authorization header to identify them.
-        const response = await fetch('/.netlify/functions/getMyClan', {
+        const response = await fetch('/api/router?action=getMyClan', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
@@ -56,7 +57,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const rosterList = document.getElementById('roster-list');
         if (clanDetails.roster && clanDetails.roster.length > 0) {
             clanDetails.roster.forEach(member => {
-                const isCaptain = member === clanDetails.captainName;
+                // Check if the current member being listed is the captain.
+                const isCaptain = member.toLowerCase() === clanDetails.captainName.toLowerCase();
                 rosterList.innerHTML += `
                     <li class="list-group-item bg-transparent text-light d-flex justify-content-between align-items-center">
                         ${member}
@@ -68,10 +70,11 @@ document.addEventListener('DOMContentLoaded', async () => {
              rosterList.innerHTML = `<li class="list-group-item bg-transparent text-secondary">No members listed in the roster.</li>`;
         }
         
-        // 3. Populate the Join Requests panel (this only runs if the backend sent requests).
+        // 3. Populate the Join Requests panel (this only runs if the backend sent requests, i.e., for the leader).
         const requestsPanel = document.getElementById('requests-panel');
         const requestsList = document.getElementById('requests-list');
         if (pendingRequests && pendingRequests.length > 0) {
+             requestsList.innerHTML = ''; // Clear any placeholders
              pendingRequests.forEach(req => {
                 requestsList.innerHTML += `
                     <div id="req-${req.requestId}" class="d-flex justify-content-between align-items-center mb-3 p-2 rounded" style="background-color: #1a1a1a;">
@@ -84,7 +87,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 `;
             });
         } else {
-             // If there are no pending requests, hide the entire panel.
+             // If there are no pending requests, or if the user is not the leader, hide the entire panel.
              requestsPanel.classList.add('d-none');
         }
 
@@ -113,7 +116,7 @@ async function manageRequest(requestId, userId, clanId, action) {
     row.style.opacity = '0.5';
 
     try {
-        const response = await fetch('/.netlify/functions/manageClanRequest', {
+        const response = await fetch('/api/router?action=manageClanRequest', {
             method: 'POST',
             headers: { 
                 'Authorization': `Bearer ${token}`,
@@ -133,7 +136,7 @@ async function manageRequest(requestId, userId, clanId, action) {
             row.remove();
             // Optional: If this was the last request, show a "no requests" message.
             if (document.getElementById('requests-list').children.length === 0) {
-                 document.getElementById('requests-panel').classList.add('d-none');
+                 document.getElementById('requests-list').innerHTML = '<p class="text-secondary">No pending requests.</p>';
             }
         }, 500);
 

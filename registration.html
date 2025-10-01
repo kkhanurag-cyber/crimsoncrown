@@ -31,55 +31,98 @@
 
     <div class="page-content-wrapper">
         <main class="container py-5 mt-5">
-            <div class="section-heading my-5">
-                <h1 id="tournament-name" class="animated-gradient-text">Loading Tournament...</h1>
-                <p id="tournament-game" class="text-secondary"></p>
-            </div>
-            
-            <div id="loader" class="text-center py-5">
-                <div class="spinner-border text-danger" role="status"></div>
-                <p class="text-secondary mt-2">Verifying your registration status...</p>
-            </div>
-
-            <!-- The registration form, hidden by default -->
-            <div id="registration-form-container" class="custom-card p-4 p-md-5 d-none">
-                <form id="tournament-registration-form">
-                    <input type="hidden" id="scrimId">
-                    <input type="hidden" id="clanId">
-                    <input type="hidden" id="clanName">
-
-                    <h4 class="mb-4">Team & Player Information</h4>
-                    <div class="row g-4">
-                        <div class="col-md-6">
-                            <label for="captainDiscord" class="form-label">Captain's Discord</label>
-                            <input type="text" class="form-control" id="captainDiscord" placeholder="YourDiscord#1234" required>
-                        </div>
-                         <div class="col-12">
-                            <label for="roster" class="form-label">Roster (Enter player in-game names, one per line)</label>
-                            <textarea class="form-control" id="roster" rows="5" placeholder="Player1&#10;Player2&#10;Player3&#10;..."></textarea>
-                        </div>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="section-heading my-5">
+                        <h1 id="tournament-name" class="animated-gradient-text">Tournament Registration</h1>
+                        <p id="tournament-game" class="text-secondary"></p>
                     </div>
-                    <hr class="my-4">
-                    <button type="submit" id="submit-button" class="btn btn-brand">
-                        <span id="submit-button-text">Register Team</span>
-                         <div id="submit-spinner" class="spinner-border spinner-border-sm d-none" role="status"></div>
-                    </button>
-                    <p id="form-status" class="mt-3"></p>
-                </form>
+                    
+                    <!-- Loader: Shown while verifying user status -->
+                    <div id="loader" class="text-center py-5">
+                        <div class="spinner-border text-danger" role="status"></div>
+                        <p class="text-secondary mt-2">Verifying your registration status...</p>
+                    </div>
+
+                    <!-- The registration form, hidden by default -->
+                    <div id="registration-form-container" class="custom-card p-4 p-md-5 d-none">
+                        <form id="tournament-registration-form">
+                            <!-- Hidden inputs to store essential IDs -->
+                            <input type="hidden" id="scrimId">
+                            <input type="hidden" id="clanId">
+
+                            <h4 class="mb-4">Team & Player Information</h4>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label for="clanName" class="form-label">Clan Name</label>
+                                    <input type="text" class="form-control" id="clanName" readonly>
+                                    <div class="form-text">Your clan name is automatically filled.</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="captainDiscord" class="form-label">Captain's Discord</label>
+                                    <input type="text" class="form-control" id="captainDiscord" placeholder="YourDiscord#1234" required>
+                                </div>
+                                 <div class="col-12">
+                                    <label for="roster" class="form-label">Roster (Enter player in-game names, one per line)</label>
+                                    <textarea class="form-control" id="roster" rows="5" placeholder="Player1&#10;Player2&#10;Player3&#10;..."></textarea>
+                                    <div class="form-text">List the players who will participate in this tournament.</div>
+                                </div>
+                            </div>
+                            <hr class="my-4">
+                            <button type="submit" id="submit-button" class="btn btn-brand">
+                                <span id="submit-button-text">Register Team</span>
+                                 <div id="submit-spinner" class="spinner-border spinner-border-sm d-none" role="status"></div>
+                            </button>
+                            <p id="form-status" class="mt-3"></p>
+                        </form>
+                    </div>
+                </div>
             </div>
         </main>
     </div>
     
     <!-- MODAL for Unauthorized Role -->
-    <div class="modal fade" id="auth-role-modal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content bg-dark text-white"><div class="modal-header border-secondary"><h5 class="modal-title">Permission Required</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><p>Only the clan Leader or Co-leader can register a team for a tournament.</p><p>Please ask your clan leadership to complete the registration.</p></div><div class="modal-footer border-secondary"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div></div></div></div>
+    <div class="modal fade" id="auth-role-modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">Permission Required</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Only the clan Leader or Co-leader can register a team for a tournament.</p>
+                    <p class="text-secondary">Please ask your clan leadership to complete the registration.</p>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     
     <!-- MODAL for No Clan -->
-    <div class="modal fade" id="no-clan-modal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content bg-dark text-white"><div class="modal-header border-secondary"><h5 class="modal-title">Clan Required</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><p>To register for a tournament, you must be a member of a clan.</p></div><div class="modal-footer border-secondary"><a href="clans.html" class="btn btn-outline-light">View Clans</a><a href="register-clan.html" class="btn btn-brand">Create a Clan</a></div></div></div></div>
+    <div class="modal fade" id="no-clan-modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">Clan Required</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>To register for a tournament, you must be a member of a clan.</p>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <a href="clans.html" class="btn btn-outline-light">View Clans</a>
+                    <a href="register-clan.html" class="btn btn-brand">Create a Clan</a>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- FOOTER -->
     <footer class="site-footer">
         <div class="container">
-            <div class="footer-content">
+             <div class="footer-content">
                 <div class="footer-about">
                     <a href="index.html" class="footer-logo text-decoration-none mb-3">
                         <img src="assets/images/logo.png" alt="Crimson Crown Logo">

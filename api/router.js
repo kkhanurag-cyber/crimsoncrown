@@ -5,33 +5,84 @@ const fetch = require('node-fetch');
 
 // All environment variables for all functions are loaded here.
 const { 
-    SPREADSHEET_ID, 
-    GOOGLE_SERVICE_ACCOUNT_EMAIL, 
-    GOOGLE_PRIVATE_KEY, 
-    JWT_SECRET, 
-    MAIL_USER, 
-    MAIL_PASS, 
-    URL, 
-    WEBHOOK_SECRET 
+    SPREADSHEET_ID, GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_PRIVATE_KEY, JWT_SECRET, 
+    MAIL_USER, MAIL_PASS, URL, WEBHOOK_SECRET,
+    DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, DISCORD_SERVER_ID, DISCORD_BOT_TOKEN
 } = process.env;
 
 // This is the main handler for all API requests.
 exports.handler = async (event) => {
-    // We use a query parameter `action` to decide which block of code to run.
     const { action } = event.queryStringParameters;
     const { httpMethod, body, headers } = event;
 
     try {
+        // --- AUTHENTICATION ACTIONS (Handled Separately) ---
+        // These two actions are special because they don't always involve the database right away.
+        if (action === 'discord-auth-start') {
+            const redirectURI = `${URL}/api/router?action=discord-auth-callback`;
+            const state = event.queryStringParameters.redirect || '/';
+            const scope = ['identify', 'guilds.join'].join(' ');
+            const authUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectURI)}&response_type=code&scope=${scope}&state=${encodeURIComponent(state)}`;
+            return { statusCode: 302, headers: { Location: authUrl } };
+        }
+
+        if (action === 'discord-auth-callback') {
+            const { code, state } = event.queryStringParameters;
+            const finalRedirect = state || '/';
+            const redirectURI = `${URL}/api/router?action=discord-auth-callback`;
+
+            const tokenResponse = await fetch('https://discord.com/api/oauth2/token', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ client_id: DISCORD_CLIENT_ID, client_secret: DISCORD_CLIENT_SECRET, grant_type: 'authorization_code', code, redirect_uri: redirectURI }),
+            });
+            const tokenData = await tokenResponse.json();
+            const accessToken = tokenData.access_token;
+            if (!accessToken) throw new Error("Could not retrieve access token from Discord.");
+
+            const userResponse = await fetch('https://discord.com/api/users/@me', { headers: { Authorization: `Bearer ${accessToken}` } });
+            const discordUser = await userResponse.json();
+            
+            if (DISCORD_SERVER_ID && DISCORD_BOT_TOKEN) {
+                await fetch(`https://discord.com/api/guilds/${DISCORD_SERVER_ID}/members/${discordUser.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bot ${DISCORD_BOT_TOKEN}` },
+                    body: JSON.stringify({ access_token: accessToken }),
+                });
+            }
+            
+            const doc = new GoogleSpreadsheet(SPREADSHEET_ID);
+            await doc.useServiceAccountAuth({ client_email: GOOGLE_SERVICE_ACCOUNT_EMAIL, private_key: GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n') });
+            await doc.loadInfo();
+            const sheet = doc.sheetsByTitle['users'];
+            const rows = await sheet.getRows();
+            let userRow = rows.find(row => row.userId === discordUser.id);
+            const avatarUrl = `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png`;
+
+            if (userRow) {
+                userRow.username = discordUser.username;
+                userRow.avatar = avatarUrl;
+                await userRow.save();
+            } else {
+                userRow = await sheet.addRow({ userId: discordUser.id, username: discordUser.username, avatar: avatarUrl, clanId: '', clanRole: '', siteRole: '' });
+            }
+            
+            const siteToken = jwt.sign({ userId: userRow.userId, username: userRow.username, avatar: userRow.avatar, clanId: userRow.clanId, clanRole: userRow.clanRole, siteRole: userRow.siteRole || null }, JWT_SECRET, { expiresIn: '30d' });
+
+            return { statusCode: 302, headers: { Location: `${URL}/?token=${siteToken}&redirect=${encodeURIComponent(finalRedirect)}` } };
+        }
+
+        // --- All other actions require a DB connection ---
         const doc = new GoogleSpreadsheet(SPREADSHEET_ID);
         await doc.useServiceAccountAuth({
             client_email: GOOGLE_SERVICE_ACCOUNT_EMAIL,
             private_key: GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
         });
-
+        
         // The main switch statement routes the request to the correct logic.
         switch (action) {
 
-            // --- PUBLIC GET ACTIONS (NO AUTHENTICATION NEEDED) ---
+            // --- PUBLIC GET ACTIONS ---
             case 'getTournaments': {
                 await doc.loadInfo();
                 const sheet = doc.sheetsByTitle['tournaments'];
@@ -99,7 +150,6 @@ exports.handler = async (event) => {
             }
 
             // --- USER-AUTHENTICATED ACTIONS ---
-            // This block handles actions that require a valid user login token, but not necessarily admin rights.
             case 'getUser':
             case 'getUserProfile':
             case 'createClan':
@@ -214,7 +264,7 @@ exports.handler = async (event) => {
                      return { statusCode: 200, body: JSON.stringify({ message: 'Request processed' }) };
                 }
                 
-                return { statusCode: 501, body: JSON.stringify({ error: 'Action not implemented in this block.' }) };
+                return { statusCode: 501, body: JSON.stringify({ error: 'Action not implemented.' }) };
             }
             
             // --- ADMIN-ONLY ACTIONS ---
@@ -286,18 +336,18 @@ exports.handler = async (event) => {
                     case 'processClanRequest': {
                         const { requestId, userId, clanId, action: reqAction } = requestBody;
                         const requestsSheet = doc.sheetsByTitle['clan_requests'];
+                        const usersSheet = doc.sheetsByTitle['users'];
+                        const clansSheet = doc.sheetsByTitle['clans'];
                         const reqRows = await requestsSheet.getRows();
                         const request = reqRows.find(r => r.requestId === requestId);
                         if (!request) return { statusCode: 404, body: 'Not Found' };
                         if (reqAction === 'approve') {
-                             const usersSheet = doc.sheetsByTitle['users'];
                              const userRows = await usersSheet.getRows();
                              const user = userRows.find(u => u.userId === userId);
                              if (user) {
                                  user.clanId = clanId;
                                  user.clanRole = 'member';
                                  await user.save();
-                                 const clansSheet = doc.sheetsByTitle['clans'];
                                  const clanRows = await clansSheet.getRows();
                                  const clan = clanRows.find(c => c.clanId === clanId);
                                  if (clan) {

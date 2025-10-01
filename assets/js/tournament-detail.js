@@ -1,10 +1,10 @@
 /*
 =================================================
-Crimson Crown - Tournament Detail Page Script
+Crimson Crown - Tournament Detail Page Script (v2.0 - Vercel)
 =================================================
 This script handles the logic for the individual tournament detail page. It:
 1. Gets the tournament ID from the URL's query parameters.
-2. Fetches the detailed data for that specific tournament from the backend.
+2. Fetches the detailed data for that specific tournament from the backend API router.
 3. Populates all the page elements (banner, description, rules, prize pool, schedule).
 4. Sets the correct link for the "Register Now" button.
 5. Handles loading and error states.
@@ -28,8 +28,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-        // Fetch the detailed data for this specific tournament from our secure serverless function.
-        const response = await fetch(`/.netlify/functions/getTournamentDetail?id=${tournamentId}`);
+        // Fetch the detailed data for this specific tournament from our secure API router.
+        const response = await fetch(`/api/router?action=getTournamentDetail&id=${tournamentId}`);
         if (!response.ok) {
             throw new Error(`Tournament not found or a server error occurred.`);
         }
@@ -64,17 +64,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             return new Intl.DateTimeFormat('en-US', { 
                 dateStyle: 'medium', 
                 timeStyle: 'short',
-                timeZone: 'Asia/Kolkata' // Set to your target timezone
+                timeZone: 'Asia/Kolkata' // Example timezone, adjust as needed
             }).format(new Date(dateString));
         };
         document.getElementById('tourney-reg-start').textContent = formatDate(data.regStart);
         document.getElementById('tourney-reg-end').textContent = formatDate(data.regEnd);
         document.getElementById('tourney-scrim-start').textContent = formatDate(data.scrimStart);
         
-        // 5. Update the "Register Now" button link to include the tournament ID.
+        // 5. Update the "Register Now" button link and state.
         const registerButton = document.getElementById('register-button');
         if (data.status.toLowerCase() === 'active') {
-             registerButton.href = `registration.html?scrimId=${data.scrimId}`;
+             registerButton.href = `registration.html?id=${data.scrimId}`;
         } else {
             registerButton.classList.add('disabled');
             registerButton.textContent = `Registration ${data.status.toLowerCase() === 'upcoming' ? 'Not Open' : 'Closed'}`;

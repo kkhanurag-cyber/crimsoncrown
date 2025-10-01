@@ -126,7 +126,7 @@ async function loadTournamentsList() {
     const listContainer = document.getElementById('tournaments-list');
     const loader = document.getElementById('tournaments-loader');
     try {
-        const response = await fetch('/api/router?action=getTournaments', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetch('/api/router?action=getTournaments');
         if (!response.ok) throw new Error('Failed to load tournaments list.');
         const tournaments = await response.json();
         loader.classList.add('d-none');
@@ -206,7 +206,6 @@ async function deleteTournament(scrimId, scrimName) {
     }
 }
 
-
 // --- 4. OTHER ADMIN PAGES ---
 
 async function handleEditTournamentPage() {
@@ -216,7 +215,7 @@ async function handleEditTournamentPage() {
     const formContainer = document.getElementById('edit-form-container');
     if (!scrimId) { loader.innerHTML = '<p class="text-danger">No tournament ID provided.</p>'; return; }
     try {
-        const response = await fetch(`/api/router?action=getTournamentDetail&id=${scrimId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetch(`/api/router?action=getTournamentDetail&id=${scrimId}`);
         if (!response.ok) throw new Error('Could not fetch tournament data.');
         const data = await response.json();
         document.getElementById('edit-title').textContent = `Edit: ${data.scrimName}`;

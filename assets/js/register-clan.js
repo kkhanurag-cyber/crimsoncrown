@@ -2,12 +2,12 @@
 =================================================
 Crimson Crown - Clan Registration Script (v2.0 - Vercel)
 =================================================
-This is the complete and final script for the clan registration page. It handles:
-1. Checking if a user is logged in. If not, it shows a "Login" prompt.
-2. Handling the image upload process by sending the file to the Vercel Blob endpoint.
-3. Intercepting the main form submission.
-4. Sending all clan data to the secure 'createClan' backend function.
-5. Providing UI feedback to the user (loading states, success/error messages).
+This script handles the logic for the clan registration page. It:
+1. Checks if a user is logged in. If not, it shows a "Login" prompt.
+2. Handles the image upload process by sending the file to the Vercel Blob endpoint.
+3. Intercepts the main form submission.
+4. Sends all clan data to the secure 'createClan' backend function.
+5. Provides UI feedback to the user (loading states, success/error messages).
 */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -109,9 +109,9 @@ async function handleClanRegistration(event) {
     };
 
     try {
-        // Send the data to the secure 'createClan' backend function.
+        // Send the data to the secure 'createClan' action in the API router.
         // The user's JWT is sent in the header to identify them as the captain.
-        const response = await fetch('/backend/createClan', {
+        const response = await fetch('/api/router?action=createClan', {
             method: 'POST',
             headers: { 
                 'Authorization': `Bearer ${token}`,
