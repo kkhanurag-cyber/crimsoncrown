@@ -1,13 +1,13 @@
 /*
 =================================================
-Crimson Crown - Clan Registration Script
+Crimson Crown - Clan Registration Script (v2.0 - Vercel)
 =================================================
-This script handles the logic for the clan registration page. It:
-1. Checks if a user is logged in. If not, it shows a "Login" prompt.
-2. Handles the image upload process by sending the file to a public backend function.
-3. Intercepts the main form submission.
-4. Sends all clan data to a secure backend function to create the clan.
-5. Provides UI feedback to the user (loading states, success/error messages).
+This is the complete and final script for the clan registration page. It handles:
+1. Checking if a user is logged in. If not, it shows a "Login" prompt.
+2. Handling the image upload process by sending the file to the Vercel Blob endpoint.
+3. Intercepting the main form submission.
+4. Sending all clan data to the secure 'createClan' backend function.
+5. Providing UI feedback to the user (loading states, success/error messages).
 */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /**
- * Handles the file selection for the clan logo. Uploads the image to Google Drive.
+ * Handles the file selection for the clan logo. Uploads the image to Vercel Blob.
  * @param {Event} event - The file input change event.
  */
 async function handleImageUpload(event) {
@@ -46,34 +46,30 @@ async function handleImageUpload(event) {
 
     const formStatus = document.getElementById('form-status');
     formStatus.textContent = 'Uploading logo, please wait...';
-    formStatus.classList.remove('text-success', 'text-danger');
+    formStatus.className = 'mt-3 text-warning';
 
-    // Use FileReader to convert the image to a base64 string for sending to the backend.
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onloadend = async () => {
-        const base64File = reader.result;
-       try {
-    // UPDATED: The endpoint now points to our new GitHub upload function.
-    const response = await fetch('/.netlify/functions/uploadToGitHub', {
-        method: 'POST',
-        body: JSON.stringify({ file: base64File, fileName: file.name }),
-    });
+    try {
+        // Send the file to our public Vercel Blob upload function.
+        // The filename is passed as a query parameter.
+        const response = await fetch(`/api/upload?filename=clan-logo-${Date.now()}-${file.name}`, {
+            method: 'POST',
+            body: file, // The raw file is sent in the body.
+        });
 
-    if (!response.ok) throw new Error('Image upload failed.');
-
-    const { url } = await response.json();
-    
-    // Store the returned GitHub URL in the hidden input.
-    document.getElementById('clanLogo').value = url;
-    formStatus.textContent = '✅ Logo uploaded successfully!';
-    formStatus.classList.add('text-success');
-
-} catch (error) {
-    formStatus.textContent = `❌ Logo upload failed: ${error.message}`;
-    formStatus.classList.add('text-danger');
-}
-    };
+        if (!response.ok) {
+            throw new Error('Image upload failed on the server.');
+        }
+        
+        const { url } = await response.json();
+        
+        // Store the returned Vercel Blob URL in a hidden input field in the form.
+        document.getElementById('clanLogo').value = url;
+        formStatus.textContent = '✅ Logo uploaded successfully!';
+        formStatus.className = 'mt-3 text-success';
+    } catch (error) {
+        formStatus.textContent = `❌ Logo upload failed: ${error.message}`;
+        formStatus.className = 'mt-3 text-danger';
+    }
 }
 
 /**
@@ -102,7 +98,7 @@ async function handleClanRegistration(event) {
     buttonText.textContent = 'Creating Clan...';
     buttonSpinner.classList.remove('d-none');
     formStatus.textContent = '';
-    formStatus.classList.remove('text-success', 'text-danger');
+    formStatus.className = 'mt-3';
 
     // Collect all data from the form.
     const clanData = {
@@ -115,7 +111,7 @@ async function handleClanRegistration(event) {
     try {
         // Send the data to the secure 'createClan' backend function.
         // The user's JWT is sent in the header to identify them as the captain.
-        const response = await fetch('/.netlify/functions/createClan', {
+        const response = await fetch('/api/createClan', {
             method: 'POST',
             headers: { 
                 'Authorization': `Bearer ${token}`,
