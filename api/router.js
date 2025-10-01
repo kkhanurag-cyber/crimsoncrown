@@ -1,0 +1,363 @@
+const { GoogleSpreadsheet } = require('google-spreadsheet');
+const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
+const fetch = require('node-fetch');
+
+// All environment variables for all functions are loaded here.
+const { 
+    SPREADSHEET_ID, 
+    GOOGLE_SERVICE_ACCOUNT_EMAIL, 
+    GOOGLE_PRIVATE_KEY, 
+    JWT_SECRET, 
+    MAIL_USER, 
+    MAIL_PASS, 
+    URL, 
+    WEBHOOK_SECRET 
+} = process.env;
+
+// This is the main handler for all API requests.
+exports.handler = async (event) => {
+    // We use a query parameter `action` to decide which block of code to run.
+    const { action } = event.queryStringParameters;
+    const { httpMethod, body, headers } = event;
+
+    try {
+        const doc = new GoogleSpreadsheet(SPREADSHEET_ID);
+        await doc.useServiceAccountAuth({
+            client_email: GOOGLE_SERVICE_ACCOUNT_EMAIL,
+            private_key: GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        });
+
+        // The main switch statement routes the request to the correct logic.
+        switch (action) {
+
+            // --- PUBLIC GET ACTIONS (NO AUTHENTICATION NEEDED) ---
+            case 'getTournaments': {
+                await doc.loadInfo();
+                const sheet = doc.sheetsByTitle['tournaments'];
+                const rows = await sheet.getRows();
+                const data = rows.map(r => ({ scrimId: r.scrimId, scrimName: r.scrimName, game: r.game, status: r.status, slots: r.slots, prizePool: r.prizePool, bannerImage: r.bannerImage }));
+                return { statusCode: 200, body: JSON.stringify(data) };
+            }
+            case 'getLeaderboard': {
+                await doc.loadInfo();
+                const sheet = doc.sheetsByTitle['leaderboard'];
+                const rows = await sheet.getRows();
+                const data = rows.map(r => ({ teamName: r.teamName, totalPoints: parseInt(r.totalPoints, 10) || 0, avgRank: parseFloat(r.avgRank) || 0, totalKills: parseInt(r.totalKills, 10) || 0, teamLogo: r.teamLogo || 'assets/images/default-logo.png' }));
+                data.sort((a, b) => (b.totalPoints - a.totalPoints) || (a.avgRank - b.avgRank));
+                return { statusCode: 200, body: JSON.stringify(data) };
+            }
+            case 'getClans': {
+                await doc.loadInfo();
+                const sheet = doc.sheetsByTitle['clans'];
+                const rows = await sheet.getRows();
+                const data = rows.map(r => ({ clanId: r.clanId, clanName: r.clanName, clanTag: r.clanTag, clanLogo: r.clanLogo, captainName: r.captainName, roster: r.roster || '' }));
+                return { statusCode: 200, body: JSON.stringify(data) };
+            }
+            case 'getClanDetail': {
+                const { id } = event.queryStringParameters;
+                if (!id) return { statusCode: 400, body: JSON.stringify({ error: 'Missing ID' }) };
+                await doc.loadInfo();
+                const sheet = doc.sheetsByTitle['clans'];
+                const rows = await sheet.getRows();
+                const row = rows.find(r => r.clanId === id);
+                if (!row) return { statusCode: 404, body: JSON.stringify({ error: 'Not Found' }) };
+                const data = { clanId: row.clanId, clanName: row.clanName, clanTag: row.clanTag, clanLogo: row.clanLogo, captainName: row.captainName, roster: row.roster ? row.roster.split(',').map(n => n.trim()) : [] };
+                return { statusCode: 200, body: JSON.stringify(data) };
+            }
+            case 'getTournamentDetail': {
+                const { id } = event.queryStringParameters;
+                if (!id) return { statusCode: 400, body: JSON.stringify({ error: 'Missing ID' }) };
+                await doc.loadInfo();
+                const tourneySheet = doc.sheetsByTitle['tournaments'];
+                const tourneyRows = await tourneySheet.getRows();
+                const tourney = tourneyRows.find(r => r.scrimId === id);
+                if (!tourney) return { statusCode: 404, body: JSON.stringify({ error: 'Not Found' }) };
+                const regSheet = doc.sheetsByTitle['registrations'];
+                const regRows = await regSheet.getRows();
+                const registeredTeams = regRows.filter(r => r.scrimId === id).map(r => ({ clanName: r.clanName, captainDiscord: r.captainDiscord }));
+                const data = { scrimId: tourney.scrimId, scrimName: tourney.scrimName, game: tourney.game, status: tourney.status, slots: tourney.slots, prizePool: tourney.prizePool, bannerImage: tourney.bannerImage, regStart: tourney.regStart, regEnd: tourney.regEnd, scrimStart: tourney.scrimStart, scrimEnd: tourney.scrimEnd, rules: tourney.rules, pointTable: tourney.pointTable, description: tourney.description, registeredTeams: registeredTeams, registeredCount: registeredTeams.length };
+                return { statusCode: 200, body: JSON.stringify(data) };
+            }
+            case 'getPartners': {
+                await doc.loadInfo();
+                const sheet = doc.sheetsByTitle['partners'];
+                const rows = await sheet.getRows();
+                const data = rows.map(r => ({ partnerName: r.partnerName, logoUrl: r.logoUrl, websiteUrl: r.websiteUrl, category: r.category }));
+                return { statusCode: 200, body: JSON.stringify(data) };
+            }
+
+            // --- CONTACT FORM (PUBLIC POST) ---
+            case 'sendContactEmail': {
+                 const { name, email, subject, message } = JSON.parse(body);
+                 await doc.loadInfo();
+                 const messagesSheet = doc.sheetsByTitle['messages'];
+                 await messagesSheet.addRow({ messageId: `MSG_${Date.now()}`, name, email, subject, message, status: 'unread', timestamp: new Date().toISOString() });
+                 const transporter = nodemailer.createTransport({ service: 'gmail', auth: { user: MAIL_USER, pass: MAIL_PASS }});
+                 await transporter.sendMail({ from: `"${name}" <${email}>`, to: MAIL_USER, subject: `New Contact: ${subject}`, text: message, html: `<p>Message from ${name} (${email}):</p><p>${message}</p>` });
+                 return { statusCode: 200, body: JSON.stringify({ message: 'Message sent' }) };
+            }
+
+            // --- USER-AUTHENTICATED ACTIONS ---
+            // This block handles actions that require a valid user login token, but not necessarily admin rights.
+            case 'getUser':
+            case 'getUserProfile':
+            case 'createClan':
+            case 'createClanRequest':
+            case 'registerForTournament':
+            case 'manageClanRequest': {
+                let userPayload;
+                try {
+                    const token = headers.authorization.split(' ')[1];
+                    userPayload = jwt.verify(token, JWT_SECRET);
+                } catch (e) {
+                    return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized' }) };
+                }
+                
+                await doc.loadInfo();
+                const usersSheet = doc.sheetsByTitle['users'];
+                const userRows = await usersSheet.getRows();
+                const user = userRows.find(u => u.userId === userPayload.userId);
+
+                if (action === 'getUser') {
+                    if (!user) return { statusCode: 404, body: JSON.stringify({ error: 'User not found' }) };
+                    return { statusCode: 200, body: JSON.stringify({ userId: user.userId, username: user.username, clanId: user.clanId, clanRole: user.clanRole }) };
+                }
+                
+                if (action === 'getUserProfile') {
+                    const clansSheet = doc.sheetsByTitle['clans'];
+                    const regSheet = doc.sheetsByTitle['registrations'];
+                    const lbSheet = doc.sheetsByTitle['leaderboard'];
+                    let clanInfo = null;
+                    if (user && user.clanId) {
+                        const clanRows = await clansSheet.getRows();
+                        const clan = clanRows.find(c => c.clanId === user.clanId);
+                        if(clan) clanInfo = { clanName: clan.clanName, clanLogo: clan.clanLogo };
+                    }
+                    const regRows = await regSheet.getRows();
+                    const played = regRows.filter(r => r.clanId === (user ? user.clanId : null)).length;
+                    let rank = 'N/A';
+                    if (clanInfo) {
+                        const lbRows = await lbSheet.getRows();
+                        lbRows.sort((a,b) => (parseInt(b.totalPoints,10)||0) - (parseInt(a.totalPoints,10)||0));
+                        const idx = lbRows.findIndex(r => r.teamName === clanInfo.clanName);
+                        if(idx !== -1) rank = `${idx + 1}`;
+                    }
+                    const profile = { userId: userPayload.userId, username: userPayload.username, avatar: userPayload.avatar, clan: clanInfo, tournamentsPlayed: played, leaderboardPosition: rank };
+                    return { statusCode: 200, body: JSON.stringify(profile) };
+                }
+
+                if (action === 'createClan') {
+                    const { clanName, clanTag, clanLogo, roster } = JSON.parse(body);
+                    if (!clanName || !clanTag || !clanLogo) return { statusCode: 400, body: JSON.stringify({ error: 'Missing required fields.' }) };
+                    if (user && user.clanId) return { statusCode: 400, body: JSON.stringify({ error: 'You are already in a clan.' }) };
+                    const clanId = `CLAN_${Date.now()}`;
+                    const clansSheet = doc.sheetsByTitle['clans'];
+                    await clansSheet.addRow({ clanId, clanName, clanTag, clanLogo, captainId: userPayload.userId, captainName: userPayload.username, roster, timestamp: new Date().toISOString() });
+                    if (user) {
+                        user.clanId = clanId;
+                        user.clanRole = 'leader';
+                        await user.save();
+                    }
+                    return { statusCode: 200, body: JSON.stringify({ message: 'Clan created successfully' }) };
+                }
+
+                if (action === 'createClanRequest') {
+                    const { clanId, clanName } = JSON.parse(body);
+                    if (!clanId || !clanName) return { statusCode: 400, body: JSON.stringify({ error: 'Missing clan info.' }) };
+                    if (user && user.clanId) return { statusCode: 400, body: JSON.stringify({ error: 'You are already in a clan.' }) };
+                    const requestsSheet = doc.sheetsByTitle['clan_requests'];
+                    await requestsSheet.addRow({ requestId: `REQ_${Date.now()}`, clanId, clanName, userId: userPayload.userId, username: userPayload.username, status: 'pending', timestamp: new Date().toISOString() });
+                    return { statusCode: 200, body: JSON.stringify({ message: 'Request submitted' }) };
+                }
+
+                if (action === 'registerForTournament') {
+                    if (userPayload.clanRole !== 'leader' && userPayload.clanRole !== 'co-leader') return { statusCode: 403, body: JSON.stringify({ error: 'Permission denied.' }) };
+                    const { scrimId, clanId, clanName, captainDiscord, roster } = JSON.parse(body);
+                    const regSheet = doc.sheetsByTitle['registrations'];
+                    const regRows = await regSheet.getRows();
+                    const existing = regRows.find(r => r.scrimId === scrimId && r.clanId === clanId);
+                    if (existing) return { statusCode: 400, body: JSON.stringify({ error: 'Your clan is already registered.' }) };
+                    await regSheet.addRow({ registrationId: `REG_${Date.now()}`, scrimId, clanId, clanName, captainDiscord, roster, timestamp: new Date().toISOString() });
+                    return { statusCode: 200, body: JSON.stringify({ message: 'Registration successful' }) };
+                }
+
+                if (action === 'manageClanRequest') {
+                     if (userPayload.clanRole !== 'leader') return { statusCode: 403, body: JSON.stringify({ error: 'Permission denied.' }) };
+                     const { requestId, userId, clanId, action: reqAction } = JSON.parse(body);
+                     if (userPayload.clanId !== clanId) return { statusCode: 403, body: JSON.stringify({ error: 'Cannot manage another clan.' }) };
+                     const requestsSheet = doc.sheetsByTitle['clan_requests'];
+                     const reqRows = await requestsSheet.getRows();
+                     const request = reqRows.find(r => r.requestId === requestId);
+                     if (!request) return { statusCode: 404, body: 'Request not found' };
+                     if (reqAction === 'approve') {
+                         const userToUpdate = userRows.find(u => u.userId === userId);
+                         if(userToUpdate) {
+                             userToUpdate.clanId = clanId;
+                             userToUpdate.clanRole = 'member';
+                             await userToUpdate.save();
+                             const clansSheet = doc.sheetsByTitle['clans'];
+                             const clanRows = await clansSheet.getRows();
+                             const clan = clanRows.find(c => c.clanId === clanId);
+                             if (clan) {
+                                 const roster = clan.roster ? clan.roster.split(',').map(n=>n.trim()) : [];
+                                 if (!roster.includes(userToUpdate.username)) {
+                                     roster.push(userToUpdate.username);
+                                     clan.roster = roster.join(', ');
+                                     await clan.save();
+                                 }
+                             }
+                         }
+                     }
+                     request.status = reqAction === 'approve' ? 'approved' : 'denied';
+                     await request.save();
+                     return { statusCode: 200, body: JSON.stringify({ message: 'Request processed' }) };
+                }
+                
+                return { statusCode: 501, body: JSON.stringify({ error: 'Action not implemented in this block.' }) };
+            }
+            
+            // --- ADMIN-ONLY ACTIONS ---
+            default: {
+                let adminPayload;
+                try {
+                    const token = headers.authorization.split(' ')[1];
+                    adminPayload = jwt.verify(token, JWT_SECRET);
+                    if (adminPayload.siteRole !== 'admin') throw new Error('Permissions error');
+                } catch (e) {
+                    return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized Admin' }) };
+                }
+
+                await doc.loadInfo();
+                const requestBody = JSON.parse(body || '{}');
+
+                switch(action) {
+                    case 'addTournament': {
+                         const sheet = doc.sheetsByTitle['tournaments'];
+                         await sheet.addRow(requestBody);
+                         const botEndpoint = `${URL}/api/discord-interactions`;
+                         await fetch(botEndpoint, { method: 'POST', headers: {'Content-Type': 'application/json', 'x-webhook-secret': WEBHOOK_SECRET}, body: JSON.stringify(requestBody) });
+                         return { statusCode: 200, body: JSON.stringify({ message: 'Tournament Added' }) };
+                    }
+                    case 'updateTournament': {
+                        const { scrimId, ...updatedData } = requestBody;
+                        const sheet = doc.sheetsByTitle['tournaments'];
+                        const rows = await sheet.getRows();
+                        const row = rows.find(r => r.scrimId === scrimId);
+                        if (row) {
+                            Object.assign(row, updatedData);
+                            await row.save();
+                            return { statusCode: 200, body: JSON.stringify({ message: 'Tournament updated' }) };
+                        }
+                        return { statusCode: 404, body: JSON.stringify({ error: 'Not Found' }) };
+                    }
+                    case 'deleteTournament': {
+                        const { scrimId } = requestBody;
+                        const sheet = doc.sheetsByTitle['tournaments'];
+                        const rows = await sheet.getRows();
+                        const row = rows.find(r => r.scrimId === scrimId);
+                        if (row) await row.delete();
+                        return { statusCode: 200, body: JSON.stringify({ message: 'Tournament deleted' }) };
+                    }
+                    case 'getUsers': {
+                        const sheet = doc.sheetsByTitle['users'];
+                        const rows = await sheet.getRows();
+                        const users = rows.map(r => ({userId: r.userId, username: r.username, avatar: r.avatar, siteRole: r.siteRole || 'user'}));
+                        return { statusCode: 200, body: JSON.stringify(users) };
+                    }
+                    case 'updateUserRole': {
+                        const { userId, newRole } = requestBody;
+                        const sheet = doc.sheetsByTitle['users'];
+                        const rows = await sheet.getRows();
+                        const row = rows.find(r => r.userId === userId);
+                        if (row) {
+                            row.siteRole = newRole;
+                            await row.save();
+                            return { statusCode: 200, body: JSON.stringify({ message: 'Role updated' }) };
+                        }
+                        return { statusCode: 404, body: JSON.stringify({ error: 'Not Found' }) };
+                    }
+                    case 'getClanRequests': {
+                        const sheet = doc.sheetsByTitle['clan_requests'];
+                        const rows = await sheet.getRows();
+                        const requests = rows.filter(r => r.status === 'pending').map(r => ({requestId: r.requestId, clanId: r.clanId, clanName: r.clanName, userId: r.userId, username: r.username, timestamp: r.timestamp}));
+                        return { statusCode: 200, body: JSON.stringify(requests) };
+                    }
+                    case 'processClanRequest': {
+                        const { requestId, userId, clanId, action: reqAction } = requestBody;
+                        const requestsSheet = doc.sheetsByTitle['clan_requests'];
+                        const reqRows = await requestsSheet.getRows();
+                        const request = reqRows.find(r => r.requestId === requestId);
+                        if (!request) return { statusCode: 404, body: 'Not Found' };
+                        if (reqAction === 'approve') {
+                             const usersSheet = doc.sheetsByTitle['users'];
+                             const userRows = await usersSheet.getRows();
+                             const user = userRows.find(u => u.userId === userId);
+                             if (user) {
+                                 user.clanId = clanId;
+                                 user.clanRole = 'member';
+                                 await user.save();
+                                 const clansSheet = doc.sheetsByTitle['clans'];
+                                 const clanRows = await clansSheet.getRows();
+                                 const clan = clanRows.find(c => c.clanId === clanId);
+                                 if (clan) {
+                                     const roster = clan.roster ? clan.roster.split(',').map(n=>n.trim()) : [];
+                                     if (!roster.includes(user.username)) {
+                                         roster.push(user.username);
+                                         clan.roster = roster.join(', ');
+                                         await clan.save();
+                                     }
+                                 }
+                             }
+                        }
+                        request.status = reqAction === 'approve' ? 'approved' : 'denied';
+                        await request.save();
+                        return { statusCode: 200, body: JSON.stringify({ message: 'Request processed' }) };
+                    }
+                    case 'getRegistrations': {
+                        const { id } = event.queryStringParameters;
+                        const sheet = doc.sheetsByTitle['registrations'];
+                        const rows = await sheet.getRows();
+                        const registrations = rows.filter(r => r.scrimId === id).map(r => ({ clanName: r.clanName, captainDiscord: r.captainDiscord, roster: r.roster, timestamp: r.timestamp }));
+                        return { statusCode: 200, body: JSON.stringify(registrations) };
+                    }
+                    case 'getMessages': {
+                        const sheet = doc.sheetsByTitle['messages'];
+                        const rows = await sheet.getRows();
+                        const messages = rows.map(r => ({ messageId: r.messageId, name: r.name, email: r.email, subject: r.subject, message: r.message, status: r.status, timestamp: r.timestamp })).reverse();
+                        return { statusCode: 200, body: JSON.stringify(messages) };
+                    }
+                    case 'addPartner': {
+                        const sheet = doc.sheetsByTitle['partners'];
+                        await sheet.addRow(requestBody);
+                        return { statusCode: 200, body: JSON.stringify({ message: 'Partner added' }) };
+                    }
+                    case 'updatePartner': {
+                        const { originalName, ...updatedData } = requestBody;
+                        const sheet = doc.sheetsByTitle['partners'];
+                        const rows = await sheet.getRows();
+                        const row = rows.find(r => r.partnerName === originalName);
+                        if (row) {
+                            Object.assign(row, updatedData);
+                            await row.save();
+                        }
+                        return { statusCode: 200, body: JSON.stringify({ message: 'Partner updated' }) };
+                    }
+                    case 'deletePartner': {
+                        const { partnerName } = requestBody;
+                        const sheet = doc.sheetsByTitle['partners'];
+                        const rows = await sheet.getRows();
+                        const row = rows.find(r => r.partnerName === partnerName);
+                        if (row) await row.delete();
+                        return { statusCode: 200, body: JSON.stringify({ message: 'Partner deleted' }) };
+                    }
+                    default:
+                        return { statusCode: 404, body: JSON.stringify({ error: 'Admin action not found' }) };
+                }
+            }
+        }
+    } catch (error) {
+        console.error(`Error in router action "${action}":`, error);
+        return { statusCode: 500, body: JSON.stringify({ error: error.message || 'An internal server error occurred.' }) };
+    }
+};

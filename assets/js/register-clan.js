@@ -111,7 +111,7 @@ async function handleClanRegistration(event) {
     try {
         // Send the data to the secure 'createClan' backend function.
         // The user's JWT is sent in the header to identify them as the captain.
-        const response = await fetch('/api/createClan', {
+        const response = await fetch('/backend/createClan', {
             method: 'POST',
             headers: { 
                 'Authorization': `Bearer ${token}`,

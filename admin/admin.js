@@ -115,24 +115,18 @@ function logout() {
 
 // --- 3. DASHBOARD & TOURNAMENT MANAGEMENT ---
 
-/**
- * Initializes the dashboard page by loading the tournament list and setting up form listeners.
- */
 function handleDashboardPage() {
     loadTournamentsList();
     document.getElementById('add-tournament-form').addEventListener('submit', handleTournamentSubmit);
     document.getElementById('bannerUpload').addEventListener('change', handleImageUpload);
 }
 
-/**
- * Fetches and displays the list of all created tournaments on the dashboard.
- */
 async function loadTournamentsList() {
     const token = localStorage.getItem('jwt_token');
     const listContainer = document.getElementById('tournaments-list');
     const loader = document.getElementById('tournaments-loader');
     try {
-        const response = await fetch('/api/getTournaments', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetch('/api/router?action=getTournaments', { headers: { 'Authorization': `Bearer ${token}` } });
         if (!response.ok) throw new Error('Failed to load tournaments list.');
         const tournaments = await response.json();
         loader.classList.add('d-none');
@@ -149,9 +143,6 @@ async function loadTournamentsList() {
     }
 }
 
-/**
- * Handles uploading the banner image to Vercel Blob.
- */
 async function handleImageUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -171,9 +162,6 @@ async function handleImageUpload(event) {
     }
 }
 
-/**
- * Handles the submission of the "Create Tournament" form.
- */
 async function handleTournamentSubmit(e) {
     e.preventDefault();
     const token = localStorage.getItem('jwt_token');
@@ -193,7 +181,7 @@ async function handleTournamentSubmit(e) {
     };
     formStatus.textContent = 'Creating tournament...';
     try {
-        const response = await fetch('/api/addTournament', { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(tournamentData) });
+        const response = await fetch('/api/router?action=addTournament', { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(tournamentData) });
         if (!response.ok) throw new Error('Failed to add tournament.');
         formStatus.textContent = '✅ Tournament created successfully!';
         formStatus.className = 'mt-3 text-end text-success';
@@ -205,14 +193,11 @@ async function handleTournamentSubmit(e) {
     }
 }
 
-/**
- * Deletes a tournament after confirmation.
- */
 async function deleteTournament(scrimId, scrimName) {
     const token = localStorage.getItem('jwt_token');
     if (!confirm(`Are you sure you want to permanently delete "${scrimName}"?`)) return;
     try {
-        const response = await fetch('/api/deleteTournament', { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ scrimId }) });
+        const response = await fetch('/api/router?action=deleteTournament', { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ scrimId }) });
         if (!response.ok) throw new Error('Failed to delete tournament.');
         alert('✅ Tournament deleted.');
         loadTournamentsList();
@@ -224,9 +209,6 @@ async function deleteTournament(scrimId, scrimName) {
 
 // --- 4. OTHER ADMIN PAGES ---
 
-/**
- * Handles the logic for the "Edit Tournament" page.
- */
 async function handleEditTournamentPage() {
     const token = localStorage.getItem('jwt_token');
     const scrimId = new URLSearchParams(window.location.search).get('id');
@@ -234,7 +216,7 @@ async function handleEditTournamentPage() {
     const formContainer = document.getElementById('edit-form-container');
     if (!scrimId) { loader.innerHTML = '<p class="text-danger">No tournament ID provided.</p>'; return; }
     try {
-        const response = await fetch(`/api/getTournamentDetail?id=${scrimId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetch(`/api/router?action=getTournamentDetail&id=${scrimId}`, { headers: { 'Authorization': `Bearer ${token}` } });
         if (!response.ok) throw new Error('Could not fetch tournament data.');
         const data = await response.json();
         document.getElementById('edit-title').textContent = `Edit: ${data.scrimName}`;
@@ -250,9 +232,6 @@ async function handleEditTournamentPage() {
     }
 }
 
-/**
- * Submits the updated tournament data to the backend.
- */
 async function updateTournament(scrimId) {
     const token = localStorage.getItem('jwt_token');
     const updatedData = {
@@ -263,7 +242,7 @@ async function updateTournament(scrimId) {
         description: document.getElementById('description').value, rules: document.getElementById('rules').value, pointTable: document.getElementById('pointTable').value,
     };
     try {
-        const response = await fetch('/api/updateTournament', { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(updatedData) });
+        const response = await fetch('/api/router?action=updateTournament', { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(updatedData) });
         if (!response.ok) throw new Error('Failed to save changes.');
         alert('✅ Tournament updated successfully!');
         window.location.href = 'dashboard.html';
@@ -272,16 +251,13 @@ async function updateTournament(scrimId) {
     }
 }
 
-/**
- * Handles the logic for the "User Management" page.
- */
 async function handleUsersPage() {
     const token = localStorage.getItem('jwt_token');
     const tableBody = document.getElementById('users-body');
     const loader = document.getElementById('loader');
     const table = document.getElementById('users-table');
     try {
-        const response = await fetch('/api/getUsers', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetch('/api/router?action=getUsers', { headers: { 'Authorization': `Bearer ${token}` } });
         if (!response.ok) throw new Error('Failed to fetch users.');
         const users = await response.json();
         loader.classList.add('d-none');
@@ -297,15 +273,12 @@ async function handleUsersPage() {
     }
 }
 
-/**
- * Updates a user's role when the admin changes the dropdown.
- */
 async function updateRole(selectElement) {
     const token = localStorage.getItem('jwt_token');
     const userId = selectElement.dataset.userId;
     const newRole = selectElement.value;
     try {
-        const response = await fetch('/api/updateUserRole', { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ userId, newRole }) });
+        const response = await fetch('/api/router?action=updateUserRole', { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ userId, newRole }) });
         if (!response.ok) throw new Error('Failed to update role.');
         selectElement.style.borderColor = 'green';
         setTimeout(() => { selectElement.style.borderColor = ''; }, 2000);
@@ -315,9 +288,6 @@ async function updateRole(selectElement) {
     }
 }
 
-/**
- * Handles the logic for the "Clan Requests" page.
- */
 async function handleRequestsPage() {
     const token = localStorage.getItem('jwt_token');
     const tableBody = document.getElementById('requests-body');
@@ -325,7 +295,7 @@ async function handleRequestsPage() {
     const table = document.getElementById('requests-table');
     const noResults = document.getElementById('no-results');
     try {
-        const response = await fetch('/api/getClanRequests', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetch('/api/router?action=getClanRequests', { headers: { 'Authorization': `Bearer ${token}` } });
         if (!response.ok) throw new Error('Failed to fetch requests.');
         const requests = await response.json();
         loader.classList.add('d-none');
@@ -343,16 +313,13 @@ async function handleRequestsPage() {
     }
 }
 
-/**
- * Approves or denies a clan join request from the admin panel.
- */
 async function processRequest(requestId, userId, clanId, action) {
     const token = localStorage.getItem('jwt_token');
     const row = document.getElementById(`request-${requestId}`);
     row.querySelectorAll('button').forEach(b => b.disabled = true);
     row.style.opacity = '0.5';
     try {
-        const response = await fetch('/api/processClanRequest', { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ requestId, userId, clanId, action }) });
+        const response = await fetch('/api/router?action=processClanRequest', { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ requestId, userId, clanId, action }) });
         if (!response.ok) throw new Error(`Failed to ${action} request.`);
         row.style.transition = 'opacity 0.5s ease';
         row.style.opacity = '0';
@@ -364,9 +331,6 @@ async function processRequest(requestId, userId, clanId, action) {
     }
 }
 
-/**
- * Handles the "View Registrations" page.
- */
 async function handleViewRegistrationsPage() {
     const token = localStorage.getItem('jwt_token');
     const scrimId = new URLSearchParams(window.location.search).get('id');
@@ -377,9 +341,9 @@ async function handleViewRegistrationsPage() {
     const title = document.getElementById('tournament-title');
     if (!scrimId) { loader.innerHTML = '<p class="text-danger">No tournament ID specified.</p>'; return; }
     try {
-        const tourneyResponse = await fetch(`/api/getTournamentDetail?id=${scrimId}`);
+        const tourneyResponse = await fetch(`/api/router?action=getTournamentDetail&id=${scrimId}`);
         if(tourneyResponse.ok) { title.textContent = `Registrations for: ${(await tourneyResponse.json()).scrimName}`; }
-        const response = await fetch(`/api/getRegistrations?id=${scrimId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetch(`/api/router?action=getRegistrations&id=${scrimId}`, { headers: { 'Authorization': `Bearer ${token}` } });
         if (!response.ok) throw new Error('Could not load registrations.');
         const registrations = await response.json();
         loader.classList.add('d-none');
@@ -396,9 +360,6 @@ async function handleViewRegistrationsPage() {
     }
 }
 
-/**
- * Handles the logic for the "Messages" page.
- */
 async function handleMessagesPage() {
     const token = localStorage.getItem('jwt_token');
     const tableBody = document.getElementById('messages-body');
@@ -406,7 +367,7 @@ async function handleMessagesPage() {
     const table = document.getElementById('messages-table');
     const noResults = document.getElementById('no-results');
     try {
-        const response = await fetch('/api/getMessages', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetch('/api/router?action=getMessages', { headers: { 'Authorization': `Bearer ${token}` } });
         if (!response.ok) throw new Error('Failed to fetch messages.');
         const messages = await response.json();
         loader.classList.add('d-none');
@@ -430,9 +391,6 @@ function viewMessage(msg) {
     new bootstrap.Modal(document.getElementById('messageModal')).show();
 }
 
-/**
- * Handles the logic for the "Partners" page.
- */
 let allPartners = [];
 let editPartnerModal;
 async function handlePartnersPage() {
@@ -451,7 +409,7 @@ async function loadPartnersList() {
     loader.classList.remove('d-none');
     container.classList.add('d-none');
     try {
-        const response = await fetch('/api/getPartners', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetch('/api/router?action=getPartners', { headers: { 'Authorization': `Bearer ${token}` } });
         if (!response.ok) throw new Error('Failed to fetch partners.');
         allPartners = await response.json();
         loader.classList.add('d-none');
@@ -472,7 +430,7 @@ async function addPartner(e) {
     const token = localStorage.getItem('jwt_token');
     const partnerData = { partnerName: document.getElementById('partnerName').value, logoUrl: document.getElementById('logoUrl').value, websiteUrl: document.getElementById('websiteUrl').value, category: document.getElementById('category').value };
     try {
-        const response = await fetch('/api/addPartner', { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(partnerData) });
+        const response = await fetch('/api/router?action=addPartner', { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(partnerData) });
         if (!response.ok) throw new Error('Failed to add partner.');
         e.target.reset();
         loadPartnersList();
@@ -497,7 +455,7 @@ async function updatePartner() {
         websiteUrl: document.getElementById('editWebsiteUrl').value, category: document.getElementById('editCategory').value,
     };
     try {
-        const response = await fetch('/api/updatePartner', { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(updatedData) });
+        const response = await fetch('/api/router?action=updatePartner', { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(updatedData) });
         if (!response.ok) throw new Error('Failed to update partner.');
         editPartnerModal.hide();
         loadPartnersList();
@@ -508,7 +466,7 @@ async function deletePartner(partnerName) {
     if (!confirm(`Are you sure you want to delete ${partnerName}?`)) return;
     const token = localStorage.getItem('jwt_token');
     try {
-        const response = await fetch('/api/deletePartner', { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ partnerName }) });
+        const response = await fetch('/api/router?action=deletePartner', { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ partnerName }) });
         if (!response.ok) throw new Error('Failed to delete partner.');
         loadPartnersList();
     } catch (error) { alert(error.message); }
