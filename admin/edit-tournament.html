@@ -1,17 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Standard meta tags for character set and viewport responsiveness -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Tournament - Admin</title>
+    
     <!-- CSS Links -->
+    <!-- Bootstrap 5 for the core layout and components -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Your custom, professional stylesheet -->
     <link rel="stylesheet" href="../assets/css/crimson-styles.css">
 </head>
 <body>
 
-    <!-- Admin Navbar -->
+    <!-- Admin Navbar: Consistent across all admin pages -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
         <div class="container">
             <a class="navbar-brand" href="dashboard.html">Crimson Crown Admin</a>
@@ -25,14 +30,13 @@
                     <li class="nav-item"><a class="nav-link" href="partners.html">Partners</a></li>
                     <li class="nav-item"><a class="nav-link" href="settings.html">Site Settings</a></li>
                 </ul>
-                <div id="user-auth-container">
-                    <!-- Admin user profile will be loaded here by admin.js -->
-                </div>
+                <!-- The admin's profile dropdown is dynamically inserted here by admin.js -->
+                <div id="user-auth-container"></div>
             </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
+    <!-- Main Content Area -->
     <main class="container py-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
@@ -41,18 +45,18 @@
             </div>
              <a href="dashboard.html" class="btn btn-outline-light"><i class="fas fa-arrow-left me-2"></i>Back to Dashboard</a>
         </div>
-
-        <!-- Loader: Shown while the tournament data is being fetched -->
+        
+        <!-- Loader: Shown while the tournament's existing data is being fetched -->
         <div id="loader" class="text-center py-5">
             <div class="spinner-border text-danger" role="status"></div>
             <p class="text-secondary mt-2">Loading Tournament Data...</p>
         </div>
         
-        <!-- The edit form, hidden by default until data is loaded -->
+        <!-- The edit form, hidden by default until the data is loaded and pre-filled -->
         <div id="edit-form-container" class="custom-card p-4 p-md-5 d-none">
             <form id="edit-tournament-form">
                 <div class="row g-3">
-                    <!-- Column 1 -->
+                    <!-- Column 1 of the form -->
                     <div class="col-md-6">
                         <div class="mb-3"><label for="scrimName" class="form-label">Tournament Name</label><input type="text" class="form-control" id="scrimName" required></div>
                         <div class="mb-3"><label for="game" class="form-label">Game</label><select class="form-select" id="game"><option value="Farlight 84">Farlight 84</option><option value="Other">Other</option></select></div>
@@ -61,7 +65,7 @@
                         <div class="row"><div class="col-sm-6 mb-3"><label for="slots" class="form-label">Slots</label><input type="number" class="form-control" id="slots" required></div><div class="col-sm-6 mb-3"><label for="prizePool" class="form-label">Prize Pool</label><input type="text" class="form-control" id="prizePool"></div></div>
                         <div class="row"><div class="col-sm-6 mb-3"><label for="rounds" class="form-label">Rounds</label><input type="number" class="form-control" id="rounds" required></div><div class="col-sm-6 mb-3"><label for="mode" class="form-label">Mode</label><select class="form-select" id="mode"><option value="Solo">Solo</option><option value="Duo">Duo</option><option value="Trio">Trio</option><option value="Squad">Squad</option></select></div></div>
                     </div>
-                    <!-- Column 2 -->
+                    <!-- Column 2 of the form -->
                     <div class="col-md-6">
                         <div class="row"><div class="col-sm-6 mb-3"><label for="regStart" class="form-label">Registration Starts</label><input type="datetime-local" class="form-control" id="regStart" required></div><div class="col-sm-6 mb-3"><label for="regEnd" class="form-label">Registration Ends</label><input type="datetime-local" class="form-control" id="regEnd" required></div></div>
                         <div class="row"><div class="col-sm-6 mb-3"><label for="scrimStart" class="form-label">Scrim Starts</label><input type="datetime-local" class="form-control" id="scrimStart" required></div><div class="col-sm-6 mb-3"><label for="scrimEnd" class="form-label">Scrim Ends</label><input type="datetime-local" class="form-control" id="scrimEnd" required></div></div>
@@ -75,6 +79,8 @@
             </form>
         </div>
     </main>
+    
+    <!-- SCRIPTS: Essential JavaScript files for the admin panel -->
     <script src="admin.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

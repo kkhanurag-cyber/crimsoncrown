@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // For all other admin pages, we must verify the user is an authorized admin.
         protectPage();
     }
-    
+
     // Page-Specific Handlers to run the correct logic for the current page.
     if (document.getElementById('add-tournament-form')) handleDashboardPage();
     if (document.getElementById('users-table')) handleUsersPage();
@@ -152,7 +152,7 @@ async function loadTournamentsList() {
         const tournaments = await response.json();
         loader.classList.add('d-none');
         listContainer.classList.remove('d-none');
-        listContainer.innerHTML = ''; 
+        listContainer.innerHTML = '';
         tournaments.reverse().forEach(tourney => {
             const li = document.createElement('li');
             li.className = 'list-group-item bg-transparent text-light d-flex justify-content-between align-items-center flex-wrap';
@@ -171,9 +171,14 @@ async function handleImageUpload(event) {
     formStatus.textContent = 'Uploading banner...';
     formStatus.className = 'mt-3 text-end text-warning';
     try {
-        const response = await fetch(`/api/upload?filename=banner-${Date.now()}-${file.name}`, { method: 'POST', body: file });
+        const response = await fetch(`/api/upload?filename=banner-${Date.now()}-${file.name}`, {
+            method: 'POST',
+            body: file
+        });
         if (!response.ok) throw new Error('Upload failed.');
-        const { url } = await response.json();
+        const {
+            url
+        } = await response.json();
         document.getElementById('bannerImage').value = url;
         formStatus.textContent = '✅ Banner uploaded successfully!';
         formStatus.className = 'mt-3 text-end text-success';
@@ -209,20 +214,33 @@ async function handleTournamentSubmit(e) {
     const tournamentData = {
         scrimId: 'SCRIM_' + Date.now(),
         bannerImage: finalBannerUrl,
-        scrimName: document.getElementById('scrimName').value, game: document.getElementById('game').value, status: document.getElementById('status').value,
-        slots: document.getElementById('slots').value, prizePool: document.getElementById('prizePool').value, rounds: document.getElementById('rounds').value, mode: document.getElementById('mode').value,
-        regStart: document.getElementById('regStart').value, regEnd: document.getElementById('regEnd').value, scrimStart: document.getElementById('scrimStart').value, scrimEnd: document.getElementById('scrimEnd').value,
-        description: document.getElementById('description').value, rules: document.getElementById('rules').value, pointTable: document.getElementById('pointTable').value,
+        scrimName: document.getElementById('scrimName').value,
+        game: document.getElementById('game').value,
+        status: document.getElementById('status').value,
+        slots: document.getElementById('slots').value,
+        prizePool: document.getElementById('prizePool').value,
+        rounds: document.getElementById('rounds').value,
+        mode: document.getElementById('mode').value,
+        regStart: document.getElementById('regStart').value,
+        regEnd: document.getElementById('regEnd').value,
+        scrimStart: document.getElementById('scrimStart').value,
+        scrimEnd: document.getElementById('scrimEnd').value,
+        description: document.getElementById('description').value,
+        rules: document.getElementById('rules').value,
+        pointTable: document.getElementById('pointTable').value,
     };
-    
+
     formStatus.textContent = 'Creating tournament...';
     formStatus.className = 'mt-3 text-end text-info';
 
     try {
-        const response = await fetch('/api/router?action=addTournament', { 
-            method: 'POST', 
-            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, 
-            body: JSON.stringify(tournamentData) 
+        const response = await fetch('/api/router?action=addTournament', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(tournamentData)
         });
         if (!response.ok) throw new Error('Failed to add tournament.');
 
@@ -241,7 +259,16 @@ async function deleteTournament(scrimId, scrimName) {
     const token = localStorage.getItem('jwt_token');
     if (!confirm(`Are you sure you want to permanently delete "${scrimName}"?`)) return;
     try {
-        const response = await fetch('/api/router?action=deleteTournament', { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ scrimId }) });
+        const response = await fetch('/api/router?action=deleteTournament', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                scrimId
+            })
+        });
         if (!response.ok) throw new Error('Failed to delete tournament.');
         alert('✅ Tournament deleted.');
         loadTournamentsList();
@@ -258,19 +285,29 @@ async function handleEditTournamentPage() {
     const scrimId = new URLSearchParams(window.location.search).get('id');
     const loader = document.getElementById('loader');
     const formContainer = document.getElementById('edit-form-container');
-    if (!scrimId) { loader.innerHTML = '<p class="text-danger">No tournament ID provided.</p>'; return; }
+    if (!scrimId) {
+        loader.innerHTML = '<p class="text-danger">No tournament ID provided.</p>';
+        return;
+    }
     try {
         const response = await fetch(`/api/router?action=getTournamentDetail&id=${scrimId}`);
         if (!response.ok) throw new Error('Could not fetch tournament data.');
         const data = await response.json();
         document.getElementById('edit-title').textContent = `Edit: ${data.scrimName}`;
         const fields = ['scrimName', 'status', 'game', 'bannerImage', 'slots', 'prizePool', 'rounds', 'mode', 'description', 'rules', 'pointTable'];
-        fields.forEach(f => { if(document.getElementById(f)) document.getElementById(f).value = data[f] || '' });
+        fields.forEach(f => {
+            if (document.getElementById(f)) document.getElementById(f).value = data[f] || ''
+        });
         const toDateTimeLocal = (iso) => iso ? new Date(new Date(iso).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : "";
-        ['regStart', 'regEnd', 'scrimStart', 'scrimEnd'].forEach(f => { if(document.getElementById(f)) document.getElementById(f).value = toDateTimeLocal(data[f]) });
+        ['regStart', 'regEnd', 'scrimStart', 'scrimEnd'].forEach(f => {
+            if (document.getElementById(f)) document.getElementById(f).value = toDateTimeLocal(data[f])
+        });
         loader.classList.add('d-none');
         formContainer.classList.remove('d-none');
-        document.getElementById('edit-tournament-form').addEventListener('submit', (e) => { e.preventDefault(); updateTournament(scrimId); });
+        document.getElementById('edit-tournament-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            updateTournament(scrimId);
+        });
     } catch (error) {
         loader.innerHTML = `<p class="text-danger">${error.message}</p>`;
     }
@@ -280,13 +317,31 @@ async function updateTournament(scrimId) {
     const token = localStorage.getItem('jwt_token');
     const updatedData = {
         scrimId: scrimId,
-        scrimName: document.getElementById('scrimName').value, status: document.getElementById('status').value, game: document.getElementById('game').value, bannerImage: document.getElementById('bannerImage').value,
-        slots: document.getElementById('slots').value, prizePool: document.getElementById('prizePool').value, rounds: document.getElementById('rounds').value, mode: document.getElementById('mode').value,
-        regStart: document.getElementById('regStart').value, regEnd: document.getElementById('regEnd').value, scrimStart: document.getElementById('scrimStart').value, scrimEnd: document.getElementById('scrimEnd').value,
-        description: document.getElementById('description').value, rules: document.getElementById('rules').value, pointTable: document.getElementById('pointTable').value,
+        scrimName: document.getElementById('scrimName').value,
+        status: document.getElementById('status').value,
+        game: document.getElementById('game').value,
+        bannerImage: document.getElementById('bannerImage').value,
+        slots: document.getElementById('slots').value,
+        prizePool: document.getElementById('prizePool').value,
+        rounds: document.getElementById('rounds').value,
+        mode: document.getElementById('mode').value,
+        regStart: document.getElementById('regStart').value,
+        regEnd: document.getElementById('regEnd').value,
+        scrimStart: document.getElementById('scrimStart').value,
+        scrimEnd: document.getElementById('scrimEnd').value,
+        description: document.getElementById('description').value,
+        rules: document.getElementById('rules').value,
+        pointTable: document.getElementById('pointTable').value,
     };
     try {
-        const response = await fetch('/api/router?action=updateTournament', { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(updatedData) });
+        const response = await fetch('/api/router?action=updateTournament', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedData)
+        });
         if (!response.ok) throw new Error('Failed to save changes.');
         alert('✅ Tournament updated successfully!');
         window.location.href = 'dashboard.html';
@@ -301,7 +356,11 @@ async function handleUsersPage() {
     const loader = document.getElementById('loader');
     const table = document.getElementById('users-table');
     try {
-        const response = await fetch('/api/router?action=getUsers', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetch('/api/router?action=getUsers', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
         if (!response.ok) throw new Error('Failed to fetch users.');
         const users = await response.json();
         loader.classList.add('d-none');
@@ -322,10 +381,22 @@ async function updateRole(selectElement) {
     const userId = selectElement.dataset.userId;
     const newRole = selectElement.value;
     try {
-        const response = await fetch('/api/router?action=updateUserRole', { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ userId, newRole }) });
+        const response = await fetch('/api/router?action=updateUserRole', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                userId,
+                newRole
+            })
+        });
         if (!response.ok) throw new Error('Failed to update role.');
         selectElement.style.borderColor = 'green';
-        setTimeout(() => { selectElement.style.borderColor = ''; }, 2000);
+        setTimeout(() => {
+            selectElement.style.borderColor = '';
+        }, 2000);
     } catch (error) {
         alert(error.message);
         selectElement.style.borderColor = 'red';
@@ -339,11 +410,18 @@ async function handleRequestsPage() {
     const table = document.getElementById('requests-table');
     const noResults = document.getElementById('no-results');
     try {
-        const response = await fetch('/api/router?action=getClanRequests', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetch('/api/router?action=getClanRequests', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
         if (!response.ok) throw new Error('Failed to fetch requests.');
         const requests = await response.json();
         loader.classList.add('d-none');
-        if (requests.length === 0) { noResults.classList.remove('d-none'); return; }
+        if (requests.length === 0) {
+            noResults.classList.remove('d-none');
+            return;
+        }
         table.classList.remove('d-none');
         tableBody.innerHTML = '';
         requests.forEach(req => {
@@ -363,7 +441,19 @@ async function processRequest(requestId, userId, clanId, action) {
     row.querySelectorAll('button').forEach(b => b.disabled = true);
     row.style.opacity = '0.5';
     try {
-        const response = await fetch('/api/router?action=processClanRequest', { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ requestId, userId, clanId, action }) });
+        const response = await fetch('/api/router?action=processClanRequest', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                requestId,
+                userId,
+                clanId,
+                action
+            })
+        });
         if (!response.ok) throw new Error(`Failed to ${action} request.`);
         row.style.transition = 'opacity 0.5s ease';
         row.style.opacity = '0';
@@ -383,15 +473,27 @@ async function handleViewRegistrationsPage() {
     const tableBody = document.getElementById('registrations-body');
     const noResults = document.getElementById('no-results');
     const title = document.getElementById('tournament-title');
-    if (!scrimId) { loader.innerHTML = '<p class="text-danger">No tournament ID specified.</p>'; return; }
+    if (!scrimId) {
+        loader.innerHTML = '<p class="text-danger">No tournament ID specified.</p>';
+        return;
+    }
     try {
         const tourneyResponse = await fetch(`/api/router?action=getTournamentDetail&id=${scrimId}`);
-        if(tourneyResponse.ok) { title.textContent = `Registrations for: ${(await tourneyResponse.json()).scrimName}`; }
-        const response = await fetch(`/api/router?action=getRegistrations&id=${scrimId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+        if (tourneyResponse.ok) {
+            title.textContent = `Registrations for: ${(await tourneyResponse.json()).scrimName}`;
+        }
+        const response = await fetch(`/api/router?action=getRegistrations&id=${scrimId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
         if (!response.ok) throw new Error('Could not load registrations.');
         const registrations = await response.json();
         loader.classList.add('d-none');
-        if (registrations.length === 0) { noResults.classList.remove('d-none'); return; }
+        if (registrations.length === 0) {
+            noResults.classList.remove('d-none');
+            return;
+        }
         tableContainer.classList.remove('d-none');
         tableBody.innerHTML = '';
         registrations.forEach(reg => {
@@ -411,11 +513,18 @@ async function handleMessagesPage() {
     const table = document.getElementById('messages-table');
     const noResults = document.getElementById('no-results');
     try {
-        const response = await fetch('/api/router?action=getMessages', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetch('/api/router?action=getMessages', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
         if (!response.ok) throw new Error('Failed to fetch messages.');
         const messages = await response.json();
         loader.classList.add('d-none');
-        if (messages.length === 0) { noResults.classList.remove('d-none'); return; }
+        if (messages.length === 0) {
+            noResults.classList.remove('d-none');
+            return;
+        }
         table.classList.remove('d-none');
         tableBody.innerHTML = '';
         messages.forEach(msg => {
@@ -472,13 +581,27 @@ async function loadPartnersList() {
 async function addPartner(e) {
     e.preventDefault();
     const token = localStorage.getItem('jwt_token');
-    const partnerData = { partnerName: document.getElementById('partnerName').value, logoUrl: document.getElementById('logoUrl').value, websiteUrl: document.getElementById('websiteUrl').value, category: document.getElementById('category').value };
+    const partnerData = {
+        partnerName: document.getElementById('partnerName').value,
+        logoUrl: document.getElementById('logoUrl').value,
+        websiteUrl: document.getElementById('websiteUrl').value,
+        category: document.getElementById('category').value
+    };
     try {
-        const response = await fetch('/api/router?action=addPartner', { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(partnerData) });
+        const response = await fetch('/api/router?action=addPartner', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(partnerData)
+        });
         if (!response.ok) throw new Error('Failed to add partner.');
         e.target.reset();
         loadPartnersList();
-    } catch (error) { alert(error.message); }
+    } catch (error) {
+        alert(error.message);
+    }
 }
 
 function openEditModal(partnerName) {
@@ -495,23 +618,46 @@ function openEditModal(partnerName) {
 async function updatePartner() {
     const token = localStorage.getItem('jwt_token');
     const updatedData = {
-        originalName: document.getElementById('editOriginalName').value, partnerName: document.getElementById('editPartnerName').value, logoUrl: document.getElementById('editLogoUrl').value,
-        websiteUrl: document.getElementById('editWebsiteUrl').value, category: document.getElementById('editCategory').value,
+        originalName: document.getElementById('editOriginalName').value,
+        partnerName: document.getElementById('editPartnerName').value,
+        logoUrl: document.getElementById('editLogoUrl').value,
+        websiteUrl: document.getElementById('editWebsiteUrl').value,
+        category: document.getElementById('editCategory').value,
     };
     try {
-        const response = await fetch('/api/router?action=updatePartner', { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(updatedData) });
+        const response = await fetch('/api/router?action=updatePartner', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedData)
+        });
         if (!response.ok) throw new Error('Failed to update partner.');
         editPartnerModal.hide();
         loadPartnersList();
-    } catch (error) { alert(error.message); }
+    } catch (error) {
+        alert(error.message);
+    }
 }
 
 async function deletePartner(partnerName) {
     if (!confirm(`Are you sure you want to delete ${partnerName}?`)) return;
     const token = localStorage.getItem('jwt_token');
     try {
-        const response = await fetch('/api/router?action=deletePartner', { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ partnerName }) });
+        const response = await fetch('/api/router?action=deletePartner', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                partnerName
+            })
+        });
         if (!response.ok) throw new Error('Failed to delete partner.');
         loadPartnersList();
-    } catch (error) { alert(error.message); }
+    } catch (error) {
+        alert(error.message);
+    }
 }

@@ -1,3 +1,24 @@
+# This file tells Git which files and folders it should intentionally ignore.
+
+# Environment variables
+# This is the most important line. It prevents your secret keys (API keys, tokens, etc.)
+# from being uploaded to your public GitHub repository.
 .env
-node_modules/
+
+# Dependencies
+# This folder is automatically generated when you run `npm install`.
+# It can be very large and should never be committed to your repository.
+# Hosting services like Vercel will automatically run `npm install` for you during deployment.
+/node_modules
+
+# Vercel-specific folder
+# This is a local development folder created by the `vercel dev` command.
 .vercel
+
+# Operating System files
+# These are common system files that should be ignored.
+.DS_Store
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

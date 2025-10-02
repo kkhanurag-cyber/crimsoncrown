@@ -1,16 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Standard meta tags for character set and viewport responsiveness -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Partner Management - Admin</title>
+    
     <!-- CSS Links -->
+    <!-- Bootstrap 5 for the core layout and components -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Your custom, professional stylesheet -->
     <link rel="stylesheet" href="../assets/css/crimson-styles.css">
 </head>
 <body>
-    <!-- Admin Navbar -->
+    <!-- Admin Navbar: Consistent across all admin pages -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
         <div class="container">
             <a class="navbar-brand" href="dashboard.html">Crimson Crown Admin</a>
@@ -24,14 +29,13 @@
                     <li class="nav-item"><a class="nav-link active" href="partners.html">Partners</a></li>
                     <li class="nav-item"><a class="nav-link" href="settings.html">Site Settings</a></li>
                 </ul>
-                <div id="user-auth-container">
-                    <!-- Admin user profile dropdown will be loaded here by admin.js -->
-                </div>
+                <!-- The admin's profile dropdown is dynamically inserted here by admin.js -->
+                <div id="user-auth-container"></div>
             </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
+    <!-- Main Content Area -->
     <main class="container py-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
@@ -41,31 +45,55 @@
         </div>
 
         <div class="row g-4">
-            <!-- Left Column: Add New Partner Form -->
+            <!-- Left Column: Contains the form for adding a new partner -->
             <div class="col-lg-5">
                 <div class="custom-card p-4">
                     <h3 class="mb-4">Add New Partner</h3>
                     <form id="add-partner-form">
-                        <div class="mb-3"><label for="partnerName" class="form-label">Partner Name</label><input type="text" class="form-control" id="partnerName" required></div>
-                        <div class="mb-3"><label for="logoUrl" class="form-label">Logo URL</label><input type="url" class="form-control" id="logoUrl" required></div>
-                        <div class="mb-3"><label for="websiteUrl" class="form-label">Website URL (Optional)</label><input type="url" class="form-control" id="websiteUrl"></div>
-                        <div class="mb-3"><label for="category" class="form-label">Category</label><select class="form-select" id="category"><option value="Sponsor">Sponsor</option><option value="Partner">Collab Partner</option><option value="Affiliate">Affiliate</option></select></div>
+                        <div class="mb-3">
+                            <label for="partnerName" class="form-label">Partner Name</label>
+                            <input type="text" class="form-control" id="partnerName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="logoUrl" class="form-label">Logo URL</label>
+                            <input type="url" class="form-control" id="logoUrl" placeholder="https://example.com/logo.png" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="websiteUrl" class="form-label">Website URL (Optional)</label>
+                            <input type="url" class="form-control" id="websiteUrl" placeholder="https://example.com">
+                        </div>
+                        <div class="mb-3">
+                            <label for="category" class="form-label">Category</label>
+                            <select class="form-select" id="category">
+                                <option value="Sponsor">Sponsor</option>
+                                <option value="Partner">Collab Partner</option>
+                                <option value="Affiliate">Affiliate</option>
+                            </select>
+                        </div>
                         <button type="submit" class="btn btn-brand w-100">Add Partner</button>
                     </form>
                 </div>
             </div>
-            <!-- Right Column: List of Existing Partners -->
+            <!-- Right Column: Contains the list of existing partners for management -->
             <div class="col-lg-7">
                 <div class="custom-card p-3">
+                    <!-- Loader: Shown while the partner list is being fetched -->
                     <div id="loader" class="text-center py-5">
                         <div class="spinner-border text-danger" role="status"></div>
                         <p class="text-secondary mt-2">Loading Partners...</p>
                     </div>
+                    <!-- This table is hidden by default and will be populated by admin.js -->
                     <div id="partners-list-container" class="table-responsive d-none">
                         <table class="table table-dark table-hover">
-                            <thead><tr><th>Partner</th><th>Category</th><th class="text-end">Actions</th></tr></thead>
+                            <thead>
+                                <tr>
+                                    <th>Partner</th>
+                                    <th>Category</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
                             <tbody id="partners-body">
-                                <!-- Partner rows will be injected here by admin.js -->
+                                <!-- Partner rows will be dynamically injected here by admin.js -->
                             </tbody>
                         </table>
                     </div>
@@ -74,7 +102,7 @@
         </div>
     </main>
 
-    <!-- Edit Partner Modal -->
+    <!-- Edit Partner Modal: A pop-up for editing an existing partner's details -->
     <div class="modal fade" id="editPartnerModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content bg-dark text-white">
@@ -84,6 +112,7 @@
                 </div>
                 <div class="modal-body">
                     <form id="edit-partner-form">
+                        <!-- This hidden input stores the original name to identify which row to update in the database -->
                         <input type="hidden" id="editOriginalName">
                         <div class="mb-3"><label for="editPartnerName" class="form-label">Partner Name</label><input type="text" class="form-control" id="editPartnerName" required></div>
                         <div class="mb-3"><label for="editLogoUrl" class="form-label">Logo URL</label><input type="url" class="form-control" id="editLogoUrl" required></div>
@@ -99,6 +128,7 @@
         </div>
     </div>
 
+    <!-- SCRIPTS: Essential JavaScript files for the admin panel -->
     <script src="admin.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

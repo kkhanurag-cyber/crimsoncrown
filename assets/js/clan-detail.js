@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('clan-logo').src = clan.clanLogo;
         document.getElementById('clan-name').textContent = `[${clan.clanTag}] ${clan.clanName}`;
         
-        // Populate all other instances of the clan name on the page.
+        // Populate all other instances of the clan name on the page for consistency.
         document.querySelectorAll('.clan-name-span').forEach(span => span.textContent = clan.clanName);
         
         // Populate the leadership section.
@@ -66,7 +66,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Populate the roster list and member count.
         const rosterList = document.getElementById('roster-list');
         const memberCountEl = document.getElementById('member-count');
-        const rosterMembers = [clan.captainName, ...clan.roster.filter(m => m.toLowerCase() !== clan.captainName.toLowerCase())]; // Ensure captain is always first and not duplicated
+        // Combine the captain's name with the rest of the roster, ensuring no duplicates.
+        const rosterMembers = [clan.captainName, ...clan.roster.filter(m => m.toLowerCase() !== clan.captainName.toLowerCase())];
         memberCountEl.textContent = rosterMembers.length;
         rosterList.innerHTML = ''; // Clear any placeholder content.
         rosterMembers.forEach(member => {
@@ -81,11 +82,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         // --- HANDLE THE "JOIN CLAN" BUTTON LOGIC ---
         const joinButtonContainer = document.getElementById('join-button-container');
         if (token) {
-            // If the user is logged in, decode their token to check their status.
+            // If the user is logged in, decode their token to check their clan status.
             const user = JSON.parse(atob(token.split('.')[1]));
             if (user.clanId) {
                 if (user.clanId === clanId) {
-                    // User is already a member of this clan. Link them to their clan dashboard.
+                    // User is already a member of this clan. Link them to their personal clan dashboard.
                     joinButtonContainer.innerHTML = `<a href="my-clan.html" class="btn btn-success">You are in this clan</a>`;
                 } else {
                     // User is in a different clan. They must leave it before joining another.
@@ -98,7 +99,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         } else {
             // If the user is not logged in, show a button that prompts them to log in.
-            // The login link includes a redirect back to this specific clan page.
+            // The login link includes a redirect back to this specific clan page so they don't lose their place.
             const loginUrl = `/api/router?action=discord-auth-start&redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
             joinButtonContainer.innerHTML = `<a href="${loginUrl}" class="btn btn-brand">Login to Join Clan</a>`;
         }
@@ -123,7 +124,7 @@ async function requestToJoin(clanId, clanName) {
     const token = localStorage.getItem('jwt_token');
     const joinButton = document.getElementById('join-clan-btn');
     
-    // UI Feedback: Show loading state on the button.
+    // UI Feedback: Show loading state on the button to prevent multiple clicks.
     joinButton.disabled = true;
     joinButton.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Sending Request...`;
 
@@ -142,7 +143,7 @@ async function requestToJoin(clanId, clanName) {
             throw new Error(err.error || "Failed to send request.");
         }
         
-        // UI Feedback: Show success state on the button.
+        // UI Feedback: Show success state on the button. The user cannot click it again.
         joinButton.classList.remove('btn-brand');
         joinButton.classList.add('btn-warning');
         joinButton.textContent = 'Request Sent!';

@@ -1,16 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Standard meta tags for character set and viewport responsiveness -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Messages - Admin</title>
+    
     <!-- CSS Links -->
+    <!-- Bootstrap 5 for the core layout and components -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Your custom, professional stylesheet -->
     <link rel="stylesheet" href="../assets/css/crimson-styles.css">
 </head>
 <body>
-    <!-- Admin Navbar -->
+    <!-- Admin Navbar: Consistent across all admin pages -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
         <div class="container">
             <a class="navbar-brand" href="dashboard.html">Crimson Crown Admin</a>
@@ -24,14 +29,13 @@
                     <li class="nav-item"><a class="nav-link" href="partners.html">Partners</a></li>
                     <li class="nav-item"><a class="nav-link" href="settings.html">Site Settings</a></li>
                 </ul>
-                <div id="user-auth-container">
-                    <!-- Admin user profile dropdown will be loaded here by admin.js -->
-                </div>
+                <!-- The admin's profile dropdown is dynamically inserted here by admin.js -->
+                <div id="user-auth-container"></div>
             </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
+    <!-- Main Content Area -->
     <main class="container py-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
@@ -70,7 +74,7 @@
         </div>
     </main>
 
-    <!-- Message View Modal -->
+    <!-- Message View Modal: A pop-up to display the full content of a message -->
     <div class="modal fade" id="messageModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content bg-dark text-white">
@@ -87,6 +91,7 @@
         </div>
     </div>
     
+    <!-- SCRIPTS: Essential JavaScript files for the admin panel -->
     <script src="admin.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
