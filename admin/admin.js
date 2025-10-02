@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
         protectPage();
     }
     
-    // Page-Specific Handlers
+    // Page-Specific Handlers to run the correct logic for the current page.
     if (document.getElementById('add-tournament-form')) handleDashboardPage();
     if (document.getElementById('users-table')) handleUsersPage();
     if (document.getElementById('requests-table')) handleRequestsPage();
@@ -44,18 +44,23 @@ document.addEventListener('DOMContentLoaded', () => {
 function protectPage() {
     const token = localStorage.getItem('jwt_token');
     if (!token) {
+        // If no token exists, immediately redirect to the login page.
         window.location.href = '/admin/index.html';
         return null;
     }
     try {
+        // Decode the token to check the user's role.
         const payload = JSON.parse(atob(token.split('.')[1]));
         if (!payload.siteRole || payload.siteRole !== 'admin') {
+            // If the user is logged in but is NOT an admin, block access and show a message.
             document.body.innerHTML = `<div class="container text-center py-5"><h1 class="text-danger">Access Denied</h1><p class="text-secondary">You do not have the required permissions to view this page.</p><a href="/" class="btn btn-brand mt-3">Go to Homepage</a></div>`;
             throw new Error('Insufficient permissions');
         }
+        // If the user is a valid admin, render their profile in the navbar.
         renderAdminProfile(payload);
         return token;
     } catch (error) {
+        // If the token is invalid or expired, clear it and force a re-login.
         localStorage.removeItem('jwt_token');
         window.location.href = '/admin/index.html';
         return null;
@@ -74,14 +79,18 @@ function handleLoginPage() {
     const errorMessage = document.getElementById('error-message');
 
     if (token) {
+        // A token was found in the URL. Show the "Verifying..." UI.
         authCheck.classList.remove('d-none');
         loginUI.classList.add('d-none');
         try {
+            // Decode the token to check if the user has the 'admin' role.
             const payload = JSON.parse(atob(token.split('.')[1]));
             if (payload.siteRole === 'admin') {
+                // If they are an admin, save the token and redirect to the dashboard.
                 localStorage.setItem('jwt_token', token);
                 window.location.href = '/admin/dashboard.html';
             } else {
+                // If they are a regular user, deny access.
                 throw new Error('You do not have admin permissions.');
             }
         } catch (err) {

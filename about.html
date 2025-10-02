@@ -1,18 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Standard meta tags for character set and viewport responsiveness -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>About Us — Crimson Crown</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Learn about the story, mission, and vision of Crimson Crown. Meet the team dedicated to building the future of the South Asian esports ecosystem.">
+    <meta name="keywords" content="about us, esports organization, Crimson Crown team, our mission, our vision">
+
     <!-- CSS Links -->
+    <!-- Bootstrap 5 for the core layout and components -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Your custom, professional stylesheet -->
     <link rel="stylesheet" href="assets/css/crimson-styles.css">
-    <script src="/_vercel/speed-insights/script.js" defer></script>
 </head>
 <body>
 
-    <!-- NAVBAR -->
+    <!-- NAVBAR: This is the standard navigation bar, consistent across all pages. -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <div class="container">
             <a class="navbar-brand" href="index.html"><img src="assets/images/logo.png" alt="Crimson Crown Logo" style="height: 45px;"></a>
@@ -26,6 +34,7 @@
                     <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
                     <li class="nav-item"><a class="nav-link active" aria-current="page" href="about.html">About</a></li>
                 </ul>
+                <!-- The user login/profile dropdown is dynamically inserted here by auth.js -->
                 <div id="user-auth-container" class="ms-lg-3 mt-3 mt-lg-0"></div>
             </div>
         </div>
@@ -42,23 +51,24 @@
             </section>
 
             <div class="container py-5">
-                <!-- OUR STORY SECTION -->
+                <!-- OUR STORY SECTION: A detailed narrative about the organization's founding. -->
                 <section class="page-section">
                     <div class="row g-5 align-items-center">
                         <div class="col-lg-6">
                             <div class="section-heading text-start">
-                                <h2>Our Story</h2>
+                                <h2>Our Story: From Passion to Platform</h2>
                             </div>
-                            <p class="text-secondary fs-5">Crimson Crown was founded by a small group of passionate gamers who saw a gap in the South Asian esports scene. While talent was abundant, consistent and professional platforms for competition were scarce. We took it upon ourselves to build what was missing.</p>
-                            <p class="text-secondary fs-5">Starting with weekly Farlight 84 scrims, we've grown into a trusted tournament organizer, dedicated to creating a structured and rewarding environment for players to hone their skills and compete at the highest level.</p>
+                            <p class="text-secondary fs-5">Crimson Crown was born from a simple observation: South Asia was filled with immense gaming talent, but lacked the professional infrastructure for that talent to flourish. A small group of passionate gamers and community builders, we saw an opportunity to create something meaningful.</p>
+                            <p class="text-secondary fs-5">We began by organizing weekly Farlight 84 scrims, focusing on fair play, consistent scheduling, and clear communication. What started as a small initiative quickly grew into a trusted community. Today, we stand as an established tournament organizer, committed to creating a structured and rewarding environment where players can hone their skills, compete at the highest level, and begin their journey to becoming professional athletes.</p>
                         </div>
                         <div class="col-lg-6">
-                            <img src="assets/images/our_journey.png" class="img-fluid rounded-3 shadow" alt="Crimson Crown team journey from small room to big stage">
+                            <!-- Image representing the journey from humble beginnings to a professional stage -->
+                            <img src="assets/images/our_journey.png" class="img-fluid rounded-3 shadow" alt="An artistic depiction of gamers starting in a small room and ending up on a large esports stage, representing the journey of Crimson Crown.">
                         </div>
                     </div>
                 </section>
 
-                <!-- OUR MISSION & VISION -->
+                <!-- OUR MISSION & VISION SECTION: A clear statement of the organization's goals. -->
                  <section class="page-section bg-darker">
                     <div class="container">
                         <div class="row g-5 align-items-center flex-row-reverse">
@@ -66,23 +76,25 @@
                                 <div class="section-heading text-start">
                                      <h2>Our Mission & Vision</h2>
                                 </div>
-                                <p class="text-secondary fs-5"><strong>Our mission</strong> is to elevate the esports ecosystem in South Asia by providing reliable, professional, and accessible competitive platforms. We aim to nurture talent, foster sportsmanship, and build a thriving community.</p>
-                                <p class="text-secondary fs-5"><strong>Our vision</strong> is to see South Asian teams and players achieve global recognition. We are building the foundational infrastructure to help our region's talent shine on the world stage.</p>
+                                <p class="text-secondary fs-5"><strong>Our mission</strong> is to elevate the esports ecosystem in South Asia by providing reliable, professional, and accessible competitive platforms. We aim to nurture talent, foster sportsmanship, and build a thriving community where every player has the opportunity to succeed.</p>
+                                <p class="text-secondary fs-5"><strong>Our vision</strong> is to see South Asian teams and players achieve global recognition. We are building the foundational infrastructure—from grassroots scrims to premier tournaments—to help our region's talent shine on the world stage.</p>
                             </div>
                             <div class="col-lg-6">
-                                <img src="assets/images/our_vision.png" class="img-fluid rounded-3 shadow" alt="Crimson Crown vision for esports with a team holding a trophy on stage">
+                                <!-- Image representing the ultimate goal: a team celebrating victory on a global stage. -->
+                                <img src="assets/images/our_vision.png" class="img-fluid rounded-3 shadow" alt="A grand esports arena filled with fans, with the Crimson Crown logo on the main screen, representing the organization's vision.">
                             </div>
                         </div>
                     </div>
                 </section>
 
-                <!-- MEET THE TEAM SECTION -->
+                <!-- MEET THE TEAM SECTION: Showcasing the core members. -->
                 <section class="page-section">
                     <div class="section-heading">
                         <h2>Meet The Team</h2>
                         <p>The core members driving the Crimson Crown legacy.</p>
                     </div>
                     <div class="row g-4 justify-content-center">
+                        <!-- Team Member 1 -->
                         <div class="col-lg-3 col-md-6 text-center">
                             <div class="custom-card p-4 h-100">
                                 <img src="https://placehold.co/150x150/1E1E1E/E6EDF3?text=Anurag" class="rounded-circle mb-3" alt="Anurag, Founder & CEO">
@@ -91,6 +103,7 @@
                                 <p class="text-secondary small">The visionary behind Crimson Crown, leading the charge to redefine esports in the region.</p>
                             </div>
                         </div>
+                        <!-- Team Member 2 -->
                         <div class="col-lg-3 col-md-6 text-center">
                             <div class="custom-card p-4 h-100">
                                 <img src="https://placehold.co/150x150/1E1E1E/E6EDF3?text=Blaster" class="rounded-circle mb-3" alt="Blaster, Head of Operations">
@@ -99,50 +112,53 @@
                                 <p class="text-secondary small">Ensuring every tournament runs smoothly and professionally from start to finish.</p>
                             </div>
                         </div>
+                        <!-- You can copy and paste the above block to add more team members -->
                     </div>
                 </section>
             </div>
         </main>
     </div>
 
-<!-- FOOTER -->
-<footer class="site-footer">
-    <div class="container">
-        <div class="footer-content">
-            <div class="footer-about">
-                <a href="index.html" class="footer-logo text-decoration-none mb-3">
-                    <img src="assets/images/logo.png" alt="Crimson Crown Logo">
-                    <span>CRIMSON CROWN</span>
-                </a>
-                <p>Building the future of competitive gaming in South Asia.</p>
-            </div>
-            <div class="footer-links">
-                <h5 class="footer-heading">Quick Links</h5>
-                <ul>
-                    <li><a href="about.html">About Us</a></li>
-                    <li><a href="tournaments.html">Tournaments</a></li>
-                    <li><a href="leaderboard.html">Leaderboard</a></li>
-                    <li><a href="contact.html">Contact</a></li>
-                </ul>
-            </div>
-            <div class="footer-connect">
-                <h5 class="footer-heading">Connect With Us</h5>
-                <div class="footer-social">
-                    <a href="#" data-social-link="youtube" title="YouTube"><i class="fab fa-youtube"></i></a>
-                    <a href="#" data-social-link="instagram" title="Instagram"><i class="fab fa-instagram"></i></a>
-                    <a href="#" data-social-link="twitter" title="X (formerly Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
-                    <a href="#" data-social-link="discord" target="_blank" title="Discord"><i class="fab fa-discord"></i></a>
+    <!-- FOOTER: The standard site footer. -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-about">
+                    <a href="index.html" class="footer-logo text-decoration-none mb-3">
+                        <img src="assets/images/logo.png" alt="Crimson Crown Logo">
+                        <span>CRIMSON CROWN</span>
+                    </a>
+                    <p>Building the future of competitive gaming in South Asia.</p>
+                </div>
+                <div class="footer-links">
+                    <h5 class="footer-heading">Quick Links</h5>
+                    <ul>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="tournaments.html">Tournaments</a></li>
+                        <li><a href="leaderboard.html">Leaderboard</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-connect">
+                    <h5 class="footer-heading">Connect With Us</h5>
+                    <div class="footer-social">
+                        <a href="#" data-social-link="youtube" title="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="#" data-social-link="instagram" title="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" data-social-link="twitter" title="X (formerly Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
+                        <a href="#" data-social-link="discord" target="_blank" title="Discord"><i class="fab fa-discord"></i></a>
+                    </div>
                 </div>
             </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Crimson Crown Esports. All rights reserved.</p>
+            </div>
         </div>
-        <div class="footer-bottom">
-            <p>&copy; 2025 Crimson Crown Esports. All rights reserved.</p>
-        </div>
-    </div>
-</footer>
+    </footer>
 
-    <!-- JS -->
+    <!-- SCRIPTS: Essential JavaScript files for the page to function. -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/auth.js"></script> <!-- Handles user login state -->
+    <!-- Vercel Speed Insights for performance monitoring -->
+    <script src="/_vercel/speed-insights/script.js" defer></script>
 </body>
 </html>

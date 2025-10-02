@@ -1,36 +1,43 @@
 /*
 =================================================
-Crimson Crown - Tournament Registration Script (v2.0 - Vercel)
+Crimson Crown - Tournament Registration Script (v2.1 - Final)
 =================================================
-This is the complete and final script. It handles the logic for the tournament registration page, including:
-1. Checking for a tournament ID in the URL.
-2. Forcing a user to log in if they are not already.
-3. Fetching the user's data to verify if they are in a clan and have the correct role (leader/co-leader).
-4. Showing pop-up modals to guide users who do not meet the requirements.
-5. If authorized, fetching tournament details and showing the registration form.
-6. Handling the final form submission to the secure API router.
+This script handles the logic for the tournament registration page. It:
+1. Checks for a tournament ID in the URL.
+2. Forces a user to log in if they are not already.
+3. Fetches the user's data to verify if they are in a clan and have the correct role (leader/co-leader).
+4. Shows different pop-up modals to guide users who do not meet the requirements.
+5. If authorized, it fetches tournament details and shows the registration form.
+6. Handles the final form submission to the secure API router.
 */
 
+// The main function runs as soon as the basic HTML document structure has been loaded.
 document.addEventListener('DOMContentLoaded', async () => {
+    // Get the user's login token from local storage to check if they are logged in.
     const token = localStorage.getItem('jwt_token');
+    // Get the query parameters from the current URL to find the tournament ID.
     const params = new URLSearchParams(window.location.search);
-    const scrimId = params.get('id'); // Corrected to use 'id' to match tournament-detail page link
+    const scrimId = params.get('id'); // Use 'id' to match the links from the tournament pages.
 
+    // Get references to all the major page elements that this script will interact with.
     const loader = document.getElementById('loader');
     const formContainer = document.getElementById('registration-form-container');
     const tournamentNameEl = document.getElementById('tournament-name');
     const tournamentGameEl = document.getElementById('tournament-game');
     
     // --- 1. Check for Login Token ---
+    // This is a protected action, so the user MUST be logged in.
     if (!token) {
-        // If the user is not logged in, redirect them to the Discord login.
-        // Pass the current page's URL as a 'redirect' parameter so they come back here after logging in.
+        // If the user is not logged in, we must redirect them to the Discord login.
+        // We pass the current page's URL as a 'redirect' parameter.
+        // After they log in, Discord will send them back to this exact registration page.
         const redirectUrl = encodeURIComponent(`${window.location.pathname}${window.location.search}`);
-        window.location.href = `/api/discord-auth-start?redirect=${redirectUrl}`;
-        return;
+        window.location.href = `/api/router?action=discord-auth-start&redirect=${redirectUrl}`;
+        return; // Stop further execution until the user is logged in.
     }
 
     // --- 2. Check for a Tournament ID in the URL ---
+    // If no ID is present, the page cannot function.
     if (!scrimId) {
         tournamentNameEl.textContent = "Invalid Tournament Link";
         tournamentGameEl.textContent = "Please register by clicking a 'Register' button on a tournament page.";
@@ -40,7 +47,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     try {
         // --- 3. Verify User's Clan Status and Role ---
-        // Fetch the user's data from our secure backend router.
+        // Fetch the logged-in user's data from our secure backend router.
         const userRes = await fetch('/api/router?action=getUser', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -49,6 +56,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Check if the user is in a clan.
         if (!user.clanId) {
+            // If not, show the "No Clan" modal and stop.
             const noClanModal = new bootstrap.Modal(document.getElementById('no-clan-modal'));
             noClanModal.show();
             tournamentNameEl.textContent = "Clan Membership Required";
@@ -58,6 +66,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Check if the user has the required role (leader or co-leader).
         if (user.clanRole !== 'leader' && user.clanRole !== 'co-leader') {
+            // If not, show the "Permission Required" modal and stop.
             const authRoleModal = new bootstrap.Modal(document.getElementById('auth-role-modal'));
             authRoleModal.show();
             tournamentNameEl.textContent = "Authorization Required";
@@ -65,28 +74,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        // --- 4. If all checks pass, fetch tournament details ---
+        // --- 4. If all checks pass, fetch the tournament's details ---
         const tourneyRes = await fetch(`/api/router?action=getTournamentDetail&id=${scrimId}`);
         if (!tourneyRes.ok) throw new Error('Could not find the specified tournament.');
         const tournament = await tourneyRes.json();
         
-        // --- 5. Populate the page and hidden form fields ---
+        // --- 5. Populate the page and hidden form fields with the fetched data ---
         tournamentNameEl.textContent = `Register for: ${tournament.scrimName}`;
         tournamentGameEl.textContent = `Game: ${tournament.game} | Mode: ${tournament.mode}`;
         document.getElementById('scrimId').value = scrimId;
         document.getElementById('clanId').value = user.clanId;
         
-        // Pre-fill the clan name from the JWT payload if possible.
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        if(payload.clanId === user.clanId && payload.clanName) {
-            document.getElementById('clanName').value = payload.clanName;
-        } else {
-            // As a fallback, fetch clan details if not in JWT
-            const clanRes = await fetch(`/api/router?action=getClanDetail&id=${user.clanId}`);
-            if (clanRes.ok) {
-                const clanDetails = await clanRes.json();
-                document.getElementById('clanName').value = clanDetails.clanName;
-            }
+        // Attempt to pre-fill the clan name by fetching its details.
+        const clanRes = await fetch(`/api/router?action=getClanDetail&id=${user.clanId}`);
+        if (clanRes.ok) {
+            const clanDetails = await clanRes.json();
+            document.getElementById('clanName').value = clanDetails.clanName;
         }
         
         // --- 6. Show the form and attach the submit listener ---
@@ -95,6 +98,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('tournament-registration-form').addEventListener('submit', handleTournamentRegistration);
 
     } catch (error) {
+        // Handle any errors that occurred during the process.
         loader.classList.add('d-none');
         tournamentNameEl.textContent = "An Error Occurred";
         tournamentGameEl.textContent = error.message;
@@ -150,7 +154,7 @@ async function handleTournamentRegistration(event) {
             <div class="text-center py-5">
                 <i class="fas fa-check-circle text-success fa-3x mb-3"></i>
                 <h3 class="text-success">Registration Successful!</h3>
-                <p class="text-secondary">Your clan is now registered for this tournament. Good luck!</p>
+                <p class="text-secondary">Your clan is now registered for the tournament. Good luck!</p>
                 <a href="tournaments.html" class="btn btn-brand mt-3">Back to Tournaments</a>
             </div>
         `;
@@ -158,8 +162,7 @@ async function handleTournamentRegistration(event) {
     } catch (error) {
         formStatus.textContent = `❌ Error: ${error.message}`;
         formStatus.classList.add('text-danger');
-    } finally {
-        // Re-enable the button if an error occurred.
+        // Re-enable button on error.
         submitButton.disabled = false;
         buttonText.textContent = 'Register Team';
         buttonSpinner.classList.add('d-none');

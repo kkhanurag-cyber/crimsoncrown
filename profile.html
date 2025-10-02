@@ -1,17 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Standard meta tags for character set and viewport responsiveness -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>My Profile — Crimson Crown</title>
+    
     <!-- CSS Links -->
+    <!-- Bootstrap 5 for the core layout and components -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Your custom, professional stylesheet -->
     <link rel="stylesheet" href="assets/css/crimson-styles.css">
 </head>
 <body>
 
-    <!-- NAVBAR -->
+    <!-- NAVBAR: This is the standard navigation bar, consistent across all pages. -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <div class="container">
             <a class="navbar-brand" href="index.html"><img src="assets/images/logo.png" alt="Crimson Crown Logo" style="height: 45px;"></a>
@@ -25,6 +30,7 @@
                     <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
                     <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
                 </ul>
+                <!-- The user login/profile dropdown is dynamically inserted here by auth.js -->
                 <div id="user-auth-container" class="ms-lg-3 mt-3 mt-lg-0"></div>
             </div>
         </div>
@@ -32,20 +38,24 @@
 
     <div class="page-content-wrapper">
         <main class="container py-5 mt-5">
+            <!-- Loader: Shown while the user's profile data is being fetched from the backend. -->
             <div id="loader" class="text-center py-5">
                 <div class="spinner-border text-danger" style="width: 3rem; height: 3rem;" role="status"></div>
                 <p class="text-secondary mt-3">Loading Your Profile...</p>
             </div>
 
+            <!-- This is the main content container, hidden by default until the data is loaded. -->
             <div id="profile-content" class="d-none">
-                <!-- PROFILE HERO SECTION -->
+                <!-- PROFILE HERO SECTION: The main header displaying the user's identity. -->
                 <section class="clan-hero text-center mb-5">
                     <img id="profile-avatar" src="assets/images/default-logo.png" alt="User Avatar" class="clan-hero-logo">
                     <h1 id="profile-username" class="clan-name display-4"></h1>
-                    <div id="profile-clan-info" class="clan-hero-stats"></div>
+                    <div id="profile-clan-info" class="clan-hero-stats">
+                        <!-- Clan affiliation will be injected here by profile.js -->
+                    </div>
                 </section>
 
-                <!-- STATS CARDS -->
+                <!-- STATS CARDS: A row of cards displaying key player statistics. -->
                 <section class="row g-4 text-center">
                     <div class="col-md-4">
                         <div class="custom-card p-4 h-100">
@@ -70,7 +80,7 @@
         </main>
     </div>
 
-    <!-- FOOTER -->
+    <!-- FOOTER: The standard site footer. -->
     <footer class="site-footer">
         <div class="container">
             <div class="footer-content">
@@ -106,9 +116,11 @@
         </div>
     </footer>
 
-    <!-- SCRIPTS -->
+    <!-- SCRIPTS: Essential JavaScript files for the page to function. -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/js/auth.js"></script>
-    <script src="assets/js/profile.js"></script>
+    <script src="assets/js/auth.js"></script> <!-- Handles user login state -->
+    <script src="assets/js/profile.js"></script> <!-- Contains the logic specific to this page -->
+    <!-- Vercel Speed Insights for performance monitoring -->
+    <script src="/_vercel/speed-insights/script.js" defer></script>
 </body>
 </html>

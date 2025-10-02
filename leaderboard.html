@@ -1,17 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Standard meta tags for character set and viewport responsiveness -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Leaderboard — Crimson Crown</title>
+    
+    <!-- SEO Meta Tags for better search engine visibility -->
+    <meta name="description" content="Check the official Crimson Crown leaderboard. See real-time rankings, track your team's progress, and find out who is dominating the competitive season.">
+    <meta name="keywords" content="esports leaderboard, gaming rankings, Farlight 84 leaderboard, team rankings">
+
     <!-- CSS Links -->
+    <!-- Bootstrap 5 for the core layout and components -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Your custom, professional stylesheet -->
     <link rel="stylesheet" href="assets/css/crimson-styles.css">
 </head>
 <body>
 
-    <!-- NAVBAR -->
+    <!-- NAVBAR: This is the standard navigation bar, consistent across all pages. -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <div class="container">
             <a class="navbar-brand" href="index.html"><img src="assets/images/logo.png" alt="Crimson Crown Logo" style="height: 45px;"></a>
@@ -25,6 +34,7 @@
                     <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
                     <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
                 </ul>
+                <!-- The user login/profile dropdown is dynamically inserted here by auth.js -->
                 <div id="user-auth-container" class="ms-lg-3 mt-3 mt-lg-0"></div>
             </div>
         </div>
@@ -37,30 +47,31 @@
                 <p>See who's dominating the competition.</p>
             </div>
 
-            <!-- PODIUM FOR TOP 3 -->
+            <!-- PODIUM FOR TOP 3: A special, visually distinct section for the top three ranked teams. -->
+            <!-- This section is hidden by default and will be made visible by leaderboard.js if there are at least 3 teams. -->
             <section id="leaderboard-podium" class="row justify-content-center align-items-end mb-5 d-none">
-                <!-- Rank 2 -->
+                <!-- Rank 2 (Silver) -->
                 <div class="col-md-3 text-center order-md-1 mb-4 mb-md-0">
                     <div class="custom-card p-3" style="border-color: #C0C0C0;">
-                        <img id="podium-rank2-logo" src="" class="img-fluid rounded-circle mb-2" style="width: 80px; height: 80px; object-fit: cover;">
+                        <img id="podium-rank2-logo" src="" class="img-fluid rounded-circle mb-2" style="width: 80px; height: 80px; object-fit: cover;" onerror="this.onerror=null;this.src='assets/images/default-logo.png';">
                         <h4 id="podium-rank2-name" class="mb-1 text-truncate"></h4>
                         <p id="podium-rank2-points" class="text-secondary fw-bold"></p>
                         <h2 class="display-4 fw-bold" style="color: #C0C0C0;">2nd</h2>
                     </div>
                 </div>
-                <!-- Rank 1 -->
+                <!-- Rank 1 (Gold) -->
                 <div class="col-md-4 text-center order-md-2 mb-4 mb-md-0">
                      <div class="custom-card p-4" style="border-color: #FFD700; transform: scale(1.1);">
-                        <img id="podium-rank1-logo" src="" class="img-fluid rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;">
+                        <img id="podium-rank1-logo" src="" class="img-fluid rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;" onerror="this.onerror=null;this.src='assets/images/default-logo.png';">
                         <h3 id="podium-rank1-name" class="mb-1 text-truncate"></h3>
                         <p id="podium-rank1-points" class="text-secondary fw-bold"></p>
                         <h1 class="display-3 fw-bold" style="color: #FFD700;">1st</h1>
                     </div>
                 </div>
-                <!-- Rank 3 -->
+                <!-- Rank 3 (Bronze) -->
                 <div class="col-md-3 text-center order-md-3 mb-4 mb-md-0">
                      <div class="custom-card p-3" style="border-color: #CD7F32;">
-                        <img id="podium-rank3-logo" src="" class="img-fluid rounded-circle mb-2" style="width: 80px; height: 80px; object-fit: cover;">
+                        <img id="podium-rank3-logo" src="" class="img-fluid rounded-circle mb-2" style="width: 80px; height: 80px; object-fit: cover;" onerror="this.onerror=null;this.src='assets/images/default-logo.png';">
                         <h4 id="podium-rank3-name" class="mb-1 text-truncate"></h4>
                         <p id="podium-rank3-points" class="text-secondary fw-bold"></p>
                         <h2 class="display-4 fw-bold" style="color: #CD7F32;">3rd</h2>
@@ -68,7 +79,7 @@
                 </div>
             </section>
             
-            <!-- LEADERBOARD TABLE -->
+            <!-- LEADERBOARD TABLE: A detailed table for all other ranked teams. -->
             <section id="leaderboard-table-section">
                 <table class="leaderboard-table">
                     <thead>
@@ -81,9 +92,10 @@
                         </tr>
                     </thead>
                     <tbody id="leaderboard-body">
-                        <!-- Rows will be injected by JavaScript -->
+                        <!-- Table rows will be dynamically injected here by leaderboard.js -->
                     </tbody>
                 </table>
+                 <!-- Loader: Shown while the leaderboard data is being fetched from the backend. -->
                  <div id="leaderboard-loader" class="text-center py-5">
                     <div class="spinner-border text-danger" role="status">
                         <span class="visually-hidden">Loading...</span>
@@ -94,45 +106,47 @@
         </main>
     </div>
     
-<!-- FOOTER -->
-<footer class="site-footer">
-    <div class="container">
-        <div class="footer-content">
-            <div class="footer-about">
-                <a href="index.html" class="footer-logo text-decoration-none mb-3">
-                    <img src="assets/images/logo.png" alt="Crimson Crown Logo">
-                    <span>CRIMSON CROWN</span>
-                </a>
-                <p>Building the future of competitive gaming in South Asia.</p>
-            </div>
-            <div class="footer-links">
-                <h5 class="footer-heading">Quick Links</h5>
-                <ul>
-                    <li><a href="about.html">About Us</a></li>
-                    <li><a href="tournaments.html">Tournaments</a></li>
-                    <li><a href="leaderboard.html">Leaderboard</a></li>
-                    <li><a href="contact.html">Contact</a></li>
-                </ul>
-            </div>
-            <div class="footer-connect">
-                <h5 class="footer-heading">Connect With Us</h5>
-                <div class="footer-social">
-                    <a href="#" data-social-link="youtube" title="YouTube"><i class="fab fa-youtube"></i></a>
-                    <a href="#" data-social-link="instagram" title="Instagram"><i class="fab fa-instagram"></i></a>
-                    <a href="#" data-social-link="twitter" title="X (formerly Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
-                    <a href="#" data-social-link="discord" target="_blank" title="Discord"><i class="fab fa-discord"></i></a>
+    <!-- FOOTER: The standard site footer. -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-about">
+                    <a href="index.html" class="footer-logo text-decoration-none mb-3">
+                        <img src="assets/images/logo.png" alt="Crimson Crown Logo">
+                        <span>CRIMSON CROWN</span>
+                    </a>
+                    <p>Building the future of competitive gaming in South Asia.</p>
+                </div>
+                <div class="footer-links">
+                    <h5 class="footer-heading">Quick Links</h5>
+                    <ul>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="tournaments.html">Tournaments</a></li>
+                        <li><a href="leaderboard.html">Leaderboard</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-connect">
+                    <h5 class="footer-heading">Connect With Us</h5>
+                    <div class="footer-social">
+                        <a href="#" data-social-link="youtube" title="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="#" data-social-link="instagram" title="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" data-social-link="twitter" title="X (formerly Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
+                        <a href="#" data-social-link="discord" target="_blank" title="Discord"><i class="fab fa-discord"></i></a>
+                    </div>
                 </div>
             </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Crimson Crown Esports. All rights reserved.</p>
+            </div>
         </div>
-        <div class="footer-bottom">
-            <p>&copy; 2025 Crimson Crown Esports. All rights reserved.</p>
-        </div>
-    </div>
-</footer>
+    </footer>
 
     <!-- JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/js/auth.js"></script>
-    <script src="assets/js/leaderboard.js"></script>
+    <script src="assets/js/auth.js"></script> <!-- Handles user login state -->
+    <script src="assets/js/leaderboard.js"></script> <!-- Contains the logic specific to this page -->
+    <!-- Vercel Speed Insights for performance monitoring -->
+    <script src="/_vercel/speed-insights/script.js" defer></script>
 </body>
 </html>

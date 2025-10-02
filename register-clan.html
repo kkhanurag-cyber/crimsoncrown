@@ -1,18 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+    <!-- Standard meta tags for character set and viewport responsiveness -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register Clan - Crimson Crown</title>
+    
     <!-- CSS Links -->
+    <!-- Bootstrap 5 for the core layout and components -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Your custom, professional stylesheet -->
     <link rel="stylesheet" href="assets/css/crimson-styles.css">
 </head>
-
 <body>
-    <!-- NAVBAR -->
+    <!-- NAVBAR: This is the standard navigation bar, consistent across all pages. -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <div class="container">
             <a class="navbar-brand" href="index.html"><img src="assets/images/logo.png" alt="Crimson Crown Logo" style="height: 45px;"></a>
@@ -26,6 +29,7 @@
                     <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
                     <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
                 </ul>
+                <!-- The user login/profile dropdown is dynamically inserted here by auth.js -->
                 <div id="user-auth-container" class="ms-lg-3 mt-3 mt-lg-0"></div>
             </div>
         </div>
@@ -37,8 +41,8 @@
                 <h1 class="animated-gradient-text">Register Your Clan</h1>
                 <p class="text-secondary">Establish your team's identity in the Crimson Crown league.</p>
             </div>
-
-            <!-- This container will be shown to logged-out users -->
+            
+            <!-- This container will be shown to users who are not logged in. It is hidden by default. -->
             <div id="login-prompt" class="custom-card p-5 text-center d-none">
                 <i class="fas fa-lock fa-3x text-danger mb-3"></i>
                 <h3 class="mb-3">Please Log In</h3>
@@ -46,7 +50,7 @@
                 <a href="/api/router?action=discord-auth-start" class="btn btn-brand"><i class="fab fa-discord me-2"></i>Login with Discord</a>
             </div>
 
-            <!-- The registration form, hidden by default -->
+            <!-- The main registration form, hidden by default until the user is verified to be logged in. -->
             <div id="registration-container" class="custom-card p-4 p-md-5 d-none">
                 <form id="clan-registration-form">
                     <div class="row g-4">
@@ -62,6 +66,7 @@
                         <!-- Logo Upload/Link Section -->
                         <div class="col-12">
                             <label class="form-label fw-bold">Clan Logo</label>
+                            <!-- Radio buttons to toggle between upload methods -->
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="logoUploadMethod" id="logoMethodFile" value="file" checked>
                                 <label class="form-check-label" for="logoMethodFile">Upload a File</label>
@@ -71,21 +76,24 @@
                                 <label class="form-check-label" for="logoMethodLink">Paste an Image Link</label>
                             </div>
 
+                            <!-- File upload input group (visible by default) -->
                             <div id="logo-file-upload-group">
                                 <input class="form-control" type="file" id="clanLogoUpload" accept="image/*">
                             </div>
-
+                            
+                            <!-- URL input group (hidden by default) -->
                             <div id="logo-link-upload-group" class="d-none">
                                 <input type="url" class="form-control" id="clanLogoUrl" placeholder="https://example.com/logo.png">
                             </div>
-
+                            
+                            <!-- This hidden input stores the final URL from either the upload or the pasted link -->
                             <input type="hidden" id="clanLogo">
                         </div>
 
-                        <div class="col-12">
+                         <div class="col-12">
                             <label for="roster" class="form-label">Initial Roster (Optional, comma-separated)</label>
                             <textarea class="form-control" id="roster" rows="3" placeholder="Player1, Player2, Player3..."></textarea>
-                            <div class="form-text">Your Discord username will automatically be added as the Captain.</div>
+                             <div class="form-text">Your Discord username will automatically be added as the Captain.</div>
                         </div>
                     </div>
                     <hr class="my-4">
@@ -95,13 +103,14 @@
                             <span class="visually-hidden">Loading...</span>
                         </div>
                     </button>
+                    <!-- This paragraph is used to show status messages to the user (e.g., "Uploading...", "Success!"). -->
                     <p id="form-status" class="mt-3"></p>
                 </form>
             </div>
         </main>
     </div>
-
-    <!-- FOOTER -->
+    
+    <!-- FOOTER: The standard site footer. -->
     <footer class="site-footer">
         <div class="container">
             <div class="footer-content">
@@ -137,10 +146,11 @@
         </div>
     </footer>
 
-    <!-- SCRIPTS -->
+    <!-- SCRIPTS: Essential JavaScript files for the page to function. -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/js/auth.js"></script>
-    <script src="assets/js/register-clan.js"></script>
+    <script src="assets/js/auth.js"></script> <!-- Handles user login state -->
+    <script src="assets/js/register-clan.js"></script> <!-- Contains the logic specific to this page -->
+    <!-- Vercel Speed Insights for performance monitoring -->
+    <script src="/_vercel/speed-insights/script.js" defer></script>
 </body>
-
 </html>

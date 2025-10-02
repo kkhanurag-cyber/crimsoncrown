@@ -1,16 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Standard meta tags for character set and viewport responsiveness -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Clan - Crimson Crown</title>
+    
     <!-- CSS Links -->
+    <!-- Bootstrap 5 for the core layout and components -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Your custom, professional stylesheet -->
     <link rel="stylesheet" href="assets/css/crimson-styles.css">
 </head>
 <body>
-    <!-- NAVBAR: This is the standard navigation bar that appears on every page. -->
+    <!-- NAVBAR: This is the standard navigation bar, consistent across all pages. -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <div class="container">
             <a class="navbar-brand" href="index.html"><img src="assets/images/logo.png" alt="Crimson Crown Logo" style="height: 45px;"></a>
@@ -32,13 +37,13 @@
 
     <div class="page-content-wrapper">
         <main class="container py-5 mt-5">
-            <!-- Loader: Shown while data is being fetched from the backend. -->
+            <!-- Loader: Shown while the user's clan data is being fetched from the backend. -->
             <div id="loader" class="text-center py-5">
                 <div class="spinner-border text-danger" style="width: 3rem; height: 3rem;" role="status"></div>
                 <p class="text-secondary mt-3">Loading Your Clan Details...</p>
             </div>
 
-            <!-- This prompt is shown to users who are logged in but not currently in a clan. -->
+            <!-- This prompt is shown to users who are logged in but not currently in a clan. It is hidden by default. -->
             <div id="no-clan-prompt" class="custom-card p-5 text-center d-none">
                 <i class="fas fa-users-slash fa-3x text-danger mb-3"></i>
                 <h3 class="mb-3">You Are Not in a Clan</h3>
@@ -63,7 +68,7 @@
                     </div>
                 </section>
                 
-                <!-- Main layout with two columns. -->
+                <!-- Main layout with two columns, matching the professional design. -->
                 <div class="row g-4">
                     <!-- Left Column: Contains 'About' and the leader-only 'Join Requests' panel. -->
                     <div class="col-lg-8">
@@ -71,7 +76,7 @@
                             <h4>About <span class="clan-name-span"></span></h4>
                             <p id="clan-description" class="text-secondary">This clan has not set a description yet.</p>
                         </div>
-                        <!-- This panel is only visible to the clan leader. -->
+                        <!-- This panel is only visible to the clan leader and will be populated with pending requests. -->
                         <div id="requests-panel" class="custom-card p-4 mb-4 d-none">
                             <h4 class="mb-3">Pending Join Requests</h4>
                             <div id="requests-list">
@@ -133,5 +138,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/auth.js"></script> <!-- Handles user login state -->
     <script src="assets/js/my-clan.js"></script> <!-- Contains the logic specific to this page -->
+    <!-- Vercel Speed Insights for performance monitoring -->
+    <script src="/_vercel/speed-insights/script.js" defer></script>
 </body>
 </html>

@@ -1,16 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Standard meta tags for character set and viewport responsiveness -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Crimson Crown — Asia Esports</title>
+    <title>Crimson Crown — Premier Esports Hub for South Asia</title>
+    
+    <!-- SEO Meta Tags for better search engine visibility -->
+    <meta name="description" content="Join Crimson Crown, South Asia's premier esports organization. Compete in professional Farlight 84 tournaments, join a clan, and climb the leaderboards. Your legacy starts here.">
+    <meta name="keywords" content="esports, South Asia, Farlight 84, tournaments, competitive gaming, Crimson Crown, gaming community">
+
     <!-- CSS Links -->
+    <!-- Bootstrap 5 for the core layout and components -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons, updated version to include the 'X' logo -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Your custom, professional stylesheet that overrides and enhances Bootstrap -->
     <link rel="stylesheet" href="assets/css/crimson-styles.css">
-    <script src="/_vercel/speed-insights/script.js" defer></script>
+    
     <style>
-        /* This style block overrides the default hero overlay to create a smooth blend */
+        /* This inline style block is a specific override for the hero video's overlay.
+           It creates a smooth gradient that blends the bottom of the video into the
+           solid background color of the next section, avoiding a hard edge. */
         .hero-section-video::before {
             background: linear-gradient(to bottom, rgba(10, 10, 10, 0.4) 0%, rgba(10, 10, 10, 0.7) 60%, var(--midnight-black) 95%);
         }
@@ -18,12 +29,18 @@
 </head>
 <body>
 
-    <!-- NAVBAR -->
+    <!-- NAVBAR: This is the main navigation bar, consistent across all pages. -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <div class="container">
+            <!-- Site Logo -->
             <a class="navbar-brand" href="index.html"><img src="assets/images/logo.png" alt="Crimson Crown Logo" style="height: 45px;"></a>
+            
+            <!-- Mobile Menu Toggle Button -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
+            
+            <!-- Collapsible Navbar Content -->
             <div class="collapse navbar-collapse" id="navbarNav">
+                <!-- Main navigation links. The `.active` class highlights the current page. -->
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link active" aria-current="page" href="index.html">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="tournaments.html">Tournaments</a></li>
@@ -32,132 +49,144 @@
                     <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
                     <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
                 </ul>
+                
+                <!-- This empty div is a placeholder for the dynamic login/profile UI from auth.js -->
                 <div id="user-auth-container" class="ms-lg-3 mt-3 mt-lg-0"></div>
             </div>
         </div>
     </nav>
 
+    <!-- This wrapper is used to apply the background "aura" effect from the stylesheet. -->
     <div class="page-content-wrapper">
         <main>
-            <!-- HERO SECTION -->
+            <!-- HERO SECTION: The main landing view with a background video and a more impactful headline. -->
             <section class="hero-section-video">
+                <!-- The background video autoplays, is muted, and loops for atmosphere. -->
                 <video playsinline autoplay muted loop id="hero-video">
                     <source src="assets/images/hero-video.mp4" type="video/mp4">
                 </video>
                 <div class="hero-content container">
-                    <h1 class="animated-gradient-text">CRIMSON CROWN</h1>
-                    <p class="tagline text-secondary fs-4 mb-4">South Asia's Premier Farlight 84 Esports Hub</p>
+                    <h1 class="animated-gradient-text display-3 fw-bold">FORGE YOUR LEGACY</h1>
+                    <p class="tagline text-secondary fs-4 mb-4">Welcome to Crimson Crown, South Asia's Premier Competitive Gaming Hub.</p>
                     <div class="d-flex justify-content-center gap-3 flex-wrap">
-                        <a href="tournaments.html" class="btn btn-brand"><i class="fas fa-gamepad me-2"></i> Find Tournaments</a>
-                        <a href="https://discord.gg/BWhXZfVxgx" target="_blank" class="btn btn-outline-light"><i class="fab fa-discord me-2"></i> Join Discord</a>
+                        <a href="tournaments.html" class="btn btn-brand"><i class="fas fa-trophy me-2"></i> Explore Tournaments</a>
+                        <a href="#" data-social-link="discord" target="_blank" class="btn btn-outline-light"><i class="fab fa-discord me-2"></i> Join Community</a>
                     </div>
                 </div>
             </section>
 
-            <!-- WHO WE ARE SECTION -->
-            <section class="page-section">
+            <!-- FEATURED TOURNAMENT SECTION: A new dynamic section to showcase live and upcoming events. -->
+            <section class="page-section bg-darker">
                 <div class="container">
                     <div class="section-heading">
-                        <h2>Who We Are</h2>
-                        <p>Building the future of competitive gaming in South Asia</p>
+                        <h2>Live & Upcoming Events</h2>
+                        <p>Your next challenge awaits. Register now and prove your skill.</p>
                     </div>
-                    <div class="row justify-content-center">
-                        <div class="col-lg-8 text-center">
-                            <p class="fs-5 text-secondary"><strong>Crimson Crown</strong> was founded to bring professionalism and structure to the esports scene in South Asia. We host weekly scrims and tournaments for Farlight 84, building a strong community of players and paving the way for official esports recognition.</p>
+                    <!-- This grid is empty. The script below will fetch active/upcoming tournaments and fill it. -->
+                    <div id="featured-tournaments-grid" class="row justify-content-center g-4">
+                        <!-- A loader is shown here while the data is being fetched. -->
+                        <div class="text-center text-secondary">
+                            <div class="spinner-border text-danger" role="status"></div>
+                            <p class="mt-2">Loading latest events...</p>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- WHAT WE DO SECTION -->
-            <section class="page-section bg-darker">
+            <!-- WHY JOIN US SECTION: A new section highlighting key benefits with more professional icons and copy. -->
+            <section class="page-section">
                 <div class="container">
                     <div class="section-heading">
-                        <h2>What We Do</h2>
-                        <p>Comprehensive esports services for competitive gamers</p>
+                        <h2>Why Join Crimson Crown?</h2>
+                        <p>We are more than just tournaments. We are a community dedicated to growth and excellence.</p>
                     </div>
-                    <div class="row g-4">
-                        <div class="col-lg-3 col-md-6"><div class="custom-card feature-card h-100 p-4 text-center"><div class="feature-icon mb-3" style="color: var(--crimson-red);"><i class="fas fa-trophy"></i></div><h3>Weekly Tournaments</h3><p class="text-secondary">Competitive lobbies with attractive prize pools every week.</p></div></div>
-                        <div class="col-lg-3 col-md-6"><div class="custom-card feature-card h-100 p-4 text-center"><div class="feature-icon mb-3" style="color: var(--crimson-red);"><i class="fas fa-chart-line"></i></div><h3>Rankings & Leaderboards</h3><p class="text-secondary">Transparent point system to track the best teams.</p></div></div>
-                        <div class="col-lg-3 col-md-6"><div class="custom-card feature-card h-100 p-4 text-center"><div class="feature-icon mb-3" style="color: var(--crimson-red);"><i class="fas fa-video"></i></div><h3>Community Content</h3><p class="text-secondary">Supporting creators to showcase matches and highlights.</p></div></div>
-                        <div class="col-lg-3 col-md-6"><div class="custom-card feature-card h-100 p-4 text-center"><div class="feature-icon mb-3" style="color: var(--crimson-red);"><i class="fas fa-handshake"></i></div><h3>Partnerships</h3><p class="text-secondary">Connecting players, creators, and brands.</p></div></div>
+                    <div class="row g-4 text-center">
+                        <!-- Feature 1: Consistent Competition -->
+                        <div class="col-lg-4 col-md-6">
+                            <div class="custom-card feature-card h-100 p-4">
+                                <div class="feature-icon mb-3" style="color: var(--crimson-red);"><i class="fas fa-fist-raised fa-2x"></i></div>
+                                <h3>Consistent Competition</h3>
+                                <p class="text-secondary">With weekly scrims and regular high-stakes tournaments, there's always an opportunity to compete, improve your strategy, and make a name for yourself.</p>
+                            </div>
+                        </div>
+                        <!-- Feature 2: Professional Platform -->
+                        <div class="col-lg-4 col-md-6">
+                            <div class="custom-card feature-card h-100 p-4">
+                                <div class="feature-icon mb-3" style="color: var(--crimson-red);"><i class="fas fa-shield-alt fa-2x"></i></div>
+                                <h3>Professional Platform</h3>
+                                <p class="text-secondary">Experience professionally managed events with clear rules, fair play, and a dedicated admin team available for support, ensuring a level playing field for all.</p>
+                            </div>
+                        </div>
+                        <!-- Feature 3: Path to Pro -->
+                        <div class="col-lg-4 col-md-6">
+                            <div class="custom-card feature-card h-100 p-4">
+                                <div class="feature-icon mb-3" style="color: var(--crimson-red);"><i class="fas fa-star fa-2x"></i></div>
+                                <h3>Path to Pro</h3>
+                                <p class="text-secondary">Our platform is designed to help you get noticed. Perform well, climb the ranks, and open doors to greater opportunities in the global esports world.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
             
-            <!-- STATS SECTION -->
-            <section class="page-section">
+            <!-- STATS SECTION: Shows key metrics with an animated counter. -->
+            <section class="page-section bg-darker">
                 <div class="container">
                     <div class="section-heading">
-                        <h2>Our Impact</h2>
-                        <p>The numbers speak for themselves</p>
+                        <h2>Our Impact by the Numbers</h2>
+                        <p>The community's growth is a testament to our commitment.</p>
                     </div>
                     <div class="row text-center">
-                        <div class="col-md-3 col-6 mb-4"><h3 class="display-4 fw-bold counter" data-target="27">0</h3><p class="text-secondary text-uppercase">Teams Registered</p></div>
-                        <div class="col-md-3 col-6 mb-4"><h3 class="display-4 fw-bold counter" data-target="10">0</h3><p class="text-secondary text-uppercase">Scrims Hosted</p></div>
-                        <div class="col-md-3 col-6 mb-4"><h3 class="display-4 fw-bold counter" data-target="500">0</h3><p class="text-secondary text-uppercase">Discord Members</p></div>
+                        <div class="col-md-3 col-6 mb-4"><h3 class="display-4 fw-bold counter" data-target="27">0</h3><p class="text-secondary text-uppercase">Clans Registered</p></div>
+                        <div class="col-md-3 col-6 mb-4"><h3 class="display-4 fw-bold counter" data-target="10">0</h3><p class="text-secondary text-uppercase">Events Hosted</p></div>
+                        <div class="col-md-3 col-6 mb-4"><h3 class="display-4 fw-bold counter" data-target="500">0</h3><p class="text-secondary text-uppercase">Community Members</p></div>
                         <div class="col-md-3 col-6 mb-4"><h3 class="display-4 fw-bold">∞</h3><p class="text-secondary text-uppercase">Future Potential</p></div>
                     </div>
                 </div>
             </section>
             
-            <!-- PARTNERS SECTION -->
-            <section class="page-section bg-darker">
+            <!-- PARTNERS SECTION: Dynamically loaded from the database. -->
+            <section class="page-section">
                 <div class="container">
                     <div class="section-heading">
                         <h2>Our Partners & Sponsors</h2>
                         <p>Proudly supported by and collaborating with industry leaders.</p>
                     </div>
+                    <!-- This grid is empty. The script below will fetch partner data and fill it. -->
                     <div id="partners-grid" class="row align-items-center justify-content-center g-5">
-                        <!-- Partner logos will be dynamically injected here -->
                     </div>
                 </div>
             </section>
         </main>
     </div>
 
-<!-- FOOTER -->
-<footer class="site-footer">
-    <div class="container">
-        <div class="footer-content">
-            <div class="footer-about">
-                <a href="index.html" class="footer-logo text-decoration-none mb-3">
-                    <img src="assets/images/logo.png" alt="Crimson Crown Logo">
-                    <span>CRIMSON CROWN</span>
-                </a>
-                <p>Building the future of competitive gaming in South Asia.</p>
+    <!-- FOOTER: The standard site footer, consistent across all pages. -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-about"><a href="index.html" class="footer-logo text-decoration-none mb-3"><img src="assets/images/logo.png" alt="Crimson Crown Logo"><span>CRIMSON CROWN</span></a><p>Building the future of competitive gaming in South Asia.</p></div>
+                <div class="footer-links"><h5 class="footer-heading">Quick Links</h5><ul><li><a href="about.html">About Us</a></li><li><a href="tournaments.html">Tournaments</a></li><li><a href="leaderboard.html">Leaderboard</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+                <div class="footer-connect"><h5 class="footer-heading">Connect With Us</h5><div class="footer-social"><a href="#" data-social-link="youtube" title="YouTube"><i class="fab fa-youtube"></i></a><a href="#" data-social-link="instagram" title="Instagram"><i class="fab fa-instagram"></i></a><a href="#" data-social-link="twitter" title="X (formerly Twitter)"><i class="fa-brands fa-x-twitter"></i></a><a href="#" data-social-link="discord" target="_blank" title="Discord"><i class="fab fa-discord"></i></a></div></div>
             </div>
-            <div class="footer-links">
-                <h5 class="footer-heading">Quick Links</h5>
-                <ul>
-                    <li><a href="about.html">About Us</a></li>
-                    <li><a href="tournaments.html">Tournaments</a></li>
-                    <li><a href="leaderboard.html">Leaderboard</a></li>
-                    <li><a href="contact.html">Contact</a></li>
-                </ul>
-            </div>
-            <div class="footer-connect">
-                <h5 class="footer-heading">Connect With Us</h5>
-                <div class="footer-social">
-                    <a href="#" data-social-link="youtube" title="YouTube"><i class="fab fa-youtube"></i></a>
-                    <a href="#" data-social-link="instagram" title="Instagram"><i class="fab fa-instagram"></i></a>
-                    <a href="#" data-social-link="twitter" title="X (formerly Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
-                    <a href="#" data-social-link="discord" target="_blank" title="Discord"><i class="fab fa-discord"></i></a>
-                </div>
-            </div>
+            <div class="footer-bottom"><p>&copy; 2025 Crimson Crown Esports. All rights reserved.</p></div>
         </div>
-        <div class="footer-bottom">
-            <p>&copy; 2025 Crimson Crown Esports. All rights reserved.</p>
-        </div>
-    </div>
-</footer>
+    </footer>
 
     <!-- SCRIPTS -->
+    <!-- Bootstrap's JavaScript bundle for components like the mobile menu. -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- The global authentication script that runs on every page. -->
     <script src="assets/js/auth.js"></script>
+    <!-- Vercel Speed Insights for performance monitoring. -->
+    <script src="/_vercel/speed-insights/script.js" defer></script>
+
+    <!-- Page-specific JavaScript for homepage animations and dynamic content. -->
     <script>
+        // This script runs only on the homepage to handle the animated counters and load dynamic content.
         document.addEventListener('DOMContentLoaded', () => {
-            // Counter Animation Script
+            // --- Counter Animation Script ---
+            // This code finds all elements with the class 'counter' and animates them counting up
+            // when they are scrolled into the user's view for a dynamic effect.
             const counters = document.querySelectorAll('.counter');
             const observer = new IntersectionObserver((entries, observer) => {
                 entries.forEach(entry => {
@@ -165,23 +194,26 @@
                         const counter = entry.target;
                         const target = +counter.getAttribute('data-target');
                         let count = 0;
-                        const speed = 200;
+                        const speed = 200; // Lower number = slower animation
                         const increment = Math.ceil(target / speed);
+                        
                         const updateCount = () => {
                             if (count < target) {
                                 count = Math.min(count + increment, target);
                                 counter.innerText = count;
-                                setTimeout(updateCount, 20);
+                                setTimeout(updateCount, 20); // Update every 20ms for a smooth animation
                             }
                         };
                         updateCount();
-                        observer.unobserve(counter);
+                        observer.unobserve(counter); // Stop observing after it has animated once to save resources.
                     }
                 });
-            }, { threshold: 0.5 });
+            }, { threshold: 0.5 }); // Trigger the animation when 50% of the element is visible.
+
             counters.forEach(counter => observer.observe(counter));
 
-            // Partner Loading Script
+            // --- Partner Loading Script ---
+            // This function fetches the list of partners from the backend and displays them.
             async function loadPartners() {
                 const grid = document.getElementById('partners-grid');
                 if (!grid) return;
@@ -189,6 +221,7 @@
                     const response = await fetch('/api/router?action=getPartners');
                     if (!response.ok) return;
                     const partners = await response.json();
+                    grid.innerHTML = ''; // Clear any loader that might be there.
                     if (partners.length > 0) {
                         partners.forEach(partner => {
                             grid.innerHTML += `<div class="col-lg-2 col-md-3 col-4"><a href="${partner.websiteUrl}" target="_blank" class="partner-logo" title="${partner.partnerName}"><img src="${partner.logoUrl}" class="img-fluid" alt="${partner.partnerName} Logo"></a></div>`;
@@ -198,7 +231,59 @@
                     }
                 } catch (error) { console.error('Failed to load partners:', error); }
             }
+            
+            // --- Featured Tournament Loading Script ---
+            // This function fetches all tournaments and displays the top 2 active or upcoming ones.
+            async function loadFeaturedTournaments() {
+                const grid = document.getElementById('featured-tournaments-grid');
+                if (!grid) return;
+                try {
+                    const response = await fetch('/api/router?action=getTournaments');
+                    if (!response.ok) throw new Error('Could not fetch events.');
+                    const allTournaments = await response.json();
+                    
+                    // Find active or upcoming tournaments, and limit the result to a maximum of 2.
+                    const featured = allTournaments
+                        .filter(t => t.status.toLowerCase() === 'active' || t.status.toLowerCase() === 'upcoming')
+                        .slice(0, 2);
+                    
+                    grid.innerHTML = ''; // Clear the loader.
+                    
+                    if (featured.length > 0) {
+                        featured.forEach(tourney => {
+                            grid.innerHTML += `
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="tournament-card h-100">
+                                        <div class="card-banner" style="background-image: url('${tourney.bannerImage || 'assets/images/default-banner.png'}')">
+                                            <div class="card-status">${tourney.status}</div>
+                                        </div>
+                                        <div class="card-content">
+                                            <h5 class="card-title text-truncate">${tourney.scrimName}</h5>
+                                            <p class="card-sponsor text-secondary">${tourney.game}</p>
+                                            <hr>
+                                            <div class="card-details">
+                                                <span><i class="fas fa-users"></i> ${tourney.slots} Slots</span>
+                                                <span><i class="fas fa-trophy"></i> ${tourney.prizePool || 'TBD'}</span>
+                                            </div>
+                                            <div class="card-action">
+                                                <a href="tournament-detail.html?id=${tourney.scrimId}" class="btn btn-brand w-100">View Details</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        grid.innerHTML = '<p class="text-secondary text-center">No active or upcoming events right now. Check back soon!</p>';
+                    }
+                } catch (error) { 
+                    grid.innerHTML = `<p class="text-danger text-center">${error.message}</p>`;
+                }
+            }
+
+            // Run both loading functions as soon as the page is ready.
             loadPartners();
+            loadFeaturedTournaments();
         });
     </script>
 </body>

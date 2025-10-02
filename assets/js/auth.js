@@ -1,190 +1,168 @@
 /*
 =================================================
-Crimson Crown - Clan Registration Script (v2.1 - Final)
+Crimson Crown - Global Authentication Script (v2.1 - Final)
 =================================================
-This script handles the logic for the clan registration page. It:
-1. Checks if a user is logged in. If not, it shows a "Login" prompt.
-2. Toggles between file upload and link pasting for the logo.
-3. Handles the image upload process by sending the file to the Vercel Blob endpoint.
-4. Intercepts the main form submission and validates the logo input.
-5. Sends all clan data to the secure 'createClan' backend function.
-6. Saves the new, updated JWT token upon success to reflect the user's new clan status.
-7. Provides UI feedback to the user (loading states, success/error messages).
+This script runs on EVERY page of the website. It handles:
+1. Checking for a login token in the URL (after a user is redirected back from Discord).
+2. Storing the token in the browser's localStorage and cleaning the URL.
+3. Reading the token from localStorage on subsequent visits to keep the user logged in.
+4. Decoding the token to get user data (username, avatar, roles).
+5. Checking if the token is expired and logging the user out if it is.
+6. Dynamically rendering the UI in the navbar (either a "Login" button or a user profile dropdown).
+7. Handling the logout process.
+8. Loading and applying global site settings (like social media links) to the entire site.
 */
 
-// This function runs as soon as the basic HTML document is loaded.
+// A global variable to hold the current user's data once they are logged in.
+// This allows other scripts on the page (like registration pages) to access user info if needed.
+let currentUser = null;
+
+// This main function runs as soon as the basic HTML document structure has been loaded by the browser.
 document.addEventListener('DOMContentLoaded', () => {
-    // Get the user's login token from local storage.
-    const token = localStorage.getItem('jwt_token');
-    const loginPrompt = document.getElementById('login-prompt');
-    const registrationContainer = document.getElementById('registration-container');
-    
-    // Logic to show/hide content based on login status.
-    if (!token) {
-        // If the user is not logged in, show the message asking them to log in.
-        loginPrompt.classList.remove('d-none');
-        registrationContainer.classList.add('d-none');
-        return; // Stop the rest of the script from running.
+    // Get a reference to the placeholder div in the navbar where the login UI will go.
+    const userAuthContainer = document.getElementById('user-auth-container');
+    // Read the parameters from the current page's URL.
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const redirectPath = urlParams.get('redirect');
+
+    // Scenario 1: User has just logged in via Discord and was redirected back.
+    if (token) {
+        // A 'token' in the URL is the signal that a successful login just occurred.
+        // Save the token to the browser's local storage. This is what makes the user
+        // stay logged in even if they close the tab or refresh the page.
+        localStorage.setItem('jwt_token', token);
+        
+        // Clean up the URL by removing the token and redirect parameters.
+        // This provides a better user experience and prevents the token from being accidentally shared.
+        // If there was a specific page the user was trying to access before logging in (like a registration page),
+        // we send them back there. Otherwise, we send them to the homepage ('/').
+        const cleanUrl = redirectPath || '/';
+        window.history.replaceState({}, document.title, cleanUrl);
     }
-    
-    // If the user is logged in, hide the login prompt and show the registration form.
-    loginPrompt.classList.add('d-none');
-    registrationContainer.classList.remove('d-none');
-    
-    // Attach event listeners to the form elements.
-    const clanForm = document.getElementById('clan-registration-form');
-    const logoUploader = document.getElementById('clanLogoUpload');
-    
-    clanForm.addEventListener('submit', handleClanRegistration);
-    logoUploader.addEventListener('change', handleImageUpload);
-    
-    // Add event listeners for the new radio buttons to toggle the input methods.
-    document.getElementById('logoMethodFile').addEventListener('change', toggleLogoUploadMethod);
-    document.getElementById('logoMethodLink').addEventListener('change', toggleLogoUploadMethod);
+
+    // Read the token from local storage on every single page load.
+    const storedToken = localStorage.getItem('jwt_token');
+
+    if (storedToken) {
+        // Scenario 2: A token exists in storage, so the user is likely logged in.
+        try {
+            // A JWT is made of three parts separated by dots: header, payload, and signature.
+            // The middle part (payload) contains the user data we need. It's base64 encoded, so we decode it.
+            const payload = JSON.parse(atob(storedToken.split('.')[1]));
+            
+            // We must check if the token has expired. The 'exp' field is a Unix timestamp in seconds.
+            const isExpired = payload.exp * 1000 < Date.now();
+            if (isExpired) {
+                // If the token is expired, remove the old token from storage and treat the user as logged out.
+                console.warn("Auth: Token is expired. Logging out.");
+                localStorage.removeItem('jwt_token');
+                showLoginButton(userAuthContainer);
+                return; // Stop execution.
+            }
+
+            // If the token is valid and not expired, set the global currentUser object.
+            currentUser = payload;
+            
+            // Update the UI to show the user's profile information in the navbar.
+            showUserProfile(userAuthContainer, currentUser);
+
+        } catch (error) {
+            // This 'catch' block runs if the token is malformed or invalid (e.g., tampered with).
+            // This is a security measure. We clear the bad token and show the login button.
+            console.error("Auth: Invalid or malformed token found. Clearing session.", error);
+            localStorage.removeItem('jwt_token');
+            showLoginButton(userAuthContainer);
+        }
+    } else {
+        // Scenario 3: No token found in storage. The user is logged out.
+        showLoginButton(userAuthContainer);
+    }
+
+    // After handling user authentication, always load and apply site-wide settings like social links.
+    loadSiteSettings();
 });
 
 /**
- * Toggles the visibility of the file upload vs. link paste inputs for the clan logo.
+ * Renders the "Login with Discord" button in the navigation bar.
+ * @param {HTMLElement} container - The div element where the button will be placed.
  */
-function toggleLogoUploadMethod() {
-    const useFile = document.getElementById('logoMethodFile').checked;
-    // Show or hide the file upload group based on the radio button selection.
-    document.getElementById('logo-file-upload-group').classList.toggle('d-none', !useFile);
-    // Show or hide the link input group based on the radio button selection.
-    document.getElementById('logo-link-upload-group').classList.toggle('d-none', useFile);
+function showLoginButton(container) {
+    if (!container) return; // Safety check if the container element doesn't exist on the page.
     
-    // Clear all related inputs when switching to prevent confusion.
-    document.getElementById('clanLogo').value = ''; // Hidden input for the final URL
-    document.getElementById('clanLogoUrl').value = ''; // The URL input field
-    document.getElementById('clanLogoUpload').value = ''; // The file input field
-    document.getElementById('form-status').textContent = ''; // The status message
+    // Construct the login URL. We include the current page's path as a 'redirect' parameter.
+    // This tells our backend where to send the user back to after a successful login.
+    const redirectParam = encodeURIComponent(window.location.pathname + window.location.search);
+    const loginUrl = `/api/router?action=discord-auth-start&redirect=${redirectParam}`;
+    
+    container.innerHTML = `
+        <a href="${loginUrl}" class="btn btn-brand">
+            <i class="fab fa-discord me-2"></i> Login with Discord
+        </a>
+    `;
 }
 
 /**
- * Handles the file selection for the clan logo. Uploads the image to Vercel Blob.
- * @param {Event} event - The file input change event.
+ * Renders the user profile dropdown in the navigation bar after a successful login.
+ * @param {HTMLElement} container - The div element where the dropdown will be placed.
+ * @param {object} user - The decoded JWT payload containing the user's info.
  */
-async function handleImageUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
+function showUserProfile(container, user) {
+    if (!container) return; // Safety check.
+    
+    // Check if the user has an 'admin' siteRole to decide if the "Admin Panel" link should be shown.
+    const adminLink = user.siteRole === 'admin' 
+        ? '<li><a class="dropdown-item" href="/admin/dashboard.html"><i class="fas fa-user-shield fa-fw me-2"></i>Admin Panel</a></li><li><hr class="dropdown-divider"></li>' 
+        : '';
 
-    const formStatus = document.getElementById('form-status');
-    formStatus.textContent = 'Uploading logo, please wait...';
-    formStatus.className = 'mt-3 text-warning';
+    container.innerHTML = `
+        <div class="dropdown">
+            <button class="btn btn-dark dropdown-toggle d-flex align-items-center" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <img src="${user.avatar}" alt="${user.username}" class="rounded-circle me-2" style="width: 32px; height: 32px;">
+                ${user.username}
+            </button>
+            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="userDropdown">
+                <li><a class="dropdown-item" href="profile.html"><i class="fas fa-user-circle fa-fw me-2"></i>Profile</a></li>
+                <li><a class="dropdown-item" href="my-clan.html"><i class="fas fa-users fa-fw me-2"></i>My Clan</a></li>
+                <li><hr class="dropdown-divider"></li>
+                ${adminLink}
+                <li><a class="dropdown-item" href="#" onclick="logout()"><i class="fas fa-sign-out-alt fa-fw me-2"></i>Logout</a></li>
+            </ul>
+        </div>
+    `;
+}
 
+/**
+ * Fetches site-wide settings (like social media links) from the backend and dynamically updates them on the page.
+ */
+async function loadSiteSettings() {
     try {
-        // Send the file to our public Vercel Blob upload function.
-        // The filename is passed as a query parameter to keep it clean.
-        const response = await fetch(`/api/upload?filename=clan-logo-${Date.now()}-${file.name}`, {
-            method: 'POST',
-            body: file, // The raw file is sent in the body.
-        });
+        const response = await fetch('/api/router?action=getSiteSettings');
+        if (!response.ok) return;
+        const settings = await response.json();
 
-        if (!response.ok) {
-            throw new Error('Image upload failed on the server.');
-        }
-        
-        const { url } = await response.json();
-        
-        // Store the returned Vercel Blob URL in a hidden input field in the form.
-        document.getElementById('clanLogo').value = url;
-        formStatus.textContent = '✅ Logo uploaded successfully!';
-        formStatus.className = 'mt-3 text-success';
+        // Find all links with a `data-social-link` attribute and update their 'href' property.
+        document.querySelectorAll('[data-social-link]').forEach(link => {
+            const platform = link.dataset.socialLink; // e.g., "discord", "twitter"
+            const urlKey = `${platform}Url`; // e.g., "discordUrl"
+            if (settings[urlKey]) {
+                link.href = settings[urlKey];
+            } else {
+                // If a URL is not set in the database for a link, hide it from the page.
+                link.style.display = 'none';
+            }
+        });
     } catch (error) {
-        formStatus.textContent = `❌ Logo upload failed: ${error.message}`;
-        formStatus.className = 'mt-3 text-danger';
+        console.error("Could not load site settings:", error);
     }
 }
 
 /**
- * Handles the final submission of the clan registration form.
- * @param {Event} event - The form submission event.
+ * Logs the user out by removing their session token from local storage and redirecting to the homepage.
+ * This function is globally available to be called by the `onclick` attribute in the user dropdown menu.
  */
-async function handleClanRegistration(event) {
-    event.preventDefault(); // Prevent default page reload.
-    const token = localStorage.getItem('jwt_token');
-    const useFile = document.getElementById('logoMethodFile').checked;
-    const formStatus = document.getElementById('form-status');
-    let finalLogoUrl;
-
-    // Determine which input method is being used and get the final URL.
-    if (useFile) {
-        // If the user chose to upload a file, the URL will be in the hidden input.
-        finalLogoUrl = document.getElementById('clanLogo').value;
-        if (!finalLogoUrl) {
-            alert('Please upload a clan logo and wait for it to finish.');
-            return;
-        }
-    } else {
-        // If the user chose to paste a link, get the URL directly from the visible input.
-        finalLogoUrl = document.getElementById('clanLogoUrl').value;
-        if (!finalLogoUrl) {
-            alert('Please paste a valid URL for the clan logo.');
-            return;
-        }
-    }
-    
-    // UI feedback elements.
-    const submitButton = document.getElementById('submit-button');
-    const buttonText = document.getElementById('submit-button-text');
-    const buttonSpinner = document.getElementById('submit-spinner');
-    
-    // Disable button and show spinner for loading state.
-    submitButton.disabled = true;
-    buttonText.textContent = 'Creating Clan...';
-    buttonSpinner.classList.remove('d-none');
-    formStatus.textContent = '';
-    formStatus.className = 'mt-3';
-
-    // Collect all data from the form.
-    const clanData = {
-        clanName: document.getElementById('clanName').value,
-        clanTag: document.getElementById('clanTag').value,
-        clanLogo: finalLogoUrl, // Use the final URL from either method.
-        roster: document.getElementById('roster').value,
-    };
-
-    try {
-        // Send the data to the secure 'createClan' action in the API router.
-        const response = await fetch('/api/router?action=createClan', {
-            method: 'POST',
-            headers: { 
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(clanData)
-        });
-
-        const result = await response.json();
-
-        if (!response.ok) {
-            throw new Error(result.error || 'Failed to create the clan.');
-        }
-        
-        // --- THIS IS THE CRITICAL FIX for the "My Clan" page bug ---
-        // If the backend sent back a new, updated token, save it to localStorage.
-        // This instantly updates the user's session with their new clan information.
-        if (result.token) {
-            localStorage.setItem('jwt_token', result.token);
-        }
-
-        // Handle success.
-        formStatus.textContent = '✅ Clan created successfully! Redirecting...';
-        formStatus.classList.add('text-success');
-        
-        // Redirect the new clan leader to their new "My Clan" page after a short delay.
-        setTimeout(() => {
-            window.location.href = `/my-clan.html`;
-        }, 2000);
-
-    } catch (error) {
-        // Handle errors.
-        formStatus.textContent = `❌ Error: ${error.message}`;
-        formStatus.classList.add('text-danger');
-        
-        // Re-enable the button so the user can try again.
-        submitButton.disabled = false;
-        buttonText.textContent = 'Create Clan';
-        buttonSpinner.classList.add('d-none');
-    }
+function logout() {
+    localStorage.removeItem('jwt_token');
+    // Redirect to the homepage to reset the state and show the "Login" button again.
+    window.location.href = '/';
 }

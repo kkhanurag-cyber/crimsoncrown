@@ -1,18 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Standard meta tags for character set and viewport responsiveness -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Contact Us — Crimson Crown</title>
+    
+    <!-- SEO Meta Tags for better search engine visibility -->
+    <meta name="description" content="Get in touch with the Crimson Crown team. For partnerships, support, or general inquiries, use our contact form or find us on social media. We'd love to hear from you.">
+    <meta name="keywords" content="contact esports, gaming support, esports partnership, Crimson Crown contact">
+
     <!-- CSS Links -->
+    <!-- Bootstrap 5 for the core layout and components -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Your custom, professional stylesheet -->
     <link rel="stylesheet" href="assets/css/crimson-styles.css">
-    <script src="/_vercel/speed-insights/script.js" defer></script>
 </head>
 <body>
 
-    <!-- NAVBAR -->
+    <!-- NAVBAR: This is the standard navigation bar, consistent across all pages. -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <div class="container">
             <a class="navbar-brand" href="index.html"><img src="assets/images/logo.png" alt="Crimson Crown Logo" style="height: 45px;"></a>
@@ -26,6 +34,7 @@
                     <li class="nav-item"><a class="nav-link active" aria-current="page" href="contact.html">Contact</a></li>
                     <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
                 </ul>
+                <!-- The user login/profile dropdown is dynamically inserted here by auth.js -->
                 <div id="user-auth-container" class="ms-lg-3 mt-3 mt-lg-0"></div>
             </div>
         </div>
@@ -43,22 +52,35 @@
 
             <div class="container py-5">
                 <div class="row g-5">
-                    <!-- Contact Form -->
+                    <!-- Contact Form Column -->
                     <div class="col-lg-8">
                         <div class="custom-card p-4 p-md-5">
                             <h3 class="mb-4">Send Us a Message</h3>
+                            <!-- This form's submission is handled by assets/js/contact.js -->
                             <form id="contact-form">
                                 <div class="row g-3">
-                                    <div class="col-md-6 mb-3"><label for="name" class="form-label">Your Name</label><input type="text" class="form-control" id="name" name="name" required></div>
-                                    <div class="col-md-6 mb-3"><label for="email" class="form-label">Your Email</label><input type="email" class="form-control" id="email" name="email" required></div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="name" class="form-label">Your Name</label>
+                                        <input type="text" class="form-control" id="name" name="name" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="email" class="form-label">Your Email</label>
+                                        <input type="email" class="form-control" id="email" name="email" required>
+                                    </div>
                                 </div>
-                                <div class="mb-3"><label for="subject" class="form-label">Subject</label><input type="text" class="form-control" id="subject" name="subject" required></div>
-                                <div class="mb-4"><label for="message" class="form-label">Message</label><textarea class="form-control" id="message" name="message" rows="5" required></textarea></div>
+                                <div class="mb-3">
+                                    <label for="subject" class="form-label">Subject</label>
+                                    <input type="text" class="form-control" id="subject" name="subject" required>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="message" class="form-label">Message</label>
+                                    <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+                                </div>
                                 <button type="submit" class="btn btn-brand">Send Message</button>
                             </form>
                         </div>
                     </div>
-                    <!-- Contact Info -->
+                    <!-- Contact Information Column -->
                     <div class="col-lg-4">
                         <div class="custom-card p-4 h-100">
                             <h3 class="mb-4">Contact Information</h3>
@@ -73,7 +95,8 @@
                                 <i class="fab fa-discord fa-2x text-danger me-3"></i>
                                 <div>
                                     <h5 class="mb-0">Join our Discord</h5>
-                                    <a href="https://discord.gg/BWhXZfVxgx" target="_blank" class="text-secondary text-decoration-none">Community Server</a>
+                                    <!-- This link is dynamically updated by auth.js -->
+                                    <a href="#" data-social-link="discord" target="_blank" class="text-secondary text-decoration-none">Community Server</a>
                                 </div>
                             </div>
                         </div>
@@ -83,45 +106,47 @@
         </main>
     </div>
 
-<!-- FOOTER -->
-<footer class="site-footer">
-    <div class="container">
-        <div class="footer-content">
-            <div class="footer-about">
-                <a href="index.html" class="footer-logo text-decoration-none mb-3">
-                    <img src="assets/images/logo.png" alt="Crimson Crown Logo">
-                    <span>CRIMSON CROWN</span>
-                </a>
-                <p>Building the future of competitive gaming in South Asia.</p>
-            </div>
-            <div class="footer-links">
-                <h5 class="footer-heading">Quick Links</h5>
-                <ul>
-                    <li><a href="about.html">About Us</a></li>
-                    <li><a href="tournaments.html">Tournaments</a></li>
-                    <li><a href="leaderboard.html">Leaderboard</a></li>
-                    <li><a href="contact.html">Contact</a></li>
-                </ul>
-            </div>
-            <div class="footer-connect">
-                <h5 class="footer-heading">Connect With Us</h5>
-                <div class="footer-social">
-                    <a href="#" data-social-link="youtube" title="YouTube"><i class="fab fa-youtube"></i></a>
-                    <a href="#" data-social-link="instagram" title="Instagram"><i class="fab fa-instagram"></i></a>
-                    <a href="#" data-social-link="twitter" title="X (formerly Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
-                    <a href="#" data-social-link="discord" target="_blank" title="Discord"><i class="fab fa-discord"></i></a>
+    <!-- FOOTER: The standard site footer. -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-about">
+                    <a href="index.html" class="footer-logo text-decoration-none mb-3">
+                        <img src="assets/images/logo.png" alt="Crimson Crown Logo">
+                        <span>CRIMSON CROWN</span>
+                    </a>
+                    <p>Building the future of competitive gaming in South Asia.</p>
+                </div>
+                <div class="footer-links">
+                    <h5 class="footer-heading">Quick Links</h5>
+                    <ul>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="tournaments.html">Tournaments</a></li>
+                        <li><a href="leaderboard.html">Leaderboard</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-connect">
+                    <h5 class="footer-heading">Connect With Us</h5>
+                    <div class="footer-social">
+                        <a href="#" data-social-link="youtube" title="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="#" data-social-link="instagram" title="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" data-social-link="twitter" title="X (formerly Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
+                        <a href="#" data-social-link="discord" target="_blank" title="Discord"><i class="fab fa-discord"></i></a>
+                    </div>
                 </div>
             </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Crimson Crown Esports. All rights reserved.</p>
+            </div>
         </div>
-        <div class="footer-bottom">
-            <p>&copy; 2025 Crimson Crown Esports. All rights reserved.</p>
-        </div>
-    </div>
-</footer>   
+    </footer>
 
-    <!-- JS -->
+    <!-- SCRIPTS: Essential JavaScript files for the page to function. -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/js/auth.js"></script>
-    <script src="assets/js/contact.js"></script>
+    <script src="assets/js/auth.js"></script> <!-- Handles user login state -->
+    <script src="assets/js/contact.js"></script> <!-- Contains the logic specific to this page -->
+    <!-- Vercel Speed Insights for performance monitoring -->
+    <script src="/_vercel/speed-insights/script.js" defer></script>
 </body>
 </html>

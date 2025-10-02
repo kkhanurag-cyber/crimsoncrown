@@ -1,24 +1,42 @@
 /* ======================================================= */
-/* Crimson Crown - Professional Stylesheet v3.1          */
+/* Crimson Crown - Professional Stylesheet v4.0          */
 /* ======================================================= */
-/* This is the complete stylesheet, providing a full UI kit
-   with advanced animations, effects, and styles for a
-   premium, modern esports platform.
+/* This is the complete and final stylesheet, providing a full 
+   UI kit with an expanded color palette, advanced animations, 
+   and polished styles for a premium, modern esports platform.
 */
 
 /* --- 1. SETUP: FONT IMPORTS & ROOT VARIABLES --- */
+
+/* We import the 'Poppins' font with multiple weights for a versatile and modern look. */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
 
 :root {
-    /* Color Palette */
+    /* --- EXPANDED COLOR PALETTE --- */
+    /* Primary Brand Colors */
     --crimson-red: #DC143C;
     --midnight-black: #0A0A0A;
+    /* Deepest black for primary backgrounds */
+
+    /* Neutral Grays for UI Elements */
+    --charcoal-dark: #121212;
+    /* Slightly lighter than black for secondary backgrounds */
     --steel-grey: #1E1E1E;
-    --darker-grey: #161616;
+    /* Lighter charcoal for cards and surfaces */
     --border-color: #30363D;
+    /* Subtle border for components */
+
+    /* Text Colors for Readability */
     --text-primary: #E6EDF3;
+    /* Off-white for main text */
     --text-secondary: #8B949E;
-    --royal-gold: #FFD700;
+    /* Muted gray for subtitles and less important text */
+
+    /* Accent Colors for Highlights & Interactivity */
+    --accent-gold: #FFD700;
+    /* For victory, 1st place, and premium highlights */
+    --accent-cyan: #00BFFF;
+    /* Electric blue/cyan for hover effects and secondary actions */
 
     /* Typography */
     --font-primary: 'Poppins', sans-serif;
@@ -31,6 +49,7 @@
     --transition-speed-slow: 0.8s;
     --shadow-glow: 0 0 20px rgba(220, 20, 60, 0.3);
     --shadow-glow-hover: 0 0 30px rgba(220, 20, 60, 0.5);
+    --shadow-glow-cyan: 0 0 20px rgba(0, 191, 255, 0.3);
 
     /* Bootstrap Overrides */
     --bs-body-bg: var(--midnight-black);
@@ -38,9 +57,11 @@
     --bs-border-color: var(--border-color);
     --bs-body-font-family: var(--font-primary);
     --bs-dark-rgb: 22, 22, 22;
+    /* For Bootstrap's dark components */
 }
 
 /* --- 2. ANIMATIONS & KEYFRAMES --- */
+
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -77,21 +98,23 @@
     }
 }
 
-@keyframes subtlePulse {
+/* Keyframe for a subtle background gradient animation to add atmosphere */
+@keyframes animated-gradient-bg {
     0% {
-        box-shadow: 0 0 0 0 rgba(220, 20, 60, 0.4);
+        background-position: 0% 50%;
     }
 
-    70% {
-        box-shadow: 0 0 0 10px rgba(220, 20, 60, 0);
+    50% {
+        background-position: 100% 50%;
     }
 
     100% {
-        box-shadow: 0 0 0 0 rgba(220, 20, 60, 0);
+        background-position: 0% 50%;
     }
 }
 
 /* --- 3. GLOBAL RESETS & BODY STYLES --- */
+
 *,
 *::before,
 *::after {
@@ -106,6 +129,10 @@ body {
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Subtle animated gradient background for a more dynamic feel */
+    background: linear-gradient(135deg, var(--midnight-black) 0%, var(--charcoal-dark) 50%, var(--midnight-black) 100%);
+    background-size: 200% 200%;
+    animation: animated-gradient-bg 25s ease infinite;
 }
 
 main {
@@ -200,7 +227,7 @@ main {
 .btn-brand:hover {
     color: #fff;
     transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 7px 25px rgba(220, 20, 60, 0.4);
+    box-shadow: var(--shadow-glow-hover);
 }
 
 .btn-brand::before {
@@ -218,6 +245,17 @@ main {
     left: 100%;
 }
 
+.btn-outline-accent {
+    border-color: var(--accent-cyan);
+    color: var(--accent-cyan);
+}
+
+.btn-outline-accent:hover {
+    background-color: var(--accent-cyan);
+    color: var(--text-primary);
+    box-shadow: 0 0 20px rgba(0, 191, 255, 0.4);
+}
+
 /* Cards with Advanced Effects */
 .custom-card {
     background-color: var(--steel-grey);
@@ -230,11 +268,10 @@ main {
 
 .custom-card:hover {
     transform: translateY(-5px);
-    border-color: var(--crimson-red);
-    box-shadow: var(--shadow-glow-hover);
+    border-color: var(--accent-cyan);
+    box-shadow: var(--shadow-glow-cyan);
 }
 
-/* Shine/Glare effect on hover */
 .custom-card::after {
     content: '';
     position: absolute;
@@ -251,7 +288,7 @@ main {
     transform: translateX(100%);
 }
 
-/* Forms with better focus */
+/* Forms with better focus effect */
 .form-control,
 .form-select {
     background-color: var(--midnight-black);
@@ -263,9 +300,9 @@ main {
 .form-control:focus,
 .form-select:focus {
     background-color: var(--midnight-black);
-    border-color: var(--crimson-red);
+    border-color: var(--accent-cyan);
     color: var(--text-primary);
-    box-shadow: 0 0 0 4px rgba(220, 20, 60, 0.25), 0 0 15px rgba(220, 20, 60, 0.2);
+    box-shadow: 0 0 0 4px rgba(0, 191, 255, 0.25), 0 0 15px rgba(0, 191, 255, 0.2);
 }
 
 .form-signin {
@@ -274,12 +311,12 @@ main {
 
 /* --- 5. ANIMATED UTILITY CLASSES --- */
 .animated-gradient-text {
-    background: linear-gradient(90deg, var(--crimson-red), var(--text-primary), var(--crimson-red));
-    background-size: 200% auto;
+    background: linear-gradient(90deg, var(--crimson-red), var(--text-primary), var(--accent-cyan), var(--crimson-red));
+    background-size: 300% auto;
     color: transparent;
     -webkit-background-clip: text;
     background-clip: text;
-    animation: backgroundPan 5s linear infinite;
+    animation: backgroundPan 8s linear infinite;
 }
 
 /* --- 6. PAGE-SPECIFIC STYLES --- */
@@ -324,12 +361,10 @@ main {
     z-index: 1;
 }
 
-/* UPDATED LINE START: Replace the old footer styles with this new section. */
-
 /* --- 7. FOOTER --- */
 .site-footer {
     background-color: var(--darker-grey);
-    padding: 4rem 0 2rem 0; /* Increased top padding */
+    padding: 4rem 0 2rem 0;
     border-top: 2px solid var(--border-color);
     margin-top: auto;
 }
@@ -346,7 +381,7 @@ main {
     font-weight: 600;
     margin-bottom: 1.5rem;
     position: relative;
-    display: inline-block; /* Allows underline to fit content */
+    display: inline-block;
 }
 
 .footer-heading::after {
@@ -366,14 +401,17 @@ main {
     font-weight: 700;
     margin-bottom: 1rem;
 }
+
 .footer-logo img {
     height: 40px;
     margin-right: 12px;
 }
+
 .footer-logo span {
     color: var(--text-primary);
     transition: color var(--transition-speed-fast) ease;
 }
+
 .footer-logo:hover span {
     color: var(--crimson-red);
 }
@@ -393,10 +431,11 @@ main {
     color: var(--text-secondary);
     text-decoration: none;
     padding: 0.5rem 0;
-    display: inline-block; /* Allows for better hover effect */
+    display: inline-block;
     position: relative;
     transition: color var(--transition-speed-fast) ease, transform var(--transition-speed-fast) ease;
 }
+
 .footer-links ul li a::after {
     content: '';
     position: absolute;
@@ -407,14 +446,15 @@ main {
     background-color: var(--crimson-red);
     transition: width var(--transition-speed-med) ease;
 }
+
 .footer-links ul li a:hover {
     color: var(--crimson-red);
     transform: translateX(5px);
 }
+
 .footer-links ul li a:hover::after {
     width: 100%;
 }
-
 
 .footer-social a {
     color: var(--text-secondary);
@@ -423,6 +463,7 @@ main {
     transition: color 0.2s ease, transform 0.2s ease;
     display: inline-block;
 }
+
 .footer-social a:hover {
     color: var(--crimson-red);
     transform: translateY(-4px) scale(1.1);
@@ -435,7 +476,7 @@ main {
     color: var(--text-secondary);
     font-size: 0.9rem;
 }
-/* UPDATED LINE END */
+
 /* --- 8. TOURNAMENT & CLAN CARDS (3D TILT EFFECT) --- */
 .col {
     perspective: 1000px;
@@ -478,15 +519,16 @@ main {
     background-position: center;
     position: relative;
     flex-shrink: 0;
+    border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
 }
 
 .clan-banner {
     height: 150px;
     width: 100%;
-    object-fit: contain;
+    object-fit: cover;
     background-color: var(--midnight-black);
-    padding: 1rem;
     flex-shrink: 0;
+    border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
 }
 
 .card-status {
@@ -559,7 +601,7 @@ main {
 }
 
 .page-section.bg-darker {
-    background-color: #0D1117;
+    background-color: var(--charcoal-dark);
 }
 
 .section-heading {
@@ -599,16 +641,16 @@ main {
 
 .leaderboard-table tbody tr {
     background-color: var(--steel-grey);
-    border: 1px solid transparent;
+    border: 1px solid var(--border-color);
     border-left-width: 4px;
     border-radius: var(--border-radius-md);
-    transition: transform 0.2s ease, background-color 0.2s ease;
+    transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .leaderboard-table tbody tr:hover {
     transform: scale(1.02);
     background-color: #2a2e33;
-    border-color: var(--crimson-red);
+    border-color: var(--accent-cyan);
 }
 
 .leaderboard-table tbody td {
@@ -617,7 +659,7 @@ main {
 }
 
 .leaderboard-table .rank-1 {
-    border-left-color: #FFD700;
+    border-left-color: var(--accent-gold);
 }
 
 .leaderboard-table .rank-2 {
@@ -635,7 +677,7 @@ main {
 }
 
 .rank-1 .rank-value {
-    color: #FFD700;
+    color: var(--accent-gold);
 }
 
 .rank-2 .rank-value {
@@ -684,6 +726,7 @@ main {
     border: 4px solid var(--border-color);
     margin-bottom: 1.5rem;
     background-color: rgba(10, 10, 10, 0.7);
+    object-fit: cover;
 }
 
 .clan-hero .clan-name {
@@ -712,8 +755,6 @@ main {
     margin-right: 0.5rem;
 }
 
-/* UPDATED LINE START: Add this new CSS block to the end of your stylesheet. */
-
 /* --- 12. PARTNERS SECTION --- */
 .partner-logo {
     display: block;
@@ -724,7 +765,7 @@ main {
 }
 
 .partner-logo img {
-    filter: grayscale(100%) brightness(0.8); /* Start grayscale and slightly dimmed */
+    filter: grayscale(100%) brightness(0.8);
     transition: all var(--transition-speed-med) ease;
 }
 
@@ -735,6 +776,5 @@ main {
 }
 
 .partner-logo:hover img {
-    filter: grayscale(0%) brightness(1); /* Full color and brightness on hover */
+    filter: grayscale(0%) brightness(1);
 }
-/* UPDATED LINE END */

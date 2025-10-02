@@ -1,29 +1,35 @@
 /*
 =================================================
-Crimson Crown - User Profile Page Script (v2.0 - Vercel)
+Crimson Crown - User Profile Page Script (v2.1 - Final)
 =================================================
-This script handles:
-1. Checking if the user is logged in.
-2. Fetching the user's complete profile data from the backend router.
-3. Populating the page with their avatar, username, clan status, and stats.
-4. Handling loading and error states.
+This script handles the logic for the user's personal profile page. It:
+1. Checks if the user is logged in. If not, it redirects them to the homepage.
+2. Fetches the user's complete profile data from the backend API router. This data includes
+   clan affiliation, tournament history, and leaderboard rank.
+3. Populates all the page elements with the fetched data (avatar, username, stats).
+4. Intelligently displays either the user's clan information or a prompt to join/create a clan.
+5. Handles loading and error states to provide a smooth user experience.
 */
 
+// The main function runs as soon as the basic HTML document structure has been loaded.
 document.addEventListener('DOMContentLoaded', async () => {
+    // Get references to the key HTML elements that this script will interact with.
     const loader = document.getElementById('loader');
     const content = document.getElementById('profile-content');
+    // Get the user's login token from local storage to check if they are logged in.
     const token = localStorage.getItem('jwt_token');
 
     // If the user is not logged in, they cannot view a profile.
-    // Redirect them to the homepage where they will see the login button.
+    // Redirect them to the homepage where the auth.js script will show them the login button.
     if (!token) {
         window.location.href = '/';
-        return;
+        return; // Stop the rest of the script from running.
     }
 
     try {
-        // Fetch the user's complete profile data from our secure API router.
-        // The backend function will use the JWT to identify the user and gather all necessary data.
+        // --- FETCH PROFILE DATA ---
+        // Send a GET request to our single API router, specifying the 'getUserProfile' action.
+        // The user's JWT is sent in the Authorization header to securely identify them to the backend.
         const response = await fetch('/api/router?action=getUserProfile', {
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -31,22 +37,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
         if (!response.ok) {
+            // If the server responds with an error (e.g., 500 or 404), throw an error.
             throw new Error('Failed to fetch your profile data from the server.');
         }
 
+        // Parse the JSON response from the server into a JavaScript object.
         const profile = await response.json();
 
-        // --- Populate the page with the fetched profile data ---
+        // --- POPULATE THE PAGE WITH FETCHED DATA ---
 
-        // 1. Populate the main profile header.
+        // 1. Populate the main profile header section.
         document.getElementById('profile-avatar').src = profile.avatar;
         document.getElementById('profile-username').textContent = profile.username;
         
-        // 2. Populate the statistics cards.
+        // 2. Populate the statistics cards with the data calculated by the backend.
         document.getElementById('tournaments-played').textContent = profile.tournamentsPlayed;
         document.getElementById('leaderboard-position').textContent = profile.leaderboardPosition;
         
-        // 3. Populate the clan information section.
+        // 3. Populate the clan information section based on whether the user is in a clan.
         const clanInfoContainer = document.getElementById('profile-clan-info');
         if (profile.clan) {
             // If the user is in a clan, display the clan's logo and name.
@@ -57,7 +65,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </div>
             `;
         } else {
-            // If the user is not in a clan, display a message with action buttons.
+            // If the user is not in a clan, display a helpful message with action buttons.
              clanInfoContainer.innerHTML = `
                 <p class="text-secondary mb-3">You are not currently in a clan.</p>
                 <div>
@@ -72,8 +80,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         content.classList.remove('d-none');
 
     } catch (error) {
+        // This block runs if any part of the `try` block fails.
         console.error("Error loading profile:", error);
-        // If an error occurs, show an error message in place of the loader.
+        // Display a user-friendly error message in place of the loader.
         loader.innerHTML = '<p class="text-danger text-center">Could not load your profile. Please try logging in again.</p>';
     }
 });

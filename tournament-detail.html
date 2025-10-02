@@ -1,21 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Standard meta tags for character set and viewport responsiveness -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tournament Details — Crimson Crown</title>
+    
     <!-- CSS Links -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="assets/css/crimson-styles.css">
-    <script src="/_vercel/speed-insights/script.js" defer></script>
+    
     <style>
+        /* This inline style block defines the look of the banner at the top of the page. */
         .detail-banner {
             height: 40vh;
             background-size: cover;
             background-position: center;
             position: relative;
         }
+        /* This defines the style for the individual content cards on this page. */
         .detail-card {
             background-color: var(--steel-grey);
             border-radius: var(--border-radius-lg);
@@ -26,7 +30,7 @@
 </head>
 <body>
 
-    <!-- NAVBAR -->
+    <!-- NAVBAR: This is the standard navigation bar, consistent across all pages. -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <div class="container">
             <a class="navbar-brand" href="index.html"><img src="assets/images/logo.png" alt="Crimson Crown Logo" style="height: 45px;"></a>
@@ -40,25 +44,28 @@
                     <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
                     <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
                 </ul>
+                <!-- The user login/profile dropdown is dynamically inserted here by auth.js -->
                 <div id="user-auth-container" class="ms-lg-3 mt-3 mt-lg-0"></div>
             </div>
         </div>
     </nav>
 
+    <!-- The `main-content` wrapper is used for a fade-in effect once the data is loaded. -->
     <main id="main-content" style="opacity:0; transition: opacity 0.5s;">
-        <!-- Banner will be loaded here -->
+        <!-- This section will be dynamically filled with the tournament's banner image. -->
         <section id="detail-banner-container" class="detail-banner"></section>
         
         <div class="container py-5">
-            <!-- Loader -->
+            <!-- Loader: Shown while the tournament's details are being fetched from the backend. -->
             <div id="loader" class="text-center py-5">
                 <div class="spinner-border text-danger" style="width: 3rem; height: 3rem;" role="status"></div>
                 <p class="text-secondary mt-2">Loading Tournament Details...</p>
             </div>
 
-            <!-- Content will be loaded here -->
+            <!-- This is the main content container, hidden by default until the data is loaded. -->
             <div id="tournament-content" class="d-none">
                 <div class="row g-4">
+                    <!-- Left Column: Contains the main details like description and rules. -->
                     <div class="col-lg-8">
                         <div class="detail-card">
                             <h1 id="tourney-name" class="animated-gradient-text mb-3"></h1>
@@ -72,7 +79,17 @@
                             <h3><i class="fas fa-star text-danger me-2"></i>Point System</h3>
                             <p id="tourney-points" class="text-secondary" style="white-space: pre-wrap;"></p>
                         </div>
+                        
+                        <!-- NEW FEATURE: REGISTERED TEAMS SECTION -->
+                        <div class="detail-card">
+                            <h3><i class="fas fa-users text-danger me-2"></i>Registered Teams</h3>
+                            <div id="registered-teams-list">
+                                <!-- The list of registered teams will be injected here by JavaScript -->
+                            </div>
+                        </div>
+                        
                     </div>
+                    <!-- Right Column: Contains summary info and the registration button. -->
                     <div class="col-lg-4">
                         <div class="detail-card position-sticky" style="top: 100px;">
                             <a id="register-button" href="#" class="btn btn-brand w-100 mb-3 fs-5">Register Now</a>
@@ -97,44 +114,47 @@
         </div>
     </main>
     
-<!-- FOOTER -->
-<footer class="site-footer">
-    <div class="container">
-        <div class="footer-content">
-            <div class="footer-about">
-                <a href="index.html" class="footer-logo text-decoration-none mb-3">
-                    <img src="assets/images/logo.png" alt="Crimson Crown Logo">
-                    <span>CRIMSON CROWN</span>
-                </a>
-                <p>Building the future of competitive gaming in South Asia.</p>
-            </div>
-            <div class="footer-links">
-                <h5 class="footer-heading">Quick Links</h5>
-                <ul>
-                    <li><a href="about.html">About Us</a></li>
-                    <li><a href="tournaments.html">Tournaments</a></li>
-                    <li><a href="leaderboard.html">Leaderboard</a></li>
-                    <li><a href="contact.html">Contact</a></li>
-                </ul>
-            </div>
-            <div class="footer-connect">
-                <h5 class="footer-heading">Connect With Us</h5>
-                <div class="footer-social">
-                    <a href="#" data-social-link="youtube" title="YouTube"><i class="fab fa-youtube"></i></a>
-                    <a href="#" data-social-link="instagram" title="Instagram"><i class="fab fa-instagram"></i></a>
-                    <a href="#" data-social-link="twitter" title="X (formerly Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
-                    <a href="#" data-social-link="discord" target="_blank" title="Discord"><i class="fab fa-discord"></i></a>
+    <!-- FOOTER: The standard site footer. -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-about">
+                    <a href="index.html" class="footer-logo text-decoration-none mb-3">
+                        <img src="assets/images/logo.png" alt="Crimson Crown Logo">
+                        <span>CRIMSON CROWN</span>
+                    </a>
+                    <p>Building the future of competitive gaming in South Asia.</p>
+                </div>
+                <div class="footer-links">
+                    <h5 class="footer-heading">Quick Links</h5>
+                    <ul>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="tournaments.html">Tournaments</a></li>
+                        <li><a href="leaderboard.html">Leaderboard</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-connect">
+                    <h5 class="footer-heading">Connect With Us</h5>
+                    <div class="footer-social">
+                        <a href="#" data-social-link="youtube" title="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="#" data-social-link="instagram" title="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" data-social-link="twitter" title="X (formerly Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
+                        <a href="#" data-social-link="discord" target="_blank" title="Discord"><i class="fab fa-discord"></i></a>
+                    </div>
                 </div>
             </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Crimson Crown Esports. All rights reserved.</p>
+            </div>
         </div>
-        <div class="footer-bottom">
-            <p>&copy; 2025 Crimson Crown Esports. All rights reserved.</p>
-        </div>
-    </div>
-</footer>
+    </footer>
 
+    <!-- SCRIPTS: Essential JavaScript files for the page to function. -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/js/auth.js"></script>
-    <script src="assets/js/tournament-detail.js"></script>
+    <script src="assets/js/auth.js"></script> <!-- Handles user login state -->
+    <script src="assets/js/tournament-detail.js"></script> <!-- Contains the logic specific to this page -->
+    <!-- Vercel Speed Insights for performance monitoring -->
+    <script src="/_vercel/speed-insights/script.js" defer></script>
 </body>
 </html>
