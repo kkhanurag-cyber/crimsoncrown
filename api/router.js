@@ -1,9 +1,14 @@
+// This is the main "reception desk" for our entire API. It consolidates all backend logic
+// into a single serverless function to comply with Vercel's free tier limits.
+// It uses a query parameter `action` to decide which block of code to run.
+
+// Import all necessary libraries for the various functions.
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const fetch = require('node-fetch');
 
-// All environment variables for all functions are loaded here.
+// All environment variables for all functions are loaded once at the top.
 const { 
     SPREADSHEET_ID, GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_PRIVATE_KEY, JWT_SECRET, 
     MAIL_USER, MAIL_PASS, WEBHOOK_SECRET,
@@ -11,9 +16,13 @@ const {
 } = process.env;
 
 // This is the main handler for all API requests, using Vercel's standard syntax.
+// `req` contains the incoming request details (query, body, headers).
+// `res` is used to send a response back to the client.
 module.exports = async (req, res) => {
-    // For Vercel, we get parameters, body, and headers from the `req` object.
+    // We get the specific task to perform from the 'action' query parameter.
+    // e.g., /api/router?action=getTournaments
     const { action } = req.query;
+    // We get the body (for POST requests) and headers from the request object.
     const { body, headers } = req;
 
     // Vercel provides a `VERCEL_URL` environment variable for the deployment's URL.
@@ -22,19 +31,25 @@ module.exports = async (req, res) => {
 
     try {
         // --- AUTHENTICATION ACTIONS (Handled Separately) ---
+        // These two actions are special because they involve redirects and don't always need a DB connection right away.
+        // They are handled outside the main switch to keep the logic clean.
         if (action === 'discord-auth-start') {
+            // This is the first step of the login process.
+            // It constructs the Discord authorization URL and redirects the user's browser to it.
             const redirectURI = `${baseUrl}/api/router?action=discord-auth-callback`;
-            const state = req.query.redirect || '/';
+            const state = req.query.redirect || '/'; // Where to send the user back to after login.
             const scope = ['identify', 'guilds.join'].join(' ');
             const authUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectURI)}&response_type=code&scope=${scope}&state=${encodeURIComponent(state)}`;
             return res.redirect(302, authUrl);
         }
 
         if (action === 'discord-auth-callback') {
+            // This is the second step, where Discord sends the user back to our site after they authorize.
             const { code, state } = req.query;
             const finalRedirect = state || '/';
             const redirectURI = `${baseUrl}/api/router?action=discord-auth-callback`;
 
+            // Exchange the temporary 'code' from Discord for a permanent 'access_token'.
             const tokenResponse = await fetch('https://discord.com/api/oauth2/token', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -44,9 +59,11 @@ module.exports = async (req, res) => {
             const accessToken = tokenData.access_token;
             if (!accessToken) throw new Error("Could not retrieve access token from Discord.");
 
+            // Use the access_token to get the authenticated user's details from Discord.
             const userResponse = await fetch('https://discord.com/api/users/@me', { headers: { Authorization: `Bearer ${accessToken}` } });
             const discordUser = await userResponse.json();
             
+            // (Optional) Automatically add the user to your Discord server using the bot token.
             if (DISCORD_SERVER_ID && DISCORD_BOT_TOKEN) {
                 await fetch(`https://discord.com/api/guilds/${DISCORD_SERVER_ID}/members/${discordUser.id}`, {
                     method: 'PUT',
@@ -55,6 +72,7 @@ module.exports = async (req, res) => {
                 });
             }
             
+            // Connect to the Google Sheet to save or update the user's information.
             const doc = new GoogleSpreadsheet(SPREADSHEET_ID);
             await doc.useServiceAccountAuth({ client_email: GOOGLE_SERVICE_ACCOUNT_EMAIL, private_key: GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n') });
             await doc.loadInfo();
@@ -64,15 +82,26 @@ module.exports = async (req, res) => {
             const avatarUrl = `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png`;
 
             if (userRow) {
+                // If the user already exists in our sheet, update their username and avatar.
                 userRow.username = discordUser.username;
                 userRow.avatar = avatarUrl;
                 await userRow.save();
             } else {
+                // If it's a new user, add a new row for them with default empty roles.
                 userRow = await sheet.addRow({ userId: discordUser.id, username: discordUser.username, avatar: avatarUrl, clanId: '', clanRole: '', siteRole: '' });
             }
             
-            const siteToken = jwt.sign({ userId: userRow.userId, username: userRow.username, avatar: userRow.avatar, clanId: userRow.clanId, clanRole: userRow.clanRole, siteRole: userRow.siteRole || null }, JWT_SECRET, { expiresIn: '30d' });
+            // Create a secure JWT for our website's session. This token contains the user's roles.
+            const siteToken = jwt.sign({ 
+                userId: userRow.userId, 
+                username: userRow.username, 
+                avatar: userRow.avatar, 
+                clanId: userRow.clanId, 
+                clanRole: userRow.clanRole, 
+                siteRole: userRow.siteRole || null 
+            }, JWT_SECRET, { expiresIn: '30d' });
 
+            // Redirect the user back to the frontend, passing the new session token in the URL.
             return res.redirect(302, `${baseUrl}/?token=${siteToken}&redirect=${encodeURIComponent(finalRedirect)}`);
         }
 
@@ -86,7 +115,7 @@ module.exports = async (req, res) => {
         // The main switch statement routes the request to the correct logic.
         switch (action) {
 
-            // --- PUBLIC GET ACTIONS ---
+            // --- PUBLIC GET ACTIONS (No login required) ---
             case 'getTournaments': {
                 await doc.loadInfo();
                 const sheet = doc.sheetsByTitle['tournaments'];
@@ -153,13 +182,14 @@ module.exports = async (req, res) => {
                  return res.status(200).json({ message: 'Message sent' });
             }
 
-            // --- USER-AUTHENTICATED ACTIONS ---
+            // --- USER-AUTHENTICATED ACTIONS (Login required) ---
             case 'getUser':
             case 'getUserProfile':
             case 'createClan':
             case 'createClanRequest':
             case 'registerForTournament':
-            case 'manageClanRequest': {
+            case 'manageClanRequest': 
+            case 'leaveClan': {
                 let userPayload;
                 try {
                     const token = headers.authorization.split(' ')[1];
@@ -213,7 +243,8 @@ module.exports = async (req, res) => {
                         user.clanRole = 'leader';
                         await user.save();
                     }
-                    return res.status(200).json({ message: 'Clan created successfully' });
+                    const newToken = jwt.sign({ userId: user.userId, username: user.username, avatar: user.avatar, clanId: user.clanId, clanRole: user.clanRole, siteRole: user.siteRole }, JWT_SECRET, { expiresIn: '30d' });
+                    return res.status(200).json({ message: 'Clan created successfully', token: newToken });
                 }
 
                 if (action === 'createClanRequest') {
@@ -267,6 +298,26 @@ module.exports = async (req, res) => {
                      await request.save();
                      return res.status(200).json({ message: 'Request processed' });
                 }
+
+                if (action === 'leaveClan') {
+                    if (!user) return res.status(404).json({ error: 'User not found.' });
+                    if (!user.clanId) return res.status(400).json({ error: 'You are not in a clan.' });
+                    const clanId = user.clanId;
+                    user.clanId = '';
+                    user.clanRole = '';
+                    await user.save();
+                    const clansSheet = doc.sheetsByTitle['clans'];
+                    const clanRows = await clansSheet.getRows();
+                    const clan = clanRows.find(c => c.clanId === clanId);
+                    if (clan) {
+                        const roster = clan.roster ? clan.roster.split(',').map(name => name.trim()) : [];
+                        const newRoster = roster.filter(name => name.toLowerCase() !== user.username.toLowerCase());
+                        clan.roster = newRoster.join(', ');
+                        await clan.save();
+                    }
+                    const newToken = jwt.sign({ userId: user.userId, username: user.username, avatar: user.avatar, clanId: null, clanRole: null, siteRole: user.siteRole }, JWT_SECRET, { expiresIn: '30d' });
+                    return res.status(200).json({ message: 'You have left the clan.', token: newToken });
+                }
                 
                 return res.status(501).json({ error: 'Action not implemented.' });
             }
@@ -283,7 +334,7 @@ module.exports = async (req, res) => {
                 }
 
                 await doc.loadInfo();
-                const requestBody = body; // Body is already parsed by Vercel
+                const requestBody = body;
 
                 switch(action) {
                     case 'addTournament': {

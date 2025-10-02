@@ -1,11 +1,11 @@
 /*
 =================================================
-Crimson Crown - Clan Detail Page Script (v2.0 - Vercel)
+Crimson Crown - Clan Detail Page Script (v2.1 - Final)
 =================================================
 This script handles the logic for viewing a single clan's public profile. It:
 1. Gets the clan ID from the URL.
-2. Fetches the detailed data for that specific clan.
-3. Populates the page with the clan's logo, name, captain, and roster.
+2. Fetches the detailed data for that specific clan from the API router.
+3. Populates the page with the clan's logo, name, captain, and roster using the new professional layout.
 4. Intelligently displays a "Join" button, "Login to Join," or a status message based on the user's login and clan status.
 5. Handles the "Request to Join" button click.
 */
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-        // Fetch the detailed data for this specific clan.
+        // Fetch the detailed data for this specific clan from the API router.
         const response = await fetch(`/api/router?action=getClanDetail&id=${clanId}`);
         if (!response.ok) {
             throw new Error('Could not find the specified clan. It may have been deleted or the link is incorrect.');
@@ -37,30 +37,53 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.title = `${clan.clanName} - Crimson Crown`;
         document.getElementById('clan-logo').src = clan.clanLogo;
         document.getElementById('clan-name').textContent = `[${clan.clanTag}] ${clan.clanName}`;
-        document.getElementById('clan-captain').innerHTML = `<span><i class="fas fa-crown"></i> Captain: <strong>${clan.captainName}</strong></span>`;
+        
+        // Populate all instances of the clan name
+        document.querySelectorAll('.clan-name-span').forEach(span => span.textContent = clan.clanName);
+        
+        // Populate the leadership section
+        const leadershipList = document.getElementById('clan-leadership-list');
+        leadershipList.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="fas fa-crown text-danger me-3"></i>
+                <div>
+                    <h5 class="mb-0">${clan.captainName}</h5>
+                    <small class="text-secondary">Clan Captain</small>
+                </div>
+            </div>
+        `;
 
-        // Populate the roster list.
+        // Populate the roster list
         const rosterList = document.getElementById('roster-list');
+        const memberCountEl = document.getElementById('member-count');
         if (clan.roster && clan.roster.length > 0) {
+            memberCountEl.textContent = clan.roster.length;
+            rosterList.innerHTML = ''; // Clear any placeholders
             clan.roster.forEach(member => {
-                rosterList.innerHTML += `<li class="list-group-item bg-transparent text-light">${member}</li>`;
+                const isCaptain = member.toLowerCase() === clan.captainName.toLowerCase();
+                rosterList.innerHTML += `
+                    <li class="list-group-item bg-transparent text-light d-flex justify-content-between align-items-center ps-0">
+                        ${member}
+                        ${isCaptain ? '<span class="badge bg-danger">Captain</span>' : ''}
+                    </li>`;
             });
         } else {
-            rosterList.innerHTML = `<li class="list-group-item bg-transparent text-secondary text-center">This clan's roster is not public.</li>`;
+            memberCountEl.textContent = '1'; // Captain is always a member
+             rosterList.innerHTML = `<li class="list-group-item bg-transparent text-light">${clan.captainName} <span class="badge bg-danger">Captain</span></li>`;
         }
 
-        // --- Handle the "Join Clan" button logic ---
+        // --- Handle the "Request to Join" button logic ---
         const joinButtonContainer = document.getElementById('join-button-container');
         if (token) {
             // User is logged in. Check their status.
             const user = JSON.parse(atob(token.split('.')[1]));
             if (user.clanId) {
                 if (user.clanId === clanId) {
-                    // User is already a member of this clan.
-                    joinButtonContainer.innerHTML = `<button class="btn btn-success disabled">You are in this clan</button>`;
+                    // User is already a member of this clan. Link them to their clan dashboard.
+                    joinButtonContainer.innerHTML = `<a href="my-clan.html" class="btn btn-success">You are in this clan</a>`;
                 } else {
                     // User is in a different clan.
-                    joinButtonContainer.innerHTML = `<button class="btn btn-secondary disabled">You are already in another clan</button>`;
+                    joinButtonContainer.innerHTML = `<button class="btn btn-secondary disabled">You are in another clan</button>`;
                 }
             } else {
                 // User is logged in but not in a clan, so show the join button.
@@ -70,7 +93,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else {
             // User is not logged in. Prompt them to log in to join.
             // The login link includes a redirect back to this specific clan page.
-            const loginUrl = `/api/discord-auth-start?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+            const loginUrl = `/api/router?action=discord-auth-start&redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
             joinButtonContainer.innerHTML = `<a href="${loginUrl}" class="btn btn-brand">Login to Join Clan</a>`;
         }
         

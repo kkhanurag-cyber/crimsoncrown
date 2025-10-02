@@ -8,10 +8,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="assets/css/crimson-styles.css">
-    <script src="/_vercel/speed-insights/script.js" defer></script>
 </head>
 <body>
-    <!-- NAVBAR -->
+    <!-- NAVBAR: This is the standard navigation bar that appears on every page. -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <div class="container">
             <a class="navbar-brand" href="index.html"><img src="assets/images/logo.png" alt="Crimson Crown Logo" style="height: 45px;"></a>
@@ -25,6 +24,7 @@
                     <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
                     <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
                 </ul>
+                <!-- The user login/profile dropdown is dynamically inserted here by auth.js -->
                 <div id="user-auth-container" class="ms-lg-3 mt-3 mt-lg-0"></div>
             </div>
         </div>
@@ -32,75 +32,101 @@
 
     <div class="page-content-wrapper">
         <main class="container py-5 mt-5">
+            <!-- Loader: Shown while data is being fetched from the backend. -->
             <div id="loader" class="text-center py-5">
                 <div class="spinner-border text-danger" style="width: 3rem; height: 3rem;" role="status"></div>
                 <p class="text-secondary mt-3">Loading Clan Details...</p>
             </div>
 
+            <!-- This is the main content container, hidden by default until the data is loaded. -->
             <div id="clan-content" class="d-none">
-                <!-- CLAN HERO SECTION -->
+                <!-- CLAN HERO SECTION: The main header displaying the clan's identity. -->
                 <section class="clan-hero text-center mb-5">
                     <img id="clan-logo" src="" alt="Clan Logo" class="clan-hero-logo">
                     <h1 id="clan-name" class="clan-name display-4"></h1>
-                    <div id="clan-captain" class="clan-hero-stats"></div>
+                    <div id="clan-captain" class="clan-hero-stats">
+                        <!-- Captain's name will be inserted here by JavaScript -->
+                    </div>
                     <div id="join-button-container" class="mt-4">
-                        <!-- Join button will be injected here by clan-detail.js -->
+                        <!-- The "Request to Join" or status button will be injected here by clan-detail.js -->
                     </div>
                 </section>
 
-                <!-- ROSTER -->
-                <section class="row justify-content-center">
+                <!-- This section contains the main layout with two columns. -->
+                <div class="row g-4">
+                    <!-- Left Column: Contains 'About' and 'Recent Activity' cards. -->
                     <div class="col-lg-8">
+                        <div class="custom-card p-4 mb-4">
+                            <h4>About <span class="clan-name-span"></span></h4>
+                            <p id="clan-description" class="text-secondary">This clan has not set a description yet.</p>
+                        </div>
                         <div class="custom-card p-4">
-                            <h4 class="mb-3 text-center">Clan Roster</h4>
+                            <h4>Recent Activity</h4>
+                            <div class="text-center text-secondary py-5">
+                                <i class="fas fa-history fa-2x mb-2"></i>
+                                <p>No recent tournament activity to display.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Right Column: Contains 'Leadership' and 'Members' cards. -->
+                    <div class="col-lg-4">
+                        <div class="custom-card p-4 mb-4">
+                            <h4>Leadership</h4>
+                            <div id="clan-leadership-list" class="d-flex align-items-center">
+                                <!-- Leadership info will be injected here by JavaScript -->
+                            </div>
+                        </div>
+                        <div class="custom-card p-4">
+                            <h4>Members (<span id="member-count">0</span>)</h4>
                             <ul id="roster-list" class="list-group list-group-flush">
                                 <!-- Roster members will be injected here by clan-detail.js -->
                             </ul>
                         </div>
                     </div>
-                </section>
+                </div>
             </div>
         </main>
     </div>
 
-    <!-- FOOTER -->
-<footer class="site-footer">
-    <div class="container">
-        <div class="footer-content">
-            <div class="footer-about">
-                <a href="index.html" class="footer-logo text-decoration-none mb-3">
-                    <img src="assets/images/logo.png" alt="Crimson Crown Logo">
-                    <span>CRIMSON CROWN</span>
-                </a>
-                <p>Building the future of competitive gaming in South Asia.</p>
-            </div>
-            <div class="footer-links">
-                <h5 class="footer-heading">Quick Links</h5>
-                <ul>
-                    <li><a href="about.html">About Us</a></li>
-                    <li><a href="tournaments.html">Tournaments</a></li>
-                    <li><a href="leaderboard.html">Leaderboard</a></li>
-                    <li><a href="contact.html">Contact</a></li>
-                </ul>
-            </div>
-            <div class="footer-connect">
-                <h5 class="footer-heading">Connect With Us</h5>
-                <div class="footer-social">
-                    <a href="#" data-social-link="youtube" title="YouTube"><i class="fab fa-youtube"></i></a>
-                    <a href="#" data-social-link="instagram" title="Instagram"><i class="fab fa-instagram"></i></a>
-                    <a href="#" data-social-link="twitter" title="X (formerly Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
-                    <a href="#" data-social-link="discord" target="_blank" title="Discord"><i class="fab fa-discord"></i></a>
+    <!-- FOOTER: The standard site footer. -->
+    <footer class="site-footer">
+        <div class="container">
+             <div class="footer-content">
+                <div class="footer-about">
+                    <a href="index.html" class="footer-logo text-decoration-none mb-3">
+                        <img src="assets/images/logo.png" alt="Crimson Crown Logo">
+                        <span>CRIMSON CROWN</span>
+                    </a>
+                    <p>Building the future of competitive gaming in South Asia.</p>
+                </div>
+                <div class="footer-links">
+                    <h5 class="footer-heading">Quick Links</h5>
+                    <ul>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="tournaments.html">Tournaments</a></li>
+                        <li><a href="leaderboard.html">Leaderboard</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-connect">
+                    <h5 class="footer-heading">Connect With Us</h5>
+                    <div class="footer-social">
+                        <a href="#" data-social-link="youtube" title="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="#" data-social-link="instagram" title="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" data-social-link="twitter" title="X (formerly Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
+                        <a href="#" data-social-link="discord" target="_blank" title="Discord"><i class="fab fa-discord"></i></a>
+                    </div>
                 </div>
             </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Crimson Crown Esports. All rights reserved.</p>
+            </div>
         </div>
-        <div class="footer-bottom">
-            <p>&copy; 2025 Crimson Crown Esports. All rights reserved.</p>
-        </div>
-    </div>
-</footer>
+    </footer>
     
+    <!-- SCRIPTS: Essential JavaScript files for the page to function. -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/js/auth.js"></script>
-    <script src="assets/js/clan-detail.js"></script>
+    <script src="assets/js/auth.js"></script> <!-- Handles user login state -->
+    <script src="assets/js/clan-detail.js"></script> <!-- Contains the logic specific to this page -->
 </body>
 </html>
